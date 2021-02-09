@@ -49,7 +49,7 @@ def build_parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("aoi_filepath", help="aoi filepath")
-    parser.add_argument("auxdata_dirpath", help="path to the srtm directory")
+    parser.add_argument("auxdata_dirpath", help="path to the aux data directory")
     parser.add_argument("out_dir",
                         help="output directory")
     parser.add_argument("-s2", action='store_true',
