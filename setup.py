@@ -23,17 +23,17 @@ setup(
     packages=find_packages(where='eotile'),  
     python_requires='>=3.6, <4',
 
-    install_requires=['GDAL'],
+    install_requires=['GDAL','logging'],
 
     extras_require={ 
-        'dev': ['check-manifest'],
+        'dev': ['check-manifest', 'geopandas'],
         'test': ['coverage'],
     },
 
     
     entry_points={  
         'console_scripts': [
-            'eodag=eodag_cli:main',
+            'eodag=eotile_cli:main',
         ],
     },
 )

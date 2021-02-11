@@ -16,7 +16,9 @@ from osgeo import ogr, osr
 
 # from eotile import *
 from eotile.eotile import S2Tile, EOTile, L8Tile
+import logging
 
+LOGGER = logging.getLogger(__name__)
 
 ### ------------------------------------------------------------------------- ###
 ### Tile list functions ###
@@ -63,13 +65,13 @@ def create_tiles_list_S2(filename_tiles_list, filename_aoi=None):
     dataSource_aoi = driver.Open(filename_aoi, 0)
     # Check to see if shapefile is found.
     if dataSource_aoi is None:
-        print('ERROR: Could not open {}'.format(filename_aoi))
+        LOGGER.error('ERROR: Could not open {}'.format(filename_aoi))
         return None
     
     layer_aoi = dataSource_aoi.GetLayer()
     featureCount = layer_aoi.GetFeatureCount()
     if featureCount != 1:
-        print("ERROR: Number of features in {}: {}".format(os.path.basename(filename_aoi),featureCount))
+        LOGGER.error("ERROR: Number of features in {}: {}".format(os.path.basename(filename_aoi),featureCount))
         return None
 
     # Get the first feature
@@ -107,7 +109,7 @@ def create_tiles_list_S2(filename_tiles_list, filename_aoi=None):
             tile.create_poly_tile()
             tile_list.append(tile)
     
-    print("WARNING: some of tiles are excluded due to the dateline issue {}.".format(tile_dateline))
+    LOGGER.warning("WARNING: some of tiles are excluded due to the dateline issue {}.".format(tile_dateline))
     return tile_list
 
 
@@ -119,25 +121,25 @@ def create_tiles_list_L8(filename_tiles_list, filename_aoi=None):
     dataSource_tile_list = driver.Open(filename_tiles_list, 0)
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
-        print('ERROR: Could not open {}'.format(filename_tiles_list))
+        LOGGER.error('ERROR: Could not open {}'.format(filename_tiles_list))
         return None
     
     layer_tile_list = dataSource_tile_list.GetLayer()
     featureCount = layer_tile_list.GetFeatureCount()
-    print("Number of features in {}: {}".format(os.path.basename(filename_tiles_list),featureCount))    
+    LOGGER.info("Number of features in {}: {}".format(os.path.basename(filename_tiles_list),featureCount))
     
     #Open the AOI file
     dataSource_aoi = driver.Open(filename_aoi, 0)
     # Check to see if shapefile is found.
     if dataSource_aoi is None:
-        print('ERROR: Could not open {}'.format(filename_aoi))
+        LOGGER.error('ERROR: Could not open {}'.format(filename_aoi))
         return None
 
 
     layer_aoi = dataSource_aoi.GetLayer()
     featureCount = layer_aoi.GetFeatureCount()
     if featureCount != 1:
-        print("ERROR: Number of features in {}: {}".format(os.path.basename(filename_aoi),featureCount))
+        LOGGER.error("ERROR: Number of features in {}: {}".format(os.path.basename(filename_aoi),featureCount))
         return None
 
     # Get the first feature
@@ -179,12 +181,12 @@ def read_tile_list_from_file(filename_tiles):
     dataSource_tile_list = driver.Open(filename_tiles, 0)
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
-        print('ERROR: Could not open {}'.format(filename_tiles))
+        LOGGER.error('ERROR: Could not open {}'.format(filename_tiles))
         return None
     
     layer_tile_list = dataSource_tile_list.GetLayer()
     featureCount = layer_tile_list.GetFeatureCount()
-    print("Number of features in {}: {}".format(os.path.basename(filename_tiles),featureCount))
+    LOGGER.info("Number of features in {}: {}".format(os.path.basename(filename_tiles),featureCount))
     
     tile_list = []
     for feature_tile_list in layer_tile_list:

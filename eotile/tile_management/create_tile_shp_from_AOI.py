@@ -30,7 +30,7 @@ def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, 
                    os.path.join(out_dirpath, basenameAOI_wt_ext + '_tiles_S2.shp'))
 
     #L8 tiles
-    filename_tiles_L8=os.path.join(aux_data_dirpath,'wrs2_descending','wrs2_descending.shp')
+    filename_tiles_L8=os.path.join(aux_data_dirpath, 'wrs2_descending', 'wrs2_descending.shp')
 
     tile_list_L8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
 
