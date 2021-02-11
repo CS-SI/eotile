@@ -14,7 +14,7 @@ setup(
     author='Mickaël Savinaud, Mathis A. Germa',
 
     author_email='mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu', 
-  
+    license="Copyright (c) 2021 CS Group, Tous droits réservés",
 
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
@@ -23,7 +23,7 @@ setup(
     packages=find_packages(where='eotile'),  
     python_requires='>=3.6, <4',
 
-    install_requires=['GDAL','logging'],
+    install_requires=['GDAL'],
 
     extras_require={ 
         'dev': ['check-manifest', 'geopandas'],
