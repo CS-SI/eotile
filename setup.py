@@ -1,13 +1,12 @@
 
 
 from setuptools import setup, find_packages
-import pathlib
 
 setup(
 
-    name='EOTile',  
+    name='eotile',  
     
-    version='0.0.1',  # Required
+    version='0.0.1',
 
     description='Managed Sentinel-2 and Landsat8 tile', 
 
@@ -16,11 +15,7 @@ setup(
     author_email='mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu', 
     license="Copyright (c) 2021 CS Group, Tous droits réservés",
 
-    # When your source code is in a subdirectory under the project root, e.g.
-    # `src/`, it is necessary to specify the `package_dir` argument.
-    package_dir={'': 'eotile'},  # Optional
-
-    packages=find_packages(where='eotile'),  
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires='>=3.6, <4',
 
     install_requires=['GDAL'],
@@ -33,7 +28,7 @@ setup(
     
     entry_points={  
         'console_scripts': [
-            'eodag=eotile_cli:main',
+            'eotile=eotile.eotile_cli:main',
         ],
     },
 )
