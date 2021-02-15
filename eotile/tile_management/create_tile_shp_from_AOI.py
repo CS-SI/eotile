@@ -9,10 +9,13 @@ Generate tile list according AOI
 """
 
 import argparse
+import logging
 import os
 import sys
 
 from eotile.utils.tile_list_utils import *
+
+LOGGER = logging.getLogger(__name__)
 
 
 def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, l8):
@@ -36,7 +39,7 @@ def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, 
 
     tile_list_S2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
 
-    print("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2)))
+    LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2)))
 
     write_tiles_bb(
         tile_list_S2, os.path.join(out_dirpath, basenameAOI_wt_ext + "_tiles_S2.shp")
@@ -49,7 +52,7 @@ def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, 
 
     tile_list_L8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
 
-    print("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_L8)))
+    LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_L8)))
 
     write_tiles_bb(
         tile_list_L8,

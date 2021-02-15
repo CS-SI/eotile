@@ -8,11 +8,14 @@ EO tile
 :license: see LICENSE file.
 """
 
+import logging
 import os
 import sys
 import xml.etree.ElementTree as ET
 
 from osgeo import ogr, osr
+
+LOGGER = logging.getLogger(__name__)
 
 
 class EOTile:
@@ -20,13 +23,14 @@ class EOTile:
 
     def __init__(self):
         """ Constructor """
+
         self.ID = None
         self.polyBB = None
 
     def display(self):
         """ Display the content of a tile"""
-        print(self.ID)
-        print(self.polyBB)
+        LOGGER.info(self.ID)
+        LOGGER.info(self.polyBB)
 
     def write_tile_bb(self, filename):
         """ Write the Bounding Box of a tile"""
@@ -64,7 +68,7 @@ class L8Tile(EOTile):
 
     def display(self):
         """ Display the content of a L8 tile"""
-        print("== Tile L8 ==")
+        LOGGER.info("== Tile L8 ==")
         EOTile.display(self)
 
     @classmethod
@@ -74,15 +78,17 @@ class L8Tile(EOTile):
         dataSource_tile_list = driver.Open(tile_grid_filepath, 0)
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
-            print("ERROR: Could not open {}".format(tile_grid_filepath))
+            LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
             return None
         layer_tile_list = dataSource_tile_list.GetLayer()
         layer_tile_list.SetAttributeFilter("WRSPR = {}".format(tile_id))
 
         for feature in layer_tile_list:
-            print("{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW")))
+            LOGGER.info(
+                "{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW"))
+            )
             # print(feature.GetGeometryRef().Clone())
-            print(feature.GetGeometryRef().Centroid())
+            LOGGER.info(feature.GetGeometryRef().Centroid())
 
         return cls()
 
@@ -93,14 +99,16 @@ class L8Tile(EOTile):
         dataSource_tile_list = driver.Open(tile_grid_filepath, 0)
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
-            print("ERROR: Could not open {}".format(tile_grid_filepath))
+            LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
             return None
         layer_tile_list = dataSource_tile_list.GetLayer()
 
         layer_tile_list.SetSpatialFilter(ogr.CreateGeometryFromWkt(poly_wkt))
 
         for feature in layer_tile_list:
-            print("{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW")))
+            LOGGER.info(
+                "{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW"))
+            )
 
 
 class S2Tile(EOTile):
@@ -117,14 +125,14 @@ class S2Tile(EOTile):
 
     def display(self):
         """ Display the content of tile"""
-        print("== S2 Tile ==")
+        LOGGER.info("== S2 Tile ==")
         EOTile.display(self)
-        print(self.BB)
-        print(self.UL)
-        print(self.SRS)
-        print(self.NRows)
-        print(self.NCols)
-        print(self.poly)
+        LOGGER.info(self.BB)
+        LOGGER.info(self.UL)
+        LOGGER.info(self.SRS)
+        LOGGER.info(self.NRows)
+        LOGGER.info(self.NCols)
+        LOGGER.info(self.poly)
 
     def create_poly_bb(self):
         """ Create the OGR Polygon from the list of BB corner """
@@ -206,8 +214,8 @@ class S2Tile(EOTile):
                 tile.BB = tile_bb.split(" ")
                 # Create the polygon
                 tile.create_poly_bb()
-                print(tile.polyBB)
-                print(tile.polyBB.Centroid())
+                LOGGER.info(tile.polyBB)
+                LOGGER.info(tile.polyBB.Centroid())
 
                 return tile
 
