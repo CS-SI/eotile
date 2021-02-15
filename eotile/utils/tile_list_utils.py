@@ -25,10 +25,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 def write_tiles_bb(tile_list, filename, sensor='S2'):
-    """ Write the content of a tile list
+    '''Writes the input tiles to a file
 
-    :param filename: Must be a shp file
-    """
+    :param tile_list: The list of input tiles to write
+    :type tile_list: list
+    :param filename: Path to the output file aux data (Must be a shp file)
+    :type filename: String
+    '''
     driver = ogr.GetDriverByName("ESRI Shapefile")
     data_source = driver.CreateDataSource(filename)
     if os.path.exists(filename):
@@ -56,8 +59,14 @@ def write_tiles_bb(tile_list, filename, sensor='S2'):
     data_source.Destroy()        
 
     
-def create_tiles_list_S2(filename_tiles_list, filename_aoi=None):
-    """ Create the S2 tile list according to an aoi """ 
+def create_tiles_list_S2(filename_tiles_list, filename_aoi):
+    """ Create the S2 tile list according to an aoi
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: string
+    :param filename_aoi: Path to the input AOI file (Must be a shp file)
+    :type filename_aoi: String
+    """
     #Open the tiles list file
     tree = ET.parse(filename_tiles_list)
     root = tree.getroot()
@@ -118,7 +127,13 @@ def create_tiles_list_S2(filename_tiles_list, filename_aoi=None):
 
     
 def create_tiles_list_L8(filename_tiles_list, filename_aoi=None):
-    """ Create the L8 tile list according to an aoi """     
+    """ Create the L8 tile list according to an aoi
+
+    :param filename_tiles_list: Path to the wrs2_descending folder
+    :type filename_tiles_list: string
+    :param filename_aoi: Path to the input AOI file (Must be a shp file)
+    :type filename_aoi: String
+    """
     driver = ogr.GetDriverByName("ESRI Shapefile")
     #Open the tile list file
     dataSource_tile_list = driver.Open(filename_tiles_list, 0)
@@ -163,7 +178,12 @@ def create_tiles_list_L8(filename_tiles_list, filename_aoi=None):
     return tile_list        
 
 def get_tile(tile_list, tile_id):
-    """ Get a tile from a tile list according to a tile ID  """ 
+    """ Returns a tile from a tile list from its tile ID
+    returns None if the ID corresponds to no tile within the list
+
+    :param tile_list: The list of tiles to look in
+    :param tile_id: The tile id of the tile to output
+    """
     if (len(tile_list) == 0):
         return None
     
@@ -178,7 +198,11 @@ def get_tile(tile_list, tile_id):
 
   
 def read_tile_list_from_file(filename_tiles):
-    """ Read a tile list from a file previously created"""
+    """ Returns a tile list from a file previously created
+
+    :param filename_tiles: File containing the tile list (shp file)
+    :return: A tile list
+    """
     driver = ogr.GetDriverByName("ESRI Shapefile")
     #Open the tile list file
     dataSource_tile_list = driver.Open(filename_tiles, 0)
@@ -199,4 +223,3 @@ def read_tile_list_from_file(filename_tiles):
         tile_list.append(tile)
         
     return tile_list
-    

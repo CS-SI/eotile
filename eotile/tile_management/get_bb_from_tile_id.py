@@ -15,6 +15,17 @@ import sys
 from eotile.utils.tile_list_utils import S2Tile, L8Tile
 
 def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2, is_l8):
+    '''Returns the bounding box of a tile designated by its ID.
+
+    :param tile_id: The identifier of the tile
+    :param aux_data_dirpath: Path to the input aux data
+    :param is_s2: Is he requested tile a Sentinel 2 tile
+    :type is_s2: Boolean
+    :param is_l8: Is he requested tile a Landscape 8 tile
+    :type is_l8: Boolean
+    :return: A bounding box
+    :rtype: #TODO: Precise this
+    '''
 
     
     #S2 tiles grig

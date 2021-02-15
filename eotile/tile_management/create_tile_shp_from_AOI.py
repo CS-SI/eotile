@@ -15,7 +15,16 @@ import sys
 from eotile.utils.tile_list_utils import *
 
 def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, l8):
+    '''
+    Creates Shapefiles containing tiles of each Sentinel 2 and Landscape 8 that are cointained within the AOI given
+    in input
 
+    :param aoi_filepath:   Path to the input Area Of Interest
+    :type aoi_filepath: String
+    :param aux_data_dirpath: Path to the input aux data
+    :type aux_data_dirpath: String
+    :param out_dirpath: Path to write the output files in
+    '''
     basenameAOI_wt_ext=os.path.splitext(os.path.basename(aoi_filepath))[0]
 
     #S2 tiles
@@ -62,9 +71,10 @@ def build_parser():
 def main(arguments=None):
     '''
     Command line interface to perform the creation of files which containt the S2 or L8 tiles
-    chich intersect the aoi 
+    chich intersect the aoi
 
-    :param list arguments: list of arguments
+    :param arguments: list of arguments
+    :type arguments: list
     '''
 
     arg_parser = build_parser()
