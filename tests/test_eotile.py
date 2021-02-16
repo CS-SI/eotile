@@ -8,8 +8,7 @@ import geopandas as gp
 from shapely import wkt
 
 from eotile.tile_management.create_tile_shp_from_AOI import *
-from eotile.utils.tile_list_utils import (create_tiles_list_L8,
-                                          create_tiles_list_S2)
+from eotile.utils.tile_list_utils import create_tiles_list_L8, create_tiles_list_S2
 
 
 class TestEOTile(unittest.TestCase):

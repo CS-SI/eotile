@@ -19,7 +19,7 @@ from eotile.utils.tile_list_utils import *
 LOGGER = logging.getLogger(__name__)
 
 
-def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, l8):
+def create_tiles_file_from_AOI(aoi_filepath: str, aux_data_dirpath: str, out_dirpath: str, s2, l8):
     """
     Creates Shapefiles containing tiles of each Sentinel 2 and Landscape 8 that are cointained within the AOI given
     in input

@@ -11,9 +11,9 @@ EO tile
 import logging
 import os
 import sys
+
 # import xml.etree.ElementTree as ET
 from lxml import etree as ET
-
 from osgeo import ogr, osr
 
 LOGGER = logging.getLogger(__name__)

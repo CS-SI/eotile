@@ -15,7 +15,7 @@ import sys
 from eotile.utils.tile_list_utils import *
 
 
-def get_bb_from_wkt(poly_wkt, aux_data_dirpath, is_s2, is_l8):
+def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2, is_l8):
     """Returns the bounding box of a tile from a well known text polygon. #TODO: Precise this
 
     :param poly_wkt: a WKT Polygon
