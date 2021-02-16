@@ -10,9 +10,8 @@ tile list utilities
 
 import copy
 import logging
-import os
 import xml.etree.ElementTree as ET
-
+import pathlib
 from osgeo import ogr, osr
 
 # from eotile import *
@@ -37,7 +36,7 @@ def write_tiles_bb(tile_list, filename, sensor="S2"):
     """
     driver = ogr.GetDriverByName("ESRI Shapefile")
     data_source = driver.CreateDataSource(filename)
-    if os.path.exists(filename):
+    if pathlib.Path(filename).exists():
         driver.DeleteDataSource(filename)
 
     # create the spatial reference for the bounding box, WGS84
@@ -87,7 +86,7 @@ def create_tiles_list_S2(filename_tiles_list, filename_aoi):
     if featureCount != 1:
         LOGGER.error(
             "ERROR: Number of features in {}: {}".format(
-                os.path.basename(filename_aoi), featureCount
+                pathlib.Path(filename_aoi).name, featureCount
             )
         )
         return None
@@ -156,7 +155,7 @@ def create_tiles_list_L8(filename_tiles_list, filename_aoi=None):
     featureCount = layer_tile_list.GetFeatureCount()
     LOGGER.info(
         "Number of features in {}: {}".format(
-            os.path.basename(filename_tiles_list), featureCount
+            pathlib.Path(filename_tiles_list).name, featureCount
         )
     )
 
@@ -172,7 +171,7 @@ def create_tiles_list_L8(filename_tiles_list, filename_aoi=None):
     if featureCount != 1:
         LOGGER.error(
             "ERROR: Number of features in {}: {}".format(
-                os.path.basename(filename_aoi), featureCount
+                pathlib.Path(filename_aoi).name, featureCount
             )
         )
         return None
@@ -233,7 +232,7 @@ def read_tile_list_from_file(filename_tiles):
     featureCount = layer_tile_list.GetFeatureCount()
     LOGGER.info(
         "Number of features in {}: {}".format(
-            os.path.basename(filename_tiles), featureCount
+            pathlib.Path(filename_tiles).name, featureCount
         )
     )
 

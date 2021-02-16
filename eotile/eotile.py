@@ -36,7 +36,7 @@ class EOTile:
         """ Write the Bounding Box of a tile"""
         driver = ogr.GetDriverByName("ESRI Shapefile")
         data_source = driver.CreateDataSource(filename)
-        if os.path.exists(filename):
+        if pathlib.Path(filename).exists():
             driver.DeleteDataSource(filename)
 
         # create the spatial reference for the bounding box, WGS84
@@ -174,7 +174,7 @@ class S2Tile(EOTile):
         """ Write the OGR polygon of a S2 tile"""
         driver = ogr.GetDriverByName("ESRI Shapefile")
         data_source = driver.CreateDataSource(filename)
-        if os.path.exists(filename):
+        if pathlib.Path(filename).exists():
             driver.DeleteDataSource(filename)
 
         # create the spatial reference for the tile

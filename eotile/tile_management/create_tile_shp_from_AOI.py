@@ -12,7 +12,7 @@ import argparse
 import logging
 import os
 import sys
-
+import pathlib
 from eotile.utils.tile_list_utils import *
 
 LOGGER = logging.getLogger(__name__)
@@ -23,32 +23,28 @@ def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, 
     Creates Shapefiles containing tiles of each Sentinel 2 and Landscape 8 that are cointained within the AOI given
     in input
 
-    :param aoi_filepath:   Path to the input Area Of Interest
+    :param aoi_filepath: Path to the input Area Of Interest (must be a shp)
     :type aoi_filepath: String
     :param aux_data_dirpath: Path to the input aux data
     :type aux_data_dirpath: String
     :param out_dirpath: Path to write the output files in
     """
-    basenameAOI_wt_ext = os.path.splitext(os.path.basename(aoi_filepath))[0]
+    basenameAOI_wt_ext = pathlib.Path(aoi_filepath).stem
 
     # S2 tiles
-    filename_tiles_S2 = os.path.join(
-        aux_data_dirpath,
-        "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml",
-    )
+    filename_tiles_S2 = str(pathlib.PurePath(
+        aux_data_dirpath) / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml")
 
     tile_list_S2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
 
     LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2)))
-
-    write_tiles_bb(
-        tile_list_S2, os.path.join(out_dirpath, basenameAOI_wt_ext + "_tiles_S2.shp")
-    )
+    print(str(pathlib.PurePath(out_dirpath) / (basenameAOI_wt_ext + "_tiles_S2.shp")))
+    print(basenameAOI_wt_ext)
+    write_tiles_bb(tile_list_S2, str(pathlib.PurePath(out_dirpath) / (basenameAOI_wt_ext + "_tiles_S2.shp")))
 
     # L8 tiles
-    filename_tiles_L8 = os.path.join(
-        aux_data_dirpath, "wrs2_descending", "wrs2_descending.shp"
-    )
+    filename_tiles_L8 = str(pathlib.PurePath(
+        aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp")
 
     tile_list_L8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
 
@@ -56,7 +52,7 @@ def create_tiles_file_from_AOI(aoi_filepath, aux_data_dirpath, out_dirpath, s2, 
 
     write_tiles_bb(
         tile_list_L8,
-        os.path.join(out_dirpath, basenameAOI_wt_ext + "_tiles_L8.shp"),
+        str(pathlib.PurePath(out_dirpath) / (basenameAOI_wt_ext + "_tiles_L8.shp")),
         sensor="L8",
     )
 
