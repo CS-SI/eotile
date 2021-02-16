@@ -483,5 +483,5 @@ class TestEOTile(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='test_eotile.log', level=logging.INFO)
+    logging.basicConfig(filename="test_eotile.log", level=logging.INFO)
     unittest.main()

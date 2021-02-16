@@ -10,8 +10,9 @@ tile list utilities
 
 import copy
 import logging
-import xml.etree.ElementTree as ET
 import pathlib
+import xml.etree.ElementTree as ET
+
 from osgeo import ogr, osr
 
 # from eotile import *

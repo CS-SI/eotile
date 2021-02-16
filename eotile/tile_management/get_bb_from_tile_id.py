@@ -9,8 +9,9 @@ Generate tile list according AOI
 """
 
 import argparse
-import sys
 import pathlib
+import sys
+
 from eotile.utils.tile_list_utils import L8Tile, S2Tile
 
 
@@ -28,12 +29,15 @@ def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2, is_l8):
     """
 
     # S2 tiles grig
-    filename_tiles_S2 = pathlib.PurePath(
-        aux_data_dirpath) / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+    filename_tiles_S2 = (
+        pathlib.PurePath(aux_data_dirpath)
+        / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+    )
 
     # L8 tiles grid
-    filename_tiles_L8 = pathlib.PurePath(
-        aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
+    filename_tiles_L8 = (
+        pathlib.PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
+    )
 
     if is_s2:
         tile = S2Tile.from_tile_id(tile_id, filename_tiles_S2)
