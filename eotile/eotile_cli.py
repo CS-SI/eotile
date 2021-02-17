@@ -8,5 +8,6 @@ EO tile
 :license: see LICENSE file.
 """
 
+
 def main():
-	print("Sample text")
+    print("Sample text")
