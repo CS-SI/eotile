@@ -12,9 +12,9 @@ import argparse
 import os
 import sys
 
-from tile_list_utils import *
+from eotile.utils.tile_list_utils import *
 
-def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2, is_l8):
+def get_bb_from_wkt(poly_wkt, aux_data_dirpath, is_s2, is_l8):
 
     
     #S2 tiles grig
@@ -28,9 +28,9 @@ def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2, is_l8):
                                    'wrs2_descending.shp')
 
     if is_s2:
-        tile = S2Tile.from_tile_id(tile_id, filename_tiles_S2)
+        tile = S2Tile.from_tile_id(poly_wkt, filename_tiles_S2)
     elif is_l8:
-        tile = L8Tile.from_tile_id(tile_id, filename_tiles_L8)
+        tile = L8Tile.from_poly_wkt(poly_wkt, filename_tiles_L8)
     else:
         return None
     return tile.BB
@@ -43,7 +43,7 @@ def build_parser():
     '''
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("tile_id", help="tile_id")
+    parser.add_argument("poly_wkt", help="poly_wkt")
     parser.add_argument("auxdata_dirpath", help="path to aux data directory")
 
     parser.add_argument("-s2", action='store_true',
@@ -64,7 +64,7 @@ def main(arguments=None):
 
     args = arg_parser.parse_args(args=arguments)
    
-    tile_bbox = get_bb_from_tile_id(args.tile_id,
+    get_bb_from_wkt(args.poly_wkt,
                                     args.auxdata_dirpath,
                                     args.s2,
                                     args.l8)
