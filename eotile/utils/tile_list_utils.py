@@ -25,7 +25,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 def write_tiles_bb(tile_list, filename, sensor='S2'):
-    """ Write the content of a tile list """
+    """ Write the content of a tile list
+
+    :param filename: Must be a shp file
+    """
     driver = ogr.GetDriverByName("ESRI Shapefile")
     data_source = driver.CreateDataSource(filename)
     if os.path.exists(filename):
