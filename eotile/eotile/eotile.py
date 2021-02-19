@@ -9,10 +9,8 @@ EO tile
 """
 
 import logging
-import os
-import sys
+import pathlib
 
-# import xml.etree.ElementTree as ET
 from lxml import etree as ET
 from osgeo import ogr, osr
 

@@ -8,23 +8,22 @@ tile list utilities
 :license: see LICENSE file.
 """
 
-import copy
 import logging
 import pathlib
 from lxml import etree as ET
 
 from osgeo import ogr, osr
 
-from eotile.eotile import EOTile, L8Tile, S2Tile
+from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 
 # mypy imports
-import eotile.eotile.EOTile
+from eotile.eotile import eotile
 from typing import List, Optional, Union
 
 LOGGER = logging.getLogger(__name__)
 
 
-def write_tiles_bb(tile_list: Union[List[eotile.eotile.S2Tile],List[eotile.eotile.L8Tile]], filename: str, sensor="S2"):
+def write_tiles_bb(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile]], filename: str, sensor="S2"):
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
@@ -58,7 +57,7 @@ def write_tiles_bb(tile_list: Union[List[eotile.eotile.S2Tile],List[eotile.eotil
     data_source.Destroy()
 
 
-def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.S2Tile]]:
+def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.eotile.S2Tile]]:
     """Create the S2 tile list according to an aoi
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -133,7 +132,7 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
-def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.L8Tile]]:
+def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.eotile.L8Tile]]:
     """Create the L8 tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder
@@ -192,8 +191,8 @@ def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
-def get_tile(tile_list: Union[List[eotile.eotile.S2Tile],List[eotile.eotile.L8Tile]], tile_id: int) -> \
-        Optional[Union[eotile.eotile.S2Tile,eotile.eotile.L8Tile]]:
+def get_tile(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile]], tile_id: int) -> \
+        Optional[Union[eotile.eotile.eotile.S2Tile, eotile.eotile.eotile.L8Tile]]:
     """Returns a tile from a tile list from its tile ID
     returns None if the ID corresponds to no tile within the list
 
@@ -214,7 +213,8 @@ def get_tile(tile_list: Union[List[eotile.eotile.S2Tile],List[eotile.eotile.L8Ti
 
 
 def read_tile_list_from_file(filename_tiles: str) \
-        -> Optional[Union[List[eotile.eotile.S2Tile], List[eotile.eotile.L8Tile], List[eotile.eotile.EOTile]]]:
+        -> Optional[Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile], List[
+            eotile.eotile.eotile.EOTile]]]:
     """Returns a tile list from a file previously created
 
     :param filename_tiles: File containing the tile list (shp file)
