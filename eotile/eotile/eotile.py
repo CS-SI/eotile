@@ -78,7 +78,7 @@ class L8Tile(EOTile):
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
             LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            return None
+            raise IOError
         layer_tile_list = dataSource_tile_list.GetLayer()
         layer_tile_list.SetAttributeFilter("WRSPR = {}".format(tile_id))
 
@@ -99,7 +99,7 @@ class L8Tile(EOTile):
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
             LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            return None
+            raise IOError
         layer_tile_list = dataSource_tile_list.GetLayer()
 
         layer_tile_list.SetSpatialFilter(ogr.CreateGeometryFromWkt(poly_wkt))
@@ -218,4 +218,4 @@ class S2Tile(EOTile):
 
                 return tile
 
-        return None
+        raise KeyError

@@ -10,11 +10,10 @@ Generate tile list according AOI
 
 import argparse
 import logging
-import os
 import pathlib
 import sys
 
-from eotile.utils.tile_list_utils import *
+from eotile.eotiles.eotiles import *
 
 LOGGER = logging.getLogger(__name__)
 

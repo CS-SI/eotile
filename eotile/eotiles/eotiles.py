@@ -17,13 +17,13 @@ from osgeo import ogr, osr
 from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 
 # mypy imports
-from eotile.eotile import eotile
 from typing import List, Optional, Union
 
 LOGGER = logging.getLogger(__name__)
 
 
-def write_tiles_bb(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile]], filename: str, sensor="S2"):
+def write_tiles_bb(tile_list: Union[List[S2Tile],
+                                    List[L8Tile]], filename: str, sensor="S2"):
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
@@ -57,7 +57,7 @@ def write_tiles_bb(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eoti
     data_source.Destroy()
 
 
-def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.eotile.S2Tile]]:
+def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[S2Tile]]:
     """Create the S2 tile list according to an aoi
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -76,7 +76,7 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     # Check to see if shapefile is found.
     if dataSource_aoi is None:
         LOGGER.error("ERROR: Could not open {}".format(filename_aoi))
-        return None
+        raise IOError
 
     layer_aoi = dataSource_aoi.GetLayer()
     featureCount = layer_aoi.GetFeatureCount()
@@ -86,7 +86,7 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
                 pathlib.Path(filename_aoi).name, featureCount
             )
         )
-        return None
+        raise AssertionError
 
     # Get the first feature
     feature_aoi = layer_aoi.GetNextFeature()
@@ -132,7 +132,7 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
-def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[eotile.eotile.eotile.L8Tile]]:
+def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[L8Tile]]:
     """Create the L8 tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder
@@ -146,7 +146,7 @@ def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optiona
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
         LOGGER.error("ERROR: Could not open {}".format(filename_tiles_list))
-        return None
+        raise IOError
 
     layer_tile_list = dataSource_tile_list.GetLayer()
     featureCount = layer_tile_list.GetFeatureCount()
@@ -161,7 +161,7 @@ def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optiona
     # Check to see if shapefile is found.
     if dataSource_aoi is None:
         LOGGER.error("ERROR: Could not open {}".format(filename_aoi))
-        return None
+        raise IOError
 
     layer_aoi = dataSource_aoi.GetLayer()
     featureCount = layer_aoi.GetFeatureCount()
@@ -171,7 +171,7 @@ def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optiona
                 pathlib.Path(filename_aoi).name, featureCount
             )
         )
-        return None
+        return AssertionError
 
     # Get the first feature
     feature_aoi = layer_aoi.GetNextFeature()
@@ -191,16 +191,17 @@ def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
-def get_tile(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile]], tile_id: int) -> \
-        Optional[Union[eotile.eotile.eotile.S2Tile, eotile.eotile.eotile.L8Tile]]:
+def get_tile(tile_list: Union[List[S2Tile], List[L8Tile]], tile_id: int) -> \
+        Optional[Union[S2Tile, L8Tile]]:
     """Returns a tile from a tile list from its tile ID
-    returns None if the ID corresponds to no tile within the list
+    raises KeyError if the ID corresponds to no tile within the list
+
 
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
     """
     if len(tile_list) == 0:
-        return None
+        raise KeyError
 
     i = -1
     while tile_list[i + 1].ID != tile_id:
@@ -209,12 +210,12 @@ def get_tile(tile_list: Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eot
     if i != len(tile_list):
         return tile_list[i]
     else:
-        return None
+        raise KeyError
 
 
 def read_tile_list_from_file(filename_tiles: str) \
-        -> Optional[Union[List[eotile.eotile.eotile.S2Tile], List[eotile.eotile.eotile.L8Tile], List[
-            eotile.eotile.eotile.EOTile]]]:
+        -> Optional[Union[List[S2Tile], List[L8Tile], List[
+            EOTile]]]:
     """Returns a tile list from a file previously created
 
     :param filename_tiles: File containing the tile list (shp file)
@@ -226,7 +227,7 @@ def read_tile_list_from_file(filename_tiles: str) \
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
         LOGGER.error("ERROR: Could not open {}".format(filename_tiles))
-        return None
+        raise IOError
 
     layer_tile_list = dataSource_tile_list.GetLayer()
     featureCount = layer_tile_list.GetFeatureCount()

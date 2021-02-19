@@ -9,22 +9,19 @@ Generate tile list according AOI
 """
 
 import argparse
-import pathlib
 import sys
 
-from eotile.utils.tile_list_utils import *
+from eotile.eotiles.eotiles import *
 
 
-def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2, is_l8):
+def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2):
     """Returns the bounding box of a tile from a well known text polygon. #TODO: Precise this
 
     :param poly_wkt: a WKT Polygon
     :type poly_wkt: String
     :param aux_data_dirpath: Path to the input aux data
-    :param is_s2: Is he requested tile a Sentinel 2 tile
+    :param is_s2: Is he requested tile a Sentinel 2 tile if not then output a Landscape 8 tile
     :type is_s2: Boolean
-    :param is_l8: Is he requested tile a Landscape 8 tile
-    :type is_l8: Boolean
     :return: A bounding box
     :rtype: #TODO: Precise this
     """
@@ -42,10 +39,8 @@ def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2, is_l8):
 
     if is_s2:
         tile = S2Tile.from_tile_id(poly_wkt, filename_tiles_S2)
-    elif is_l8:
-        tile = L8Tile.from_poly_wkt(poly_wkt, filename_tiles_L8)
     else:
-        return None
+        tile = L8Tile.from_poly_wkt(poly_wkt, filename_tiles_L8)
     return tile.BB
 
 
