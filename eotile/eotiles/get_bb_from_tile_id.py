@@ -41,7 +41,7 @@ def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2):
         tile = S2Tile.from_tile_id(tile_id, filename_tiles_S2)
     else:
         tile = L8Tile.from_tile_id(tile_id, filename_tiles_L8)
-    return tile.BB
+    return tile.get_bb()
 
 
 def build_parser():

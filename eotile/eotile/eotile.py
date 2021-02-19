@@ -31,6 +31,13 @@ class EOTile:
         LOGGER.info(self.ID)
         LOGGER.info(self.polyBB)
 
+    def get_bb(self):
+        """
+        Returns the AABB (axis aligned bounding box) of a tile.
+
+        """
+        return self.polyBB.GetEnvelope()
+
     def write_tile_bb(self, filename):
         """ Write the Bounding Box of a tile"""
         driver = ogr.GetDriverByName("ESRI Shapefile")

@@ -466,11 +466,11 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_read_write_tiles_bb(self):
-        ls2 = create_tiles_list_L8(
+        ll8 = create_tiles_list_L8(
             "data/aux_data/wrs2_descending/", "data/test_data/illinois.shp"
         )
         test_file_path = "data/output/test_read_write.shp"
-        write_tiles_bb(ls2, test_file_path)
+        write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
             "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"

@@ -41,7 +41,7 @@ def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2):
         tile = S2Tile.from_tile_id(poly_wkt, filename_tiles_S2)
     else:
         tile = L8Tile.from_poly_wkt(poly_wkt, filename_tiles_L8)
-    return tile.BB
+    return tile.get_bb()
 
 
 def build_parser():
