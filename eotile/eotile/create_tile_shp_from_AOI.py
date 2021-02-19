@@ -58,9 +58,7 @@ def create_tiles_file_from_AOI(aoi_filepath: str, aux_data_dirpath: str, out_dir
 
         write_tiles_bb(
             tile_list_L8,
-            str(pathlib.PurePath(out_dirpath) / (basenameAOI_wt_ext + "_tiles_L8.shp")),
-            sensor="L8",
-        )
+            str(pathlib.PurePath(out_dirpath) / (basenameAOI_wt_ext + "_tiles_L8.shp")))
 
 
 def build_parser():

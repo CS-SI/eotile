@@ -23,7 +23,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def write_tiles_bb(tile_list: Union[List[S2Tile],
-                                    List[L8Tile]], filename: str, sensor="S2"):
+                                    List[L8Tile]], filename: str):
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
