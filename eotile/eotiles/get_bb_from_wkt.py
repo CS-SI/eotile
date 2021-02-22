@@ -38,9 +38,9 @@ def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2):
     )
 
     if is_s2:
-        tile = S2Tile.from_tile_id(poly_wkt, filename_tiles_S2)
+        tile = S2Tile.from_tile_id(poly_wkt, str(filename_tiles_S2))
     else:
-        tile = L8Tile.from_poly_wkt(poly_wkt, filename_tiles_L8)
+        tile = L8Tile.from_poly_wkt(poly_wkt, str(filename_tiles_L8))
     return tile.get_bb()
 
 
@@ -75,7 +75,9 @@ def main(arguments=None):
 
     args = arg_parser.parse_args(args=arguments)
 
+
     get_bb_from_wkt(args.poly_wkt, args.auxdata_dirpath, args.s2, args.l8)
+
 
 
 if __name__ == "__main__":

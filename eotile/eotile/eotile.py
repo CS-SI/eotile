@@ -28,8 +28,8 @@ class EOTile:
 
     def display(self):
         """ Display the content of a tile"""
-        LOGGER.info(self.ID)
-        LOGGER.info(self.polyBB)
+        print(self.ID)
+        print(self.polyBB)
 
     def get_bb(self):
         """
@@ -133,12 +133,12 @@ class S2Tile(EOTile):
         """ Display the content of tile"""
         LOGGER.info("== S2 Tile ==")
         EOTile.display(self)
-        LOGGER.info(self.BB)
-        LOGGER.info(self.UL)
-        LOGGER.info(self.SRS)
-        LOGGER.info(self.NRows)
-        LOGGER.info(self.NCols)
-        LOGGER.info(self.poly)
+        print(self.BB)
+        print(self.UL)
+        print(self.SRS)
+        print(self.NRows)
+        print(self.NCols)
+        print(self.poly)
 
     def create_poly_bb(self):
         """ Create the OGR Polygon from the list of BB corner """
