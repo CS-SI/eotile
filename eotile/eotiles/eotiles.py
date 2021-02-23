@@ -290,17 +290,10 @@ def get_tile(tile_list: Union[List[S2Tile], List[L8Tile]], tile_id: int) -> \
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
     """
-    if len(tile_list) == 0:
-        raise KeyError
-
-    i = -1
-    while tile_list[i + 1].ID != tile_id:
-        i += 1
-
-    if i != len(tile_list):
-        return tile_list[i]
-    else:
-        raise KeyError
+    for elt in tile_list:
+        if elt.ID == tile_id:
+            return elt
+    raise KeyError
 
 
 def read_tile_list_from_file(filename_tiles: str) \
