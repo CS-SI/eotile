@@ -11,7 +11,7 @@ EO tile
 import logging
 import argparse
 from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, create_tiles_list_S2_from_geometry,\
-    get_tile, create_tiles_list_L8_from_geometry
+    get_tile, create_tiles_list_L8_from_geometry, write_tiles_bb
 import sys
 import pathlib
 from osgeo import ogr, osr
@@ -35,6 +35,25 @@ def build_parser():
     )
     parser.add_argument(
         "-l8_only", action="store_true", help="output L8 tiles which intersect the aoi"
+    )
+
+    # Output arguments
+
+    parser.add_argument(
+        "-to_file", help="Write tiles to a file"
+    )
+    parser.add_argument(
+        "-to_wkt", action="store_true", help="Output the geometry of matching tiles with wkt format on standard output"
+    )
+    parser.add_argument(
+        "-to_bbox", action="store_true", help="Output the bounding box of matching tiles on standard output"
+    )
+    parser.add_argument(
+        "-to_tile_id", action="store_true", help="Output the id(s) of matching tiles on standard output"
+    )
+    parser.add_argument(
+        "-to_location", action="store_true", help="Output the location of the centroid of matching tiles "
+                                                  "on standard output"
     )
     return parser
 
@@ -119,16 +138,65 @@ def main(arguments=None):
         else:
             print(f"Unrecognized Option : {args.input[0]}")
 
-    # Ouptuting the results
-    if len(tile_list_s2) > 0:
-        print("--- S2 Tiles ---")
-        for elt in tile_list_s2:
-            elt.display()
+    # Ouptuting the result
+    if args.to_file is not None:
+        write_tiles_bb(tile_list_s2, args.to_file)
+        write_tiles_bb(tile_list_l8, args.to_file)
+    elif args.to_wkt:
+        if len(tile_list_s2) > 0:
+            print("--- S2 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.polyBB.ExportToWkt())
 
-    if len(tile_list_l8) > 0:
-        print("--- L8 Tiles ---")
-        for elt in tile_list_l8:
-            elt.display()
+        if len(tile_list_l8) > 0:
+            print("--- L8 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.polyBB.ExportToWkt())
+    elif args.to_bbox:
+        if len(tile_list_s2) > 0:
+            print("--- S2 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.polyBB.GetEnvelope())
+
+        if len(tile_list_l8) > 0:
+            print("--- L8 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.polyBB.GetEnvelope())
+    elif args.to_tile_id:
+        if len(tile_list_s2) > 0:
+            print("--- S2 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.ID)
+
+        if len(tile_list_l8) > 0:
+            print("--- L8 Tiles ---")
+            for elt in tile_list_s2:
+                print(elt.ID)
+    elif args.to_location:
+        geolocator = Nominatim(user_agent="EOTile")
+        if len(tile_list_s2) > 0:
+            print("--- S2 Tiles ---")
+            for elt in tile_list_s2:
+                centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
+                centroid.reverse()
+                print(geolocator.reverse(tuple(centroid)))
+
+        if len(tile_list_l8) > 0:
+            print("--- L8 Tiles ---")
+            for elt in tile_list_s2:
+                centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
+                centroid.reverse()
+                print(geolocator.reverse(tuple(centroid)))
+    else :
+        if len(tile_list_s2) > 0:
+            print("--- S2 Tiles ---")
+            for elt in tile_list_s2:
+                elt.display()
+
+        if len(tile_list_l8) > 0:
+            print("--- L8 Tiles ---")
+            for elt in tile_list_l8:
+                elt.display()
 
 
 def bbox_to_wkt(bbox_list) -> str:
