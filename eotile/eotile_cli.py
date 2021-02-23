@@ -10,12 +10,12 @@ EO tile
 
 import logging
 import argparse
-from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, create_tiles_list_S2_from_geometry
+from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, create_tiles_list_S2_from_geometry,\
+    get_tile, create_tiles_list_L8_from_geometry
 import sys
-import geopandas as gp
 import pathlib
 from osgeo import ogr, osr
+from geopy.geocoders import Nominatim
 
 def build_parser():
     """Creates a parser suitable for parsing a command line invoking this program.
@@ -52,97 +52,109 @@ def main(arguments=None):
 
     args = arg_parser.parse_args(args=arguments)
 
-    print(args.input) # DEBUG
-
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
 
-    print(data_path) # DEBUG
     aux_data_dirpath = data_path.strip()
+    tile_list_s2, tile_list_l8 = [], []
 
-    if args.input[0] == 'wkt':
+    if not args.l8_only:
+        # S2 Tiles
+        filename_tiles_S2 = str(
+            pathlib.PurePath(aux_data_dirpath)
+            / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+        )
+        if args.input[0] == 'wkt':
+            wkt = args.input[1]
+            tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+        if args.input[0] == 'location':
+            geolocator = Nominatim(user_agent="EOTile")
+            location = geolocator.geocode(args.input[1])
+            wkt = bbox_to_wkt(location.raw["boundingbox"])
+            tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+        if args.input[0] == 'bbox':
+            wkt = bbox_to_wkt(args.input[1])
+            tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+        if args.input[0] == 'file':
+            aoi_filepath = args.input[1]
+            tile_list_s2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
+            LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_s2)))
+        if args.input[0] == 'tile_id':
+            wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
+            tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+            tile_list_s2 = [get_tile(tile_list_s2, args.input[1])]
 
-        wkt = args.input[1]
-        if args.s2_only:
-            # S2 tiles
-            filename_tiles_S2 = str(
-                pathlib.PurePath(aux_data_dirpath)
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
-            )
-            geom = ogr.CreateGeometryFromWkt(wkt)
+    if not args.s2_only:
+    # L8 Tiles
+        filename_tiles_L8 = str(
+            pathlib.PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
+        )
+        if args.input[0] == 'wkt':
+            wkt = args.input[1]
+            tile_list_l8 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_L8)
+        if args.input[0] == 'location':
+            geolocator = Nominatim(user_agent="EOTile")
+            location = geolocator.geocode(args.input[1])
+            wkt = bbox_to_wkt(location.raw["boundingbox"])
+            tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+        if args.input[0] == 'bbox':
+            wkt = bbox_to_wkt(args.input[1])
+            tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+        if args.input[0] == 'file':
+            aoi_filepath = args.input[1]
+            tile_list_l8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
+            LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_l8)))
+        if args.input[0] == 'tile_id':
+            wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
+            tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+            tile_list_l8 = [get_tile(tile_list_l8, args.input[1])]
 
-            # Projection Transformation if any
-            if args.epsg is not None:
-                source = osr.SpatialReference()
-                source.ImportFromEPSG(int(args.epsg))
-                target = osr.SpatialReference()
-                target.ImportFromEPSG(4326)
-                transform = osr.CoordinateTransformation(source, target)
-                geom.Transform(transform)
-                print(geom.ExportToWkt())
+    if len(tile_list_s2) > 0:
+        print("--- S2 Tiles ---")
+        for elt in tile_list_s2:
+            elt.display()
 
-
-            tile_list = create_tiles_list_S2_from_geometry(filename_tiles_S2,
-                                       geom)
-
-    if args.input[0] == 'bbox':
-        if args.s2_only:
-            # S2 tiles
-            filename_tiles_S2 = str(
-                pathlib.PurePath(aux_data_dirpath)
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
-            )
-            [ulx, uly, lrx, lry] = args.input[1]
-            wkt = f"""
-            POLYGON (({ulx},{uly},
-            {ulx},{lry},
-            {lrx},{lry},
-            {lrx},{uly},
-            {ulx},{uly}))
-            """
-            geom = ogr.CreateGeometryFromWkt(wkt)
-
-            # Projection Transformation if any
-            if args.epsg is not None:
-                source = osr.SpatialReference()
-                source.ImportFromEPSG(int(args.epsg))
-                target = osr.SpatialReference()
-                target.ImportFromEPSG(4326)
-                transform = osr.CoordinateTransformation(source, target)
-                geom.Transform(transform)
-                print(geom.ExportToWkt())
+    if len(tile_list_l8) > 0:
+        print("--- L8 Tiles ---")
+        for elt in tile_list_l8:
+            elt.display()
 
 
-            tile_list = create_tiles_list_S2_from_geometry(filename_tiles_S2,
-                                       geom)
+def bbox_to_wkt(bbox_list):
+    if type(bbox_list) == str:
+        bbox_list = bbox_list.replace("[", "")
+        bbox_list = bbox_list.replace("]", "")
+        bbox_list = bbox_list.replace("'", "")
+        bbox_list = list(bbox_list.split(","))
+    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    return(f"POLYGON (({ul_long} {ul_lat}, {lr_long} {ul_lat}, {lr_long} {lr_lat},\
+     {ul_long} {lr_lat}, {ul_long} {ul_lat} ))")
 
-    if args.input[0] == 'file':
-        aoi_filepath = args.input[1]
-        basenameAOI_wt_ext = pathlib.Path(aoi_filepath).stem
-        if args.s2_only:
-            # S2 tiles
-            filename_tiles_S2 = str(
-                pathlib.PurePath(aux_data_dirpath)
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
-            )
-            print(filename_tiles_S2)
-            print(basenameAOI_wt_ext)
-            tile_list = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
 
-            LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list)))
+def geom_to_S2_tiles(wkt, epsg, filename_tiles_S2):
+    geom = ogr.CreateGeometryFromWkt(wkt)
+    # Projection Transformation if any
+    if epsg is not None:
+        source = osr.SpatialReference()
+        source.ImportFromEPSG(int(epsg))
+        target = osr.SpatialReference()
+        target.ImportFromEPSG(4326)
+        transform = osr.CoordinateTransformation(source, target)
+        geom.Transform(transform)
+    return create_tiles_list_S2_from_geometry(filename_tiles_S2, geom)
 
-        else:
-            # L8 tiles
-            filename_tiles_L8 = str(
-                pathlib.PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
-            )
 
-            tile_list = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
-
-            LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list)))
-
-    for elt in tile_list:
-        elt.display()
+def geom_to_L8_tiles(wkt, epsg, filename_tiles_S2):
+    geom = ogr.CreateGeometryFromWkt(wkt)
+    # Projection Transformation if any
+    if epsg is not None:
+        source = osr.SpatialReference()
+        source.ImportFromEPSG(int(epsg))
+        target = osr.SpatialReference()
+        target.ImportFromEPSG(4326)
+        transform = osr.CoordinateTransformation(source, target)
+        geom.Transform(transform)
+    return create_tiles_list_L8_from_geometry(filename_tiles_S2, geom)
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -184,15 +184,14 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
-def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[L8Tile]]:
-    """Create the L8 tile list according to an aoi
+def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom: ogr.Geometry) -> Optional[List[L8Tile]]:
+    """Create the L8 tile list according to an aoi in ogr geometry format
 
-    :param filename_tiles_list: Path to the wrs2_descending folder
-    :type filename_tiles_list: string
-    :param filename_aoi: Path to the input AOI file (Must be a shp file)
-    :type filename_aoi: String
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :param geom: Path to the input AOI file (Must be a shp file)
+    :type geom: osgeo.ogr.Geometry
     """
-    filename_tiles_list = "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
 
     driver = ogr.GetDriverByName("ESRI Shapefile")
     # Open the tile list file
