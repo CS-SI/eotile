@@ -115,7 +115,7 @@ def main(arguments=None):
         )
         if args.input[0] == 'wkt':
             wkt = args.input[1]
-            tile_list_l8 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_L8)
+            tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
         elif args.input[0] == 'location':
             geolocator = Nominatim(user_agent="EOTile")
             location = geolocator.geocode(args.input[1])
@@ -150,7 +150,7 @@ def main(arguments=None):
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
-            for elt in tile_list_s2:
+            for elt in tile_list_l8:
                 print(elt.polyBB.ExportToWkt())
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
@@ -160,7 +160,7 @@ def main(arguments=None):
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
-            for elt in tile_list_s2:
+            for elt in tile_list_l8:
                 print(elt.polyBB.GetEnvelope())
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
@@ -170,7 +170,7 @@ def main(arguments=None):
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
-            for elt in tile_list_s2:
+            for elt in tile_list_l8:
                 print(elt.ID)
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
@@ -183,7 +183,7 @@ def main(arguments=None):
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
-            for elt in tile_list_s2:
+            for elt in tile_list_l8:
                 centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
                 centroid.reverse()
                 print(geolocator.reverse(tuple(centroid)))
