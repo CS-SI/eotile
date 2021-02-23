@@ -110,10 +110,11 @@ def main(arguments=None):
             wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
             tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
             try:
-                tile_list_l8 = [get_tile(tile_list_l8, args.input[1])]
+                tile_list_l8 = [get_tile(tile_list_l8, int(args.input[1]))]
             except KeyError: # In this case, the key does not exist so we output empty
                 tile_list_l8 = []
 
+    # Ouptuting the results
     if len(tile_list_s2) > 0:
         print("--- S2 Tiles ---")
         for elt in tile_list_s2:
