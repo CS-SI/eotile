@@ -82,8 +82,10 @@ def main(arguments=None):
         if args.input[0] == 'tile_id':
             wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
             tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
-            tile_list_s2 = [get_tile(tile_list_s2, args.input[1])]
-
+            try:
+                tile_list_s2 = [get_tile(tile_list_s2, args.input[1])]
+            except KeyError: # In this case, the key does not exist so we output empty
+                tile_list_s2 = []
     if not args.s2_only:
     # L8 Tiles
         filename_tiles_L8 = str(
@@ -107,7 +109,10 @@ def main(arguments=None):
         if args.input[0] == 'tile_id':
             wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
             tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
-            tile_list_l8 = [get_tile(tile_list_l8, args.input[1])]
+            try:
+                tile_list_l8 = [get_tile(tile_list_l8, args.input[1])]
+            except KeyError: # In this case, the key does not exist so we output empty
+                tile_list_l8 = []
 
     if len(tile_list_s2) > 0:
         print("--- S2 Tiles ---")
