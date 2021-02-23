@@ -25,7 +25,7 @@ def build_parser():
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("input", help="Choose amongst :\n - file\n - tile_id\n - location\n - wkt\n - bbox",
+    parser.add_argument("input", help="Choose amongst : file, tile_id, location, wkt, bbox. Then specify the argument",
                         nargs=2)
     parser.add_argument(
         "-epsg", help="Specify the epsg of the input"
@@ -67,25 +67,28 @@ def main(arguments=None):
         if args.input[0] == 'wkt':
             wkt = args.input[1]
             tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
-        if args.input[0] == 'location':
+        elif args.input[0] == 'location':
             geolocator = Nominatim(user_agent="EOTile")
             location = geolocator.geocode(args.input[1])
             wkt = bbox_to_wkt(location.raw["boundingbox"])
             tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
-        if args.input[0] == 'bbox':
+        elif args.input[0] == 'bbox':
             wkt = bbox_to_wkt(args.input[1])
             tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
-        if args.input[0] == 'file':
+        elif args.input[0] == 'file':
             aoi_filepath = args.input[1]
             tile_list_s2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
             LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_s2)))
-        if args.input[0] == 'tile_id':
+        elif args.input[0] == 'tile_id':
             wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
             tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
             try:
                 tile_list_s2 = [get_tile(tile_list_s2, args.input[1])]
             except KeyError: # In this case, the key does not exist so we output empty
                 tile_list_s2 = []
+        else:
+            print(f"Unrecognized Option : {args.input[0]}")
+
     if not args.s2_only:
     # L8 Tiles
         filename_tiles_L8 = str(
@@ -94,25 +97,27 @@ def main(arguments=None):
         if args.input[0] == 'wkt':
             wkt = args.input[1]
             tile_list_l8 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_L8)
-        if args.input[0] == 'location':
+        elif args.input[0] == 'location':
             geolocator = Nominatim(user_agent="EOTile")
             location = geolocator.geocode(args.input[1])
             wkt = bbox_to_wkt(location.raw["boundingbox"])
             tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
-        if args.input[0] == 'bbox':
+        elif args.input[0] == 'bbox':
             wkt = bbox_to_wkt(args.input[1])
             tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
-        if args.input[0] == 'file':
+        elif args.input[0] == 'file':
             aoi_filepath = args.input[1]
             tile_list_l8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
             LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_l8)))
-        if args.input[0] == 'tile_id':
+        elif args.input[0] == 'tile_id':
             wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
             tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
             try:
                 tile_list_l8 = [get_tile(tile_list_l8, int(args.input[1]))]
             except KeyError: # In this case, the key does not exist so we output empty
                 tile_list_l8 = []
+        else:
+            print(f"Unrecognized Option : {args.input[0]}")
 
     # Ouptuting the results
     if len(tile_list_s2) > 0:
@@ -126,7 +131,12 @@ def main(arguments=None):
             elt.display()
 
 
-def bbox_to_wkt(bbox_list):
+def bbox_to_wkt(bbox_list) -> str:
+    """
+    Transforms a bounding box to a wkt polygon
+    :param bbox_list: The bbox list, either it is in str format or list format
+    :return: a wkt polygon in str format
+    """
     if type(bbox_list) == str:
         bbox_list = bbox_list.replace("[", "")
         bbox_list = bbox_list.replace("]", "")
@@ -137,7 +147,14 @@ def bbox_to_wkt(bbox_list):
      {ul_long} {lr_lat}, {ul_long} {ul_lat} ))")
 
 
-def geom_to_S2_tiles(wkt, epsg, filename_tiles_S2):
+def geom_to_S2_tiles(wkt: str , epsg, filename_tiles_S2):
+    """
+    Generates a s2 tile list from a wkt string
+
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optionnal in the epsg code in case it is not WGS84
+    :param filename_tiles_S2: The filename to find the tiles in
+    """
     geom = ogr.CreateGeometryFromWkt(wkt)
     # Projection Transformation if any
     if epsg is not None:
@@ -150,7 +167,14 @@ def geom_to_S2_tiles(wkt, epsg, filename_tiles_S2):
     return create_tiles_list_S2_from_geometry(filename_tiles_S2, geom)
 
 
-def geom_to_L8_tiles(wkt, epsg, filename_tiles_S2):
+def geom_to_L8_tiles(wkt, epsg, filename_tiles_l8):
+    """
+    Generates a l8 tile list from a wkt string
+
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optionnal in the epsg code in case it is not WGS84
+    :param filename_tiles_l8: The filename to find the tiles in
+    """
     geom = ogr.CreateGeometryFromWkt(wkt)
     # Projection Transformation if any
     if epsg is not None:
@@ -160,7 +184,8 @@ def geom_to_L8_tiles(wkt, epsg, filename_tiles_S2):
         target.ImportFromEPSG(4326)
         transform = osr.CoordinateTransformation(source, target)
         geom.Transform(transform)
-    return create_tiles_list_L8_from_geometry(filename_tiles_S2, geom)
+    return create_tiles_list_L8_from_geometry(filename_tiles_l8, geom)
+
 
 if __name__ == "__main__":
     sys.exit(main())
