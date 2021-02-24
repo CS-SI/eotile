@@ -14,7 +14,8 @@ from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, c
     get_tile, create_tiles_list_L8_from_geometry, write_tiles_bb
 import sys
 import pathlib
-from osgeo import ogr, osr
+import pyproj
+import shapely
 from geopy.geocoders import Nominatim
 
 def build_parser():
@@ -223,15 +224,14 @@ def geom_to_S2_tiles(wkt: str , epsg, filename_tiles_S2):
     :param epsg: An optionnal in the epsg code in case it is not WGS84
     :param filename_tiles_S2: The filename to find the tiles in
     """
-    geom = ogr.CreateGeometryFromWkt(wkt)
+    geom = shapely.wkt.loads(wkt)
     # Projection Transformation if any
     if epsg is not None:
-        source = osr.SpatialReference()
-        source.ImportFromEPSG(int(epsg))
-        target = osr.SpatialReference()
-        target.ImportFromEPSG(4326)
-        transform = osr.CoordinateTransformation(source, target)
-        geom.Transform(transform)
+        source = pyproj.CRS('EPSG:32618')
+        target = pyproj.CRS('EPSG:4326')
+        project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
+        geom = shapely.ops.transform(project, geom)
+
     return create_tiles_list_S2_from_geometry(filename_tiles_S2, geom)
 
 
@@ -243,15 +243,15 @@ def geom_to_L8_tiles(wkt, epsg, filename_tiles_l8):
     :param epsg: An optionnal in the epsg code in case it is not WGS84
     :param filename_tiles_l8: The filename to find the tiles in
     """
-    geom = ogr.CreateGeometryFromWkt(wkt)
+    geom = shapely.wkt.loads(wkt)
+    # Projection Transformation if any
     # Projection Transformation if any
     if epsg is not None:
-        source = osr.SpatialReference()
-        source.ImportFromEPSG(int(epsg))
-        target = osr.SpatialReference()
-        target.ImportFromEPSG(4326)
-        transform = osr.CoordinateTransformation(source, target)
-        geom.Transform(transform)
+        source = pyproj.CRS('EPSG:32618')
+        target = pyproj.CRS('EPSG:4326')
+        project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
+        geom = shapely.ops.transform(project, geom)
+
     return create_tiles_list_L8_from_geometry(filename_tiles_l8, geom)
 
 

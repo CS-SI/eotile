@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="eotile",
-    version="0.0.1",
+    version="1.0.0",
     description="Managed Sentinel-2 and Landsat8 tile",
     author="Mickaël Savinaud, Mathis A. Germa",
     author_email="mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu",

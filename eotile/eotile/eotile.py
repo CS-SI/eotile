@@ -13,6 +13,7 @@ import pathlib
 
 from lxml import etree as ET
 from osgeo import ogr, osr
+import shapely
 
 LOGGER = logging.getLogger(__name__)
 
@@ -143,16 +144,16 @@ class S2Tile(EOTile):
     def create_poly_bb(self):
         """ Create the OGR Polygon from the list of BB corner """
         # Create ring
-        ring = ogr.Geometry(ogr.wkbLinearRing)
-        ring.AddPoint(float(self.BB[1]), float(self.BB[0]))
-        ring.AddPoint(float(self.BB[3]), float(self.BB[2]))
-        ring.AddPoint(float(self.BB[5]), float(self.BB[4]))
-        ring.AddPoint(float(self.BB[7]), float(self.BB[6]))
-        ring.AddPoint(float(self.BB[1]), float(self.BB[0]))
+        ring = []
+        ring.append(shapely.geometry.Point(float(self.BB[1]), float(self.BB[0])))
+        ring.append(shapely.geometry.Point(float(self.BB[3]), float(self.BB[2])))
+        ring.append(shapely.geometry.Point(float(self.BB[5]), float(self.BB[4])))
+        ring.append(shapely.geometry.Point(float(self.BB[7]), float(self.BB[6])))
+        ring.append(shapely.geometry.Point(float(self.BB[1]), float(self.BB[0])))
 
         # Create polygon
-        self.polyBB = ogr.Geometry(ogr.wkbPolygon)
-        self.polyBB.AddGeometry(ring)
+        self.polyBB = shapely.geometry.Polygon(ring)
+
 
     def create_poly_tile(self):
         """ Create the OGR Polygon from the list of corners """
