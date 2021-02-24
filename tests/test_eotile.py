@@ -18,7 +18,7 @@ class TestEOTile(unittest.TestCase):
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
             out_dirpath=output_path,
-            is_s2=True,
+            is_s2=False,
         )
         l8file = gp.read_file(output_path + "/illinois_tiles_L8.shp")
         self.assertEqual(l8file.count().geometry, 18)
@@ -35,7 +35,7 @@ class TestEOTile(unittest.TestCase):
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
             out_dirpath=output_path,
-            is_s2=False,
+            is_s2=True,
         )
         s2file = gp.read_file(output_path + "/illinois_tiles_S2.shp")
         self.assertEqual(s2file.count().geometry, 33)

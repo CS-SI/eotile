@@ -147,22 +147,22 @@ def main(arguments=None):
         if len(tile_list_s2) > 0:
             print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.ExportToWkt())
+                print(elt.polyBB.wkt)
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.ExportToWkt())
+                print(elt.polyBB.wkt)
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
             print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.GetEnvelope())
+                print(elt.polyBB.bounds)
 
         if len(tile_list_l8) > 0:
             print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.GetEnvelope())
+                print(elt.polyBB.bounds)
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
             print("--- S2 Tiles ---")
