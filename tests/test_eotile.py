@@ -7,8 +7,8 @@ import unittest
 import geopandas as gp
 from shapely import wkt
 
-from eotile.tile_management.create_tile_shp_from_AOI import *
-from eotile.utils.tile_list_utils import create_tiles_list_L8, create_tiles_list_S2
+from eotile.eotile.create_tile_shp_from_AOI import *
+from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2
 
 
 class TestEOTile(unittest.TestCase):
@@ -18,8 +18,7 @@ class TestEOTile(unittest.TestCase):
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
             out_dirpath=output_path,
-            s2=True,
-            l8=False,
+            is_s2=True,
         )
         l8file = gp.read_file(output_path + "/illinois_tiles_L8.shp")
         self.assertEqual(l8file.count().geometry, 18)
@@ -32,7 +31,12 @@ class TestEOTile(unittest.TestCase):
             "40.8527, -92.76509068409111 41.16654042276556))"
         )
         self.assertTrue(polygon_test in l8file["geometry"])
-
+        create_tiles_file_from_AOI(
+            aoi_filepath="data/test_data/illinois.shp",
+            aux_data_dirpath="data/aux_data",
+            out_dirpath=output_path,
+            is_s2=False,
+        )
         s2file = gp.read_file(output_path + "/illinois_tiles_S2.shp")
         self.assertEqual(s2file.count().geometry, 33)
         polygon_test = wkt.loads(
@@ -466,11 +470,11 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_read_write_tiles_bb(self):
-        ls2 = create_tiles_list_L8(
+        ll8 = create_tiles_list_L8(
             "data/aux_data/wrs2_descending/", "data/test_data/illinois.shp"
         )
         test_file_path = "data/output/test_read_write.shp"
-        write_tiles_bb(ls2, test_file_path)
+        write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
             "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"

@@ -9,10 +9,8 @@ EO tile
 """
 
 import logging
-import os
-import sys
+import pathlib
 
-# import xml.etree.ElementTree as ET
 from lxml import etree as ET
 from osgeo import ogr, osr
 
@@ -32,6 +30,13 @@ class EOTile:
         """ Display the content of a tile"""
         LOGGER.info(self.ID)
         LOGGER.info(self.polyBB)
+
+    def get_bb(self):
+        """
+        Returns the AABB (axis aligned bounding box) of a tile.
+
+        """
+        return self.polyBB.GetEnvelope()
 
     def write_tile_bb(self, filename):
         """ Write the Bounding Box of a tile"""
@@ -80,7 +85,7 @@ class L8Tile(EOTile):
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
             LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            return None
+            raise IOError
         layer_tile_list = dataSource_tile_list.GetLayer()
         layer_tile_list.SetAttributeFilter("WRSPR = {}".format(tile_id))
 
@@ -101,7 +106,7 @@ class L8Tile(EOTile):
         # Check to see if shapefile is found.
         if dataSource_tile_list is None:
             LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            return None
+            raise IOError
         layer_tile_list = dataSource_tile_list.GetLayer()
 
         layer_tile_list.SetSpatialFilter(ogr.CreateGeometryFromWkt(poly_wkt))
@@ -220,4 +225,4 @@ class S2Tile(EOTile):
 
                 return tile
 
-        return None
+        raise KeyError
