@@ -104,34 +104,10 @@ class S2Tile(EOTile):
         print(self.poly)
 
     def create_poly_bb(self):
-        """ Create the OGR Polygon from the list of BB corner """
+        """ Create the Shapely Polygon from the list of BB corner """
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # Create polygon
         self.polyBB = Polygon([[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices])
-
-
-    def create_poly_tile(self):
-        """ Create the OGR Polygon from the list of corners """
-        # TODO : check that part for epsg
-        # Compute tile corner
-        tile_urx = self.UL[0] + self.NCols[0] * 10
-        tile_ury = self.UL[1]
-        tile_llx = self.UL[0]
-        tile_lly = self.UL[1] + self.NRows[0] * 10
-        tile_lrx = self.UL[0] + self.NCols[0] * 10
-        tile_lry = self.UL[1] + self.NRows[0] * 10
-
-        # Create ring
-        ring = ogr.Geometry(ogr.wkbLinearRing)
-        ring.AddPoint(self.UL[0], self.UL[1])
-        ring.AddPoint(tile_urx, tile_ury)
-        ring.AddPoint(tile_lrx, tile_lry)
-        ring.AddPoint(tile_llx, tile_lly)
-        ring.AddPoint(self.UL[0], self.UL[1])
-
-        # Create polygon
-        self.poly = ogr.Geometry(ogr.wkbPolygon)
-        self.poly.AddGeometry(ring)
 
     def write_tile(self, filename):
         """ Write the OGR polygon of a S2 tile"""
