@@ -18,6 +18,7 @@ from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 from shapely.geometry import Polygon
 # mypy imports
 from typing import List, Optional, Union
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -105,7 +106,6 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
         tile.create_poly_bb()
         # Intersect with the AOI :
         if aoi.intersects(tile.polyBB):
-
             tile.ID = tile_elt.find("TILE_IDENTIFIER").text
             tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
             tile.UL[0] = int(tile_elt.find("ULX").text)
@@ -135,7 +135,7 @@ def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
     """
 
     # Open the tile list file
-    dataSource_tile_list = gp.read_file(filename_tiles_list)
+    dataSource_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
         LOGGER.error("ERROR: Could not open {}".format(filename_tiles_list))
@@ -149,12 +149,14 @@ def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
     )
     tile_list = []
 
+    # This is still required for fitter filtering
     dataSource_filtered = dataSource_tile_list[dataSource_tile_list['geometry'].intersects(geom)][["PR", "geometry"]]
     for index, feature_tile_list in dataSource_filtered.iterrows():
         tile = L8Tile()
         tile.ID = feature_tile_list["PR"]
         tile.polyBB = feature_tile_list['geometry']
         tile_list.append(tile)
+
     return tile_list
 
 def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[L8Tile]]:

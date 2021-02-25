@@ -4,12 +4,10 @@
 
 import unittest
 
-import geopandas as gp
 from shapely import wkt
-
+import geopandas as gp
 from eotile.eotile.create_tile_shp_from_AOI import *
 from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2
-
 
 class TestEOTile(unittest.TestCase):
     def test_create_tiles_file_from_AOI(self):
@@ -31,6 +29,8 @@ class TestEOTile(unittest.TestCase):
             "40.8527, -92.76509068409111 41.16654042276556))"
         )
         self.assertTrue(polygon_test in l8file["geometry"])
+
+
         create_tiles_file_from_AOI(
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
@@ -45,6 +45,7 @@ class TestEOTile(unittest.TestCase):
             "-91.766187862 43.346200009))"
         )
         self.assertTrue(polygon_test in s2file["geometry"])
+
 
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_S2(
