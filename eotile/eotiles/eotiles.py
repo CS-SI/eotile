@@ -15,11 +15,9 @@ import geopandas as gp
 from osgeo import ogr, osr
 import fiona
 from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
-import shapely
-
+from shapely.geometry import Polygon
 # mypy imports
 from typing import List, Optional, Union
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -60,8 +58,8 @@ def write_tiles_bb(tile_list: Union[List[S2Tile],
 
 def load_aoi(filename_aoi):
     with fiona.open(filename_aoi) as src:
-        p = src.next() # TODO CHANGE
-    return(shapely.geometry.Polygon(p['geometry']['coordinates'][0]))
+        p = src.get(0) # TODO CHANGE
+    return(Polygon(p['geometry']['coordinates'][0]))
 
 
 def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[S2Tile]]:
@@ -88,15 +86,10 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
     # Open the tiles list file
     tree = ET.parse(filename_tiles_list)
     root = tree.getroot()
-
     tile_list = []
     tile_dateline = 0
     for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
         tile = S2Tile()
-        tile.ID = tile_elt.find("TILE_IDENTIFIER").text
-        tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
-        tile.UL[0] = int(tile_elt.find("ULX").text)
-        tile.UL[1] = int(tile_elt.find("ULY").text)
         tile_bb = tile_elt.find("B_BOX").text
         tile.BB = tile_bb.split(" ")
 
@@ -108,13 +101,15 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
         ):
             tile_dateline += 1
             continue
-
         # Create the polygon
         tile.create_poly_bb()
+        # Intersect with the AOI :
+        if aoi.intersects(tile.polyBB):
 
-        # Intersect with the AOI
-        if tile.polyBB.intersects(aoi):
-
+            tile.ID = tile_elt.find("TILE_IDENTIFIER").text
+            tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
+            tile.UL[0] = int(tile_elt.find("ULX").text)
+            tile.UL[1] = int(tile_elt.find("ULY").text)
             for tile_elt_size in tile_elt.findall("./TILE_SIZE_LIST/TILE_SIZE"):
                 tile.NRows.append(int(tile_elt_size.find("NROWS").text))
                 tile.NCols.append(int(tile_elt_size.find("NCOLS").text))
