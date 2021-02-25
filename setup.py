@@ -11,7 +11,7 @@ setup(
     license="Copyright (c) 2021 CS Group, Tous droits réservés",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
-    install_requires=["GDAL","lxml"],
+    install_requires=["shapely","fiona","geopy","pyproj","geopandas","lxml"],
     extras_require={
         "dev": ["check-manifest", "geopandas"],
         "test": ["coverage"],
