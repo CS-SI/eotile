@@ -13,7 +13,7 @@ import argparse
 from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, get_tile, write_tiles_bb, \
     bbox_to_wkt, geom_to_S2_tiles, geom_to_L8_tiles
 import sys
-import pathlib
+from pathlib import PurePath
 from geopy.geocoders import Nominatim
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -82,7 +82,7 @@ def main(arguments=None):
         if not args.l8_only:
             # S2 Tiles
             filename_tiles_S2 = str(
-                pathlib.PurePath(aux_data_dirpath)
+                PurePath(aux_data_dirpath)
                 / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             )
             if args.input[0] == 'wkt':
@@ -106,7 +106,7 @@ def main(arguments=None):
         if not args.s2_only:
         # L8 Tiles
             filename_tiles_L8 = str(
-                pathlib.PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
+                PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
             )
             if args.input[0] == 'wkt':
                 wkt = args.input[1]

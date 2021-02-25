@@ -12,7 +12,6 @@ import logging
 import pathlib
 from lxml import etree as ET
 import geopandas as gp
-from osgeo import ogr, osr
 import fiona
 from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 from shapely.geometry import Polygon

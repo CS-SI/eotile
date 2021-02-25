@@ -9,10 +9,7 @@ EO tile
 """
 
 import logging
-import pathlib
-
 from lxml import etree as ET
-from osgeo import ogr, osr
 from shapely.geometry import Polygon
 
 LOGGER = logging.getLogger(__name__)
@@ -38,33 +35,6 @@ class EOTile:
 
         """
         return self.polyBB.GetEnvelope()
-
-    def write_tile_bb(self, filename):
-        """ Write the Bounding Box of a tile"""
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        data_source = driver.CreateDataSource(filename)
-        if pathlib.Path(filename).exists():
-            driver.DeleteDataSource(filename)
-
-        # create the spatial reference for the bounding box, WGS84
-        srs_bb = osr.SpatialReference()
-        srs_bb.ImportFromEPSG(4326)
-        # create the layer
-        layer_bb = data_source.CreateLayer("bb", srs_bb, ogr.wkbPolygon)
-
-        # Add the fields
-        field_name = ogr.FieldDefn("TileID", ogr.OFTString)
-        field_name.SetWidth(10)
-        layer_bb.CreateField(field_name)
-
-        feature = ogr.Feature(layer_bb.GetLayerDefn())
-        feature.SetField("TileID", self.ID)
-        feature.SetGeometry(self.polyBB)
-        layer_bb.CreateFeature(feature)
-        feature.Destroy()
-
-        data_source.Destroy()
-
 
 class L8Tile(EOTile):
     """ Class which represent a L8 tile """
@@ -108,30 +78,3 @@ class S2Tile(EOTile):
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # Create polygon
         self.polyBB = Polygon([[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices])
-
-    def write_tile(self, filename):
-        """ Write the OGR polygon of a S2 tile"""
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        data_source = driver.CreateDataSource(filename)
-        if pathlib.Path(filename).exists():
-            driver.DeleteDataSource(filename)
-
-        # create the spatial reference for the tile
-        srs_tile_str = self.SRS.split(":")
-        srs_tile = osr.SpatialReference()
-        srs_tile.ImportFromEPSG(int(srs_tile_str[1]))
-        # create the layer
-        layer_tile = data_source.CreateLayer("tile", srs_tile, ogr.wkbPolygon)
-
-        # Add the fields
-        field_name = ogr.FieldDefn("TileID", ogr.OFTString)
-        field_name.SetWidth(10)
-        layer_tile.CreateField(field_name)
-
-        feature = ogr.Feature(layer_tile.GetLayerDefn())
-        feature.SetField("TileID", self.ID)
-        feature.SetGeometry(self.poly)
-        layer_tile.CreateFeature(feature)
-        feature.Destroy()
-
-        data_source.Destroy()
