@@ -9,7 +9,6 @@ EO tile
 """
 
 import logging
-from lxml import etree as ET
 from shapely.geometry import Polygon
 
 LOGGER = logging.getLogger(__name__)

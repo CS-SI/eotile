@@ -10,7 +10,7 @@ EO tile
 
 import logging
 import argparse
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, get_tile, write_tiles_bb, \
+from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, write_tiles_bb, \
     bbox_to_wkt, geom_to_S2_tiles, geom_to_L8_tiles
 import sys
 from pathlib import PurePath
