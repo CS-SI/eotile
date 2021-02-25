@@ -11,7 +11,7 @@ Generate tile list according AOI
 import argparse
 import pathlib
 import sys
-
+from eotile.eotiles.eotiles import get_tile, bbox_to_wkt, geom_to_S2_tiles, geom_to_L8_tiles
 from eotile.eotiles.eotiles import L8Tile, S2Tile
 
 
@@ -38,10 +38,20 @@ def get_bb_from_tile_id(tile_id, aux_data_dirpath, is_s2):
     )
 
     if is_s2:
-        tile = S2Tile.from_tile_id(tile_id, filename_tiles_S2)
+        wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
+        tile_list_l8 = geom_to_L8_tiles(wkt, filename_tiles_L8)
+        try:
+            tile = get_tile(tile_list_l8, tile_id)
+        except KeyError:  # In this case, the key does not exist so we output empty
+            tile = None
     else:
-        tile = L8Tile.from_tile_id(tile_id, filename_tiles_L8)
-    return tile.get_bb()
+        wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
+        tile_list_s2 = geom_to_S2_tiles(wkt, filename_tiles_S2)
+        try:
+            tile = get_tile(tile_list_s2, tile_id)
+        except KeyError:  # In this case, the key does not exist so we output empty
+            tile = None
+    return tile.polyBB.bounds
 
 
 def build_parser():

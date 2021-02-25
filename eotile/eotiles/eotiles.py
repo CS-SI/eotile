@@ -16,6 +16,8 @@ from osgeo import ogr, osr
 import fiona
 from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 from shapely.geometry import Polygon
+import pyproj
+import shapely
 # mypy imports
 from typing import List, Optional, Union
 
@@ -216,3 +218,57 @@ def read_tile_list_from_file(filename_tiles: str) \
         tile.polyBB = feature_tile_list['geometry']
         tile_list.append(tile)
     return tile_list
+
+def bbox_to_wkt(bbox_list) -> str:
+    """
+    Transforms a bounding box to a wkt polygon
+    :param bbox_list: The bbox list, either it is in str format or list format
+    :return: a wkt polygon in str format
+    """
+    if type(bbox_list) == str:
+        bbox_list = bbox_list.replace("[", "")
+        bbox_list = bbox_list.replace("]", "")
+        bbox_list = bbox_list.replace("'", "")
+        bbox_list = list(bbox_list.split(","))
+    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    return(f"POLYGON (({ul_long} {ul_lat}, {lr_long} {ul_lat}, {lr_long} {lr_lat},\
+     {ul_long} {lr_lat}, {ul_long} {ul_lat} ))")
+
+
+def geom_to_S2_tiles(wkt: str , epsg, filename_tiles_S2):
+    """
+    Generates a s2 tile list from a wkt string
+
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optionnal in the epsg code in case it is not WGS84
+    :param filename_tiles_S2: The filename to find the tiles in
+    """
+    geom = shapely.wkt.loads(wkt)
+    # Projection Transformation if any
+    if epsg is not None:
+        source = pyproj.CRS('EPSG:32618')
+        target = pyproj.CRS('EPSG:4326')
+        project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
+        geom = shapely.ops.transform(project, geom)
+
+    return create_tiles_list_S2_from_geometry(filename_tiles_S2, geom)
+
+
+def geom_to_L8_tiles(wkt, epsg, filename_tiles_l8):
+    """
+    Generates a l8 tile list from a wkt string
+
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optionnal in the epsg code in case it is not WGS84
+    :param filename_tiles_l8: The filename to find the tiles in
+    """
+    geom = shapely.wkt.loads(wkt)
+    # Projection Transformation if any
+    # Projection Transformation if any
+    if epsg is not None:
+        source = pyproj.CRS('EPSG:32618')
+        target = pyproj.CRS('EPSG:4326')
+        project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
+        geom = shapely.ops.transform(project, geom)
+
+    return create_tiles_list_L8_from_geometry(filename_tiles_l8, geom)

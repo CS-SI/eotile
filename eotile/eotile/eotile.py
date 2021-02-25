@@ -78,44 +78,6 @@ class L8Tile(EOTile):
         LOGGER.info("== Tile L8 ==")
         EOTile.display(self)
 
-    @classmethod
-    def from_tile_id(cls, tile_id, tile_grid_filepath):
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        # Open the tile list file
-        dataSource_tile_list = driver.Open(tile_grid_filepath, 0)
-        # Check to see if shapefile is found.
-        if dataSource_tile_list is None:
-            LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            raise IOError
-        layer_tile_list = dataSource_tile_list.GetLayer()
-        layer_tile_list.SetAttributeFilter("WRSPR = {}".format(tile_id))
-
-        for feature in layer_tile_list:
-            LOGGER.info(
-                "{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW"))
-            )
-            # print(feature.GetGeometryRef().Clone())
-            LOGGER.info(feature.GetGeometryRef().Centroid())
-
-        return cls()
-
-    @classmethod
-    def from_poly_wkt(cls, poly_wkt, tile_grid_filepath):
-        driver = ogr.GetDriverByName("ESRI Shapefile")
-        # Open the tile list file
-        dataSource_tile_list = driver.Open(tile_grid_filepath, 0)
-        # Check to see if shapefile is found.
-        if dataSource_tile_list is None:
-            LOGGER.error("ERROR: Could not open {}".format(tile_grid_filepath))
-            raise IOError
-        layer_tile_list = dataSource_tile_list.GetLayer()
-
-        layer_tile_list.SetSpatialFilter(ogr.CreateGeometryFromWkt(poly_wkt))
-
-        for feature in layer_tile_list:
-            LOGGER.info(
-                "{}, {}".format(feature.GetField("PATH"), feature.GetField("ROW"))
-            )
 
 
 class S2Tile(EOTile):
@@ -197,27 +159,3 @@ class S2Tile(EOTile):
         feature.Destroy()
 
         data_source.Destroy()
-
-    @classmethod
-    def from_tile_id(cls, tile_id, tile_grid_filepath):
-        # Open the tiles list file
-        tree = ET.parse(tile_grid_filepath)
-        root = tree.getroot()
-
-        for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
-            if tile_elt.find("TILE_IDENTIFIER").text == tile_id:
-                tile = cls()
-                tile.ID = tile_elt.find("TILE_IDENTIFIER").text
-                tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
-                tile.UL[0] = int(tile_elt.find("ULX").text)
-                tile.UL[1] = int(tile_elt.find("ULY").text)
-                tile_bb = tile_elt.find("B_BOX").text
-                tile.BB = tile_bb.split(" ")
-                # Create the polygon
-                tile.create_poly_bb()
-                LOGGER.info(tile.polyBB)
-                LOGGER.info(tile.polyBB.Centroid())
-
-                return tile
-
-        raise KeyError

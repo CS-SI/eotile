@@ -38,10 +38,11 @@ def get_bb_from_wkt(poly_wkt: str, aux_data_dirpath, is_s2):
     )
 
     if is_s2:
-        tile = S2Tile.from_tile_id(poly_wkt, str(filename_tiles_S2))
+        tile_list_l8 = geom_to_L8_tiles(poly_wkt, filename_tiles_L8)
+        return [elt.polyBB.bounds for elt in tile_list_l8]
     else:
-        tile = L8Tile.from_poly_wkt(poly_wkt, str(filename_tiles_L8))
-    return tile.get_bb()
+        tile_list_s2 = geom_to_S2_tiles(poly_wkt, filename_tiles_S2)
+        return [elt.polyBB.bounds for elt in tile_list_s2]
 
 
 def build_parser():
