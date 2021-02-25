@@ -32,30 +32,14 @@ def write_tiles_bb(tile_list: Union[List[S2Tile],
      :param filename: Path to the output file aux data (Must be a shp file)
      :type filename: String
      """
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    data_source = driver.CreateDataSource(filename)
-    if pathlib.Path(filename).exists():
-        driver.DeleteDataSource(filename)
-
-    # create the spatial reference for the bounding box, WGS84
-    srs_bb = osr.SpatialReference()
-    srs_bb.ImportFromEPSG(4326)
-    # create the layer
-    layer_bb = data_source.CreateLayer("bb", srs_bb, ogr.wkbPolygon)
-
-    # Add the fields
-    field_name = ogr.FieldDefn("TileID", ogr.OFTString)
-    field_name.SetWidth(10)
-    layer_bb.CreateField(field_name)
-
+    tile_list_tmp = []
     for tile in tile_list:
-        feature = ogr.Feature(layer_bb.GetLayerDefn())
-        feature.SetField("TileID", tile.ID)
-        feature.SetGeometry(ogr.CreateGeometryFromWkt(tile.polyBB.wkt))
-        layer_bb.CreateFeature(feature)
-        feature.Destroy()
+        tile_list_tmp.append({
+          'geometry': tile.polyBB,
+          'id': tile.ID})
+    tiles = gp.GeoDataFrame(tile_list_tmp)
 
-    data_source.Destroy()
+    tiles.to_file(filename)
 
 
 def load_aoi(filename_aoi):
@@ -115,7 +99,7 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
                 tile.NRows.append(int(tile_elt_size.find("NROWS").text))
                 tile.NCols.append(int(tile_elt_size.find("NCOLS").text))
 
-            tile.create_poly_tile()
+            # tile.create_poly_tile() TODO : delete
             tile_list.append(tile)
 
     LOGGER.warning(

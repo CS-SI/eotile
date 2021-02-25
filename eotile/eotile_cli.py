@@ -126,10 +126,12 @@ def main(arguments=None):
             else:
                 print(f"Unrecognized Option : {args.input[0]}")
 
-    # Ouptuting the result
+    # Outputing the result
     if args.to_file is not None:
-        write_tiles_bb(tile_list_s2, args.to_file)
-        write_tiles_bb(tile_list_l8, args.to_file)
+        if not args.l8_only:
+            write_tiles_bb(tile_list_s2, args.to_file+"_S2")
+        if not args.s2_only:
+            write_tiles_bb(tile_list_l8, args.to_file+"_L8")
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
             print("--- S2 Tiles ---")
