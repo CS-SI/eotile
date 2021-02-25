@@ -44,7 +44,7 @@ def write_tiles_bb(tile_list: Union[List[S2Tile],
 
 def load_aoi(filename_aoi):
     with fiona.open(filename_aoi) as src:
-        p = src.get(0) # TODO CHANGE
+        p = src.get(0)
     return(Polygon(p['geometry']['coordinates'][0]))
 
 
@@ -73,7 +73,6 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
     tree = ET.parse(filename_tiles_list)
     root = tree.getroot()
     tile_list = []
-    tile_dateline = 0
     for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
         tile = S2Tile()
         tile_bb = tile_elt.find("B_BOX").text
@@ -85,10 +84,10 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
         if (abs(float(tile.BB[1]) - float(tile.BB[3])) > 355.0) or (
             abs(float(tile.BB[5]) - float(tile.BB[7])) > 355.0
         ):
-            tile_dateline += 1
-            continue
+            tile.datetime_cutter()
         # Create the polygon
-        tile.create_poly_bb()
+        else:
+            tile.create_poly_bb()
         # Intersect with the AOI :
         if aoi.intersects(tile.polyBB):
             tile.ID = tile_elt.find("TILE_IDENTIFIER").text
@@ -98,16 +97,10 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
             for tile_elt_size in tile_elt.findall("./TILE_SIZE_LIST/TILE_SIZE"):
                 tile.NRows.append(int(tile_elt_size.find("NROWS").text))
                 tile.NCols.append(int(tile_elt_size.find("NCOLS").text))
-
-            # tile.create_poly_tile() TODO : delete
             tile_list.append(tile)
-
-    LOGGER.warning(
-        "WARNING: some of tiles are excluded due to the dateline issue {}.".format(
-            tile_dateline
-        )
-    )
     return tile_list
+
+
 
 
 def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
