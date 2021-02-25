@@ -2,14 +2,20 @@
 # testing in general, but rather to support the `find_packages` example in
 # setup.py that excludes installing the "tests" package
 
+import logging
 import unittest
 
-from shapely import wkt
 import geopandas as gp
+from shapely import wkt
+
 from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, get_tile, write_tiles_bb,\
-    read_tile_list_from_file
-import logging
+from eotile.eotiles.eotiles import (
+    create_tiles_list_L8,
+    create_tiles_list_S2,
+    get_tile,
+    read_tile_list_from_file,
+    write_tiles_bb,
+)
 
 
 class TestEOTile(unittest.TestCase):
@@ -33,7 +39,6 @@ class TestEOTile(unittest.TestCase):
         )
         self.assertTrue(polygon_test in l8file["geometry"])
 
-
         create_tiles_file_from_AOI(
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
@@ -48,7 +53,6 @@ class TestEOTile(unittest.TestCase):
             "-91.766187862 43.346200009))"
         )
         self.assertTrue(polygon_test in s2file["geometry"])
-
 
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_S2(
