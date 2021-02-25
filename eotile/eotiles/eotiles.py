@@ -57,8 +57,60 @@ def write_tiles_bb(tile_list: Union[List[S2Tile],
     data_source.Destroy()
 
 
+def create_tiles_list_S2_from_geometry(filename_tiles_list: str, geom: ogr.Geometry) -> Optional[List[S2Tile]]:
+    """Create the S2 tile list according to an aoi in ogr geometry format
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :param geom: Path to the input AOI file (Must be a shp file)
+    :type geom: osgeo.ogr.Geometry
+    """
+    # Open the tiles list file
+    tree = ET.parse(filename_tiles_list)
+    root = tree.getroot()
+
+    tile_list = []
+    tile_dateline = 0
+    for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
+        tile = S2Tile()
+        tile.ID = tile_elt.find("TILE_IDENTIFIER").text
+        tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
+        tile.UL[0] = int(tile_elt.find("ULX").text)
+        tile.UL[1] = int(tile_elt.find("ULY").text)
+        tile_bb = tile_elt.find("B_BOX").text
+        tile.BB = tile_bb.split(" ")
+
+        # TODO: Manage properly the case where the polygon cut the dateline (long +/-180�)
+        #       take a look to the FixPolygonCoordinatesAtDateLine method into
+        #       gdal/ogr/ogrgeometryfactory.cpp
+        if (abs(float(tile.BB[1]) - float(tile.BB[3])) > 355.0) or (
+            abs(float(tile.BB[5]) - float(tile.BB[7])) > 355.0
+        ):
+            tile_dateline += 1
+            continue
+
+        # Create the polygon
+        tile.create_poly_bb()
+
+        # Intersect with the AOI
+        if tile.polyBB.Intersects(geom):
+
+            for tile_elt_size in tile_elt.findall("./TILE_SIZE_LIST/TILE_SIZE"):
+                tile.NRows.append(int(tile_elt_size.find("NROWS").text))
+                tile.NCols.append(int(tile_elt_size.find("NCOLS").text))
+
+            tile.create_poly_tile()
+            tile_list.append(tile)
+
+    LOGGER.warning(
+        "WARNING: some of tiles are excluded due to the dateline issue {}.".format(
+            tile_dateline
+        )
+    )
+    return tile_list
+
 def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[S2Tile]]:
-    """Create the S2 tile list according to an aoi
+    """Create the S2 tile list according to an aoi file
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
     :type filename_tiles_list: str
@@ -132,6 +184,44 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return tile_list
 
 
+def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom: ogr.Geometry) -> Optional[List[L8Tile]]:
+    """Create the L8 tile list according to an aoi in ogr geometry format
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :param geom: Path to the input AOI file (Must be a shp file)
+    :type geom: osgeo.ogr.Geometry
+    """
+
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    # Open the tile list file
+    dataSource_tile_list = driver.Open(filename_tiles_list, 0)
+    # Check to see if shapefile is found.
+    if dataSource_tile_list is None:
+        LOGGER.error("ERROR: Could not open {}".format(filename_tiles_list))
+        raise IOError
+
+    layer_tile_list = dataSource_tile_list.GetLayer()
+    featureCount = layer_tile_list.GetFeatureCount()
+    LOGGER.info(
+        "Number of features in {}: {}".format(
+            pathlib.Path(filename_tiles_list).name, featureCount
+        )
+    )
+    layer_tile_list.SetSpatialFilter(geom)
+
+    tile_list = []
+
+    for feature_tile_list in layer_tile_list:
+        tile = L8Tile()
+
+        tile.ID = feature_tile_list.GetField("PR")
+        tile.polyBB = feature_tile_list.GetGeometryRef().Clone()
+
+        tile_list.append(tile)
+    return tile_list
+
+
 def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[L8Tile]]:
     """Create the L8 tile list according to an aoi
 
@@ -200,17 +290,10 @@ def get_tile(tile_list: Union[List[S2Tile], List[L8Tile]], tile_id: int) -> \
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
     """
-    if len(tile_list) == 0:
-        raise KeyError
-
-    i = -1
-    while tile_list[i + 1].ID != tile_id:
-        i += 1
-
-    if i != len(tile_list):
-        return tile_list[i]
-    else:
-        raise KeyError
+    for elt in tile_list:
+        if elt.ID == tile_id:
+            return elt
+    raise KeyError
 
 
 def read_tile_list_from_file(filename_tiles: str) \
