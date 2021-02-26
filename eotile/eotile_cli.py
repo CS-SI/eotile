@@ -12,7 +12,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-import sys
+
 from geopy.geocoders import Nominatim
 
 from eotile.eotiles.eotiles import (
@@ -72,10 +72,11 @@ def build_parser():
         "on standard output",
     )
 
-    parser.add_argument('-log_level', choices=['debug', 'info', 'warn', 'error'],
-                        help="Level of the logging system, default is warn"
-                        )
-
+    parser.add_argument(
+        "-log_level",
+        choices=["debug", "info", "warn", "error"],
+        help="Level of the logging system, default is warn",
+    )
 
     return parser
 
@@ -99,7 +100,6 @@ def main(arguments=None):
         logging.basicConfig(filename="eotile_cli.log", level=logging.WARNING)
     LOGGER = logging.getLogger(__name__)
 
-
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
 
@@ -112,8 +112,10 @@ def main(arguments=None):
     else:
         if not args.l8_only:
             # S2 Tiles
-            filename_tiles_S2 = aux_data_dirpath / \
-                                "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            filename_tiles_S2 = (
+                aux_data_dirpath
+                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            )
             if args.input[0] == "wkt":
                 wkt = args.input[1]
                 tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
@@ -138,8 +140,9 @@ def main(arguments=None):
 
         if not args.s2_only:
             # L8 Tiles
-            filename_tiles_L8 = aux_data_dirpath / \
-                                "wrs2_descending" / "wrs2_descending.shp"
+            filename_tiles_L8 = (
+                aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
+            )
             if args.input[0] == "wkt":
                 wkt = args.input[1]
                 tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
@@ -166,9 +169,15 @@ def main(arguments=None):
     if args.to_file is not None:
         output_path = Path(args.to_file)
         if not args.l8_only:
-            write_tiles_bb(tile_list_s2, output_path.with_name(output_path.stem + "_S2" + output_path.suffix))
+            write_tiles_bb(
+                tile_list_s2,
+                output_path.with_name(output_path.stem + "_S2" + output_path.suffix),
+            )
         if not args.s2_only:
-            write_tiles_bb(tile_list_l8, output_path.with_name(output_path.stem + "_L8" + output_path.suffix))
+            write_tiles_bb(
+                tile_list_l8,
+                output_path.with_name(output_path.stem + "_L8" + output_path.suffix),
+            )
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:

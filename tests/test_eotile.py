@@ -4,10 +4,11 @@
 
 import logging
 import unittest
+from pathlib import Path
 
 import geopandas as gp
 from shapely import wkt
-from pathlib import Path
+
 from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
 from eotile.eotiles.eotiles import (
     create_tiles_list_L8,
@@ -58,7 +59,9 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_S2(
-            Path("data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"),
+            Path(
+                "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            ),
             Path("data/test_data/illinois.shp"),
         )
         self.assertEqual(
@@ -487,7 +490,9 @@ class TestEOTile(unittest.TestCase):
         write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
-            Path("/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp")
+            Path(
+                "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
+            )
         )
         ID_list = []
         for elt in read_file:
