@@ -78,15 +78,13 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
         tile_bb = tile_elt.find("B_BOX").text
         tile.BB = tile_bb.split(" ")
 
-        # TODO: Manage properly the case where the polygon cut the dateline (long +/-180�)
-        #       take a look to the FixPolygonCoordinatesAtDateLine method into
-        #       gdal/ogr/ogrgeometryfactory.cpp
+        # Create the polygon
+        # If it crosses the datetime line, then send it to the appropriate function
         if (abs(float(tile.BB[1]) - float(tile.BB[3])) > 355.0) or (
             abs(float(tile.BB[5]) - float(tile.BB[7])) > 355.0
         ):
             tile.datetime_cutter()
-        # Create the polygon
-        else:
+        else: # Otherwise, send to the the standard one
             tile.create_poly_bb()
         # Intersect with the AOI :
         if aoi.intersects(tile.polyBB):
