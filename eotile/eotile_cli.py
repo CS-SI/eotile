@@ -12,7 +12,7 @@ import argparse
 import logging
 import sys
 from pathlib import PurePath
-
+import sys
 from geopy.geocoders import Nominatim
 
 from eotile.eotiles.eotiles import (
@@ -123,7 +123,7 @@ def main(arguments=None):
                     )
                 )
             else:
-                print(f"Unrecognized Option : {args.input[0]}")
+                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
 
         if not args.s2_only:
             # L8 Tiles
@@ -150,7 +150,7 @@ def main(arguments=None):
                     )
                 )
             else:
-                print(f"Unrecognized Option : {args.input[0]}")
+                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
 
     # Outputing the result
     if args.to_file is not None:
@@ -160,59 +160,49 @@ def main(arguments=None):
             write_tiles_bb(tile_list_l8, args.to_file + "_L8")
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.wkt)
+                sys.stdout.write(elt.polyBB.wkt)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.wkt)
+                sys.stdout.write(elt.polyBB.wkt)
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.bounds)
+                sys.stdout.write(elt.polyBB.bounds)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.bounds)
+                sys.stdout.write(elt.polyBB.bounds)
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.ID)
+                sys.stdout.write(elt.ID)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.ID)
+                sys.stdout.write(elt.ID)
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
                 centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
                 centroid.reverse()
-                print(geolocator.reverse(tuple(centroid)))
+                sys.stdout.write(geolocator.reverse(tuple(centroid)))
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
                 centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
                 centroid.reverse()
-                print(geolocator.reverse(tuple(centroid)))
+                sys.stdout.write(geolocator.reverse(tuple(centroid)))
     else:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                elt.display()
+                sys.stdout.write(str(elt))
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                elt.display()
+                sys.stdout.write(str(elt))
 
 
 if __name__ == "__main__":

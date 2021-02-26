@@ -39,7 +39,6 @@ def get_tiles_from_tile_id(tile_id, aux_data_dirpath, s2_only, l8_only):
     )
     check_bb_on_s2, check_bb_on_l8 = False, False
 
-    tiles = [] # Contains tiles of the superimposable source
     wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
     output_s2, output_l8 = [], []
     if not s2_only:
