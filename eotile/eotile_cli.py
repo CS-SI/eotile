@@ -11,7 +11,7 @@ EO tile
 import argparse
 import logging
 import sys
-from pathlib import PurePath
+from pathlib import Path
 import sys
 from geopy.geocoders import Nominatim
 
@@ -90,19 +90,17 @@ def main(arguments=None):
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
 
-    aux_data_dirpath = data_path.strip()
+    aux_data_dirpath = Path(data_path.strip())
     tile_list_s2, tile_list_l8 = [], []
     if args.input[0] == "tile_id":
         tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
-            args.input[1], aux_data_dirpath, args.s2_only, args.l8_only
+            Path(args.input[1]), aux_data_dirpath, args.s2_only, args.l8_only
         )
     else:
         if not args.l8_only:
             # S2 Tiles
-            filename_tiles_S2 = str(
-                PurePath(aux_data_dirpath)
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
-            )
+            filename_tiles_S2 = aux_data_dirpath / \
+                                "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             if args.input[0] == "wkt":
                 wkt = args.input[1]
                 tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
@@ -115,7 +113,7 @@ def main(arguments=None):
                 wkt = bbox_to_wkt(args.input[1])
                 tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
             elif args.input[0] == "file":
-                aoi_filepath = args.input[1]
+                aoi_filepath = Path(args.input[1])
                 tile_list_s2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
                 LOGGER.info(
                     "Nb of S2 tiles which crossing the AOI: {}".format(
@@ -127,9 +125,8 @@ def main(arguments=None):
 
         if not args.s2_only:
             # L8 Tiles
-            filename_tiles_L8 = str(
-                PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
-            )
+            filename_tiles_L8 = aux_data_dirpath / \
+                                "wrs2_descending" / "wrs2_descending.shp"
             if args.input[0] == "wkt":
                 wkt = args.input[1]
                 tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
@@ -142,7 +139,7 @@ def main(arguments=None):
                 wkt = bbox_to_wkt(args.input[1])
                 tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
             elif args.input[0] == "file":
-                aoi_filepath = args.input[1]
+                aoi_filepath = Path(args.input[1])
                 tile_list_l8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
                 LOGGER.info(
                     "Nb of L8 tiles which crossing the AOI: {}".format(
@@ -154,10 +151,11 @@ def main(arguments=None):
 
     # Outputing the result
     if args.to_file is not None:
+        output_path = Path(args.to_file)
         if not args.l8_only:
-            write_tiles_bb(tile_list_s2, args.to_file + "_S2")
+            write_tiles_bb(tile_list_s2, output_path.with_name(output_path.stem + "_S2" + output_path.suffix))
         if not args.s2_only:
-            write_tiles_bb(tile_list_l8, args.to_file + "_L8")
+            write_tiles_bb(tile_list_l8, output_path.with_name(output_path.stem + "_L8" + output_path.suffix))
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
