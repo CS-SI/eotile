@@ -71,6 +71,12 @@ def build_parser():
         help="Output the location of the centroid of matching tiles "
         "on standard output",
     )
+
+    parser.add_argument('-log_level', choices=['debug', 'info', 'warn', 'error'],
+                        help="Level of the logging system, default is warn"
+                        )
+
+
     return parser
 
 
@@ -80,12 +86,19 @@ def main(arguments=None):
 
     :param list arguments: list of arguments
     """
-    logging.basicConfig(filename="eotile_cli.log", level=logging.INFO)
+    arg_parser = build_parser()
+    args = arg_parser.parse_args(args=arguments)
+
+    if args.log_level == "debug":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.DEBUG)
+    elif args.log_level == "info":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.INFO)
+    elif args.log_level == "error":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.ERROR)
+    else:
+        logging.basicConfig(filename="eotile_cli.log", level=logging.WARNING)
     LOGGER = logging.getLogger(__name__)
 
-    arg_parser = build_parser()
-
-    args = arg_parser.parse_args(args=arguments)
 
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
