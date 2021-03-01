@@ -10,7 +10,6 @@ EO tile
 
 import logging
 from shapely.geometry import Polygon, MultiPolygon
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -23,10 +22,11 @@ class EOTile:
         self.ID = None
         self.polyBB = None
 
-    def display(self):
+    def __str__(self):
         """ Display the content of a tile"""
-        print(self.ID)
-        print(self.polyBB)
+        string_representation = str(self.ID) + "\n"
+        string_representation += str(self.polyBB) + "\n"
+        return string_representation
 
     def get_bb(self):
         """
@@ -42,11 +42,11 @@ class L8Tile(EOTile):
         """ Constructor """
         EOTile.__init__(self)
 
-    def display(self):
+    def __str__(self):
         """ Display the content of a L8 tile"""
-        LOGGER.info("== Tile L8 ==")
-        EOTile.display(self)
-
+        string_representation = "== Tile L8 ==\n"
+        string_representation += super(L8Tile, self).__str__()
+        return string_representation
 
 
 class S2Tile(EOTile):
@@ -61,16 +61,17 @@ class S2Tile(EOTile):
         self.NRows = []
         self.NCols = []
 
-    def display(self):
+    def __str__(self):
         """ Display the content of tile"""
-        LOGGER.info("== S2 Tile ==")
-        EOTile.display(self)
-        print(self.BB)
-        print(self.UL)
-        print(self.SRS)
-        print(self.NRows)
-        print(self.NCols)
-        print(self.poly)
+        string_representation = "== S2 Tile ==\n"
+        string_representation += super().__str__()
+        string_representation += str(self.BB) + "\n"
+        string_representation += str(self.UL) + "\n"
+        string_representation += str(self.SRS) + "\n"
+        string_representation += str(self.NRows) + "\n"
+        string_representation += str(self.NCols) + "\n"
+        string_representation += str(self.poly) + "\n"
+        return string_representation
 
     def create_poly_bb(self):
         """ Create the Shapely Polygon from the list of BB corner """

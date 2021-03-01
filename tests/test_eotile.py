@@ -4,6 +4,7 @@
 
 import logging
 import unittest
+from pathlib import Path
 
 import geopandas as gp
 from shapely import wkt
@@ -20,14 +21,16 @@ from eotile.eotiles.eotiles import (
 
 class TestEOTile(unittest.TestCase):
     def test_create_tiles_file_from_AOI(self):
-        output_path = "data/output"
+        output_path = Path("data/output")
+        aoi_path = Path("data/test_data/illinois.shp")
+        aux_path = Path("data/aux_data")
         create_tiles_file_from_AOI(
-            aoi_filepath="data/test_data/illinois.shp",
-            aux_data_dirpath="data/aux_data",
+            aoi_filepath=aoi_path,
+            aux_data_dirpath=aux_path,
             out_dirpath=output_path,
             is_s2=False,
         )
-        l8file = gp.read_file(output_path + "/illinois_tiles_L8.shp")
+        l8file = gp.read_file(output_path / "illinois_tiles_L8.shp")
         self.assertEqual(l8file.count().geometry, 18)
         polygon_test = wkt.loads(
             "POLYGON ((-92.76509068409111 41.16654042276556, -92.7655 41.1666, -92.75222227023833"
@@ -40,12 +43,12 @@ class TestEOTile(unittest.TestCase):
         self.assertTrue(polygon_test in l8file["geometry"])
 
         create_tiles_file_from_AOI(
-            aoi_filepath="data/test_data/illinois.shp",
-            aux_data_dirpath="data/aux_data",
+            aoi_filepath=aoi_path,
+            aux_data_dirpath=aux_path,
             out_dirpath=output_path,
             is_s2=True,
         )
-        s2file = gp.read_file(output_path + "/illinois_tiles_S2.shp")
+        s2file = gp.read_file(output_path / "illinois_tiles_S2.shp")
         self.assertEqual(s2file.count().geometry, 33)
         polygon_test = wkt.loads(
             "POLYGON ((-91.766187862 43.346200009, -90.533217951 43.326246335,"
@@ -56,8 +59,10 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_S2(
-            "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml",
-            "data/test_data/illinois.shp",
+            Path(
+                "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            ),
+            Path("data/test_data/illinois.shp"),
         )
         self.assertEqual(
             [
@@ -450,7 +455,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_l8(self):
         l8 = create_tiles_list_L8(
-            "data/aux_data/wrs2_descending/", "data/test_data/illinois.shp"
+            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
@@ -479,13 +484,15 @@ class TestEOTile(unittest.TestCase):
 
     def test_read_write_tiles_bb(self):
         ll8 = create_tiles_list_L8(
-            "data/aux_data/wrs2_descending/", "data/test_data/illinois.shp"
+            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
         )
-        test_file_path = "data/output/test_read_write.shp"
+        test_file_path = Path("data/output/test_read_write.shp")
         write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
-            "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
+            Path(
+                "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
+            )
         )
         ID_list = []
         for elt in read_file:

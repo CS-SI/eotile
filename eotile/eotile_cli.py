@@ -11,7 +11,7 @@ EO tile
 import argparse
 import logging
 import sys
-from pathlib import PurePath
+from pathlib import Path
 
 from geopy.geocoders import Nominatim
 
@@ -71,6 +71,13 @@ def build_parser():
         help="Output the location of the centroid of matching tiles "
         "on standard output",
     )
+
+    parser.add_argument(
+        "-log_level",
+        choices=["debug", "info", "warn", "error"],
+        help="Level of the logging system, default is warn",
+    )
+
     return parser
 
 
@@ -80,27 +87,33 @@ def main(arguments=None):
 
     :param list arguments: list of arguments
     """
-    logging.basicConfig(filename="eotile_cli.log", level=logging.INFO)
-    LOGGER = logging.getLogger(__name__)
-
     arg_parser = build_parser()
-
     args = arg_parser.parse_args(args=arguments)
+
+    if args.log_level == "debug":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.DEBUG)
+    elif args.log_level == "info":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.INFO)
+    elif args.log_level == "error":
+        logging.basicConfig(filename="eotile_cli.log", level=logging.ERROR)
+    else:
+        logging.basicConfig(filename="eotile_cli.log", level=logging.WARNING)
+    LOGGER = logging.getLogger(__name__)
 
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
 
-    aux_data_dirpath = data_path.strip()
+    aux_data_dirpath = Path(data_path.strip())
     tile_list_s2, tile_list_l8 = [], []
     if args.input[0] == "tile_id":
         tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
-            args.input[1], aux_data_dirpath, args.s2_only, args.l8_only
+            Path(args.input[1]), aux_data_dirpath, args.s2_only, args.l8_only
         )
     else:
         if not args.l8_only:
             # S2 Tiles
-            filename_tiles_S2 = str(
-                PurePath(aux_data_dirpath)
+            filename_tiles_S2 = (
+                aux_data_dirpath
                 / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             )
             if args.input[0] == "wkt":
@@ -115,7 +128,7 @@ def main(arguments=None):
                 wkt = bbox_to_wkt(args.input[1])
                 tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
             elif args.input[0] == "file":
-                aoi_filepath = args.input[1]
+                aoi_filepath = Path(args.input[1])
                 tile_list_s2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
                 LOGGER.info(
                     "Nb of S2 tiles which crossing the AOI: {}".format(
@@ -123,12 +136,12 @@ def main(arguments=None):
                     )
                 )
             else:
-                print(f"Unrecognized Option : {args.input[0]}")
+                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
 
         if not args.s2_only:
             # L8 Tiles
-            filename_tiles_L8 = str(
-                PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
+            filename_tiles_L8 = (
+                aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
             )
             if args.input[0] == "wkt":
                 wkt = args.input[1]
@@ -142,7 +155,7 @@ def main(arguments=None):
                 wkt = bbox_to_wkt(args.input[1])
                 tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
             elif args.input[0] == "file":
-                aoi_filepath = args.input[1]
+                aoi_filepath = Path(args.input[1])
                 tile_list_l8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
                 LOGGER.info(
                     "Nb of L8 tiles which crossing the AOI: {}".format(
@@ -150,69 +163,66 @@ def main(arguments=None):
                     )
                 )
             else:
-                print(f"Unrecognized Option : {args.input[0]}")
+                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
 
     # Outputing the result
     if args.to_file is not None:
+        output_path = Path(args.to_file)
         if not args.l8_only:
-            write_tiles_bb(tile_list_s2, args.to_file + "_S2")
+            write_tiles_bb(
+                tile_list_s2,
+                output_path.with_name(output_path.stem + "_S2" + output_path.suffix),
+            )
         if not args.s2_only:
-            write_tiles_bb(tile_list_l8, args.to_file + "_L8")
+            write_tiles_bb(
+                tile_list_l8,
+                output_path.with_name(output_path.stem + "_L8" + output_path.suffix),
+            )
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.wkt)
+                sys.stdout.write(elt.polyBB.wkt)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.wkt)
+                sys.stdout.write(elt.polyBB.wkt)
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.polyBB.bounds)
+                sys.stdout.write(elt.polyBB.bounds)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.polyBB.bounds)
+                sys.stdout.write(elt.polyBB.bounds)
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                print(elt.ID)
+                sys.stdout.write(elt.ID)
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                print(elt.ID)
+                sys.stdout.write(elt.ID)
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
                 centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
                 centroid.reverse()
-                print(geolocator.reverse(tuple(centroid)))
+                sys.stdout.write(geolocator.reverse(tuple(centroid)))
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
                 centroid = list(elt.polyBB.Centroid().GetPoint()[:2])
                 centroid.reverse()
-                print(geolocator.reverse(tuple(centroid)))
+                sys.stdout.write(geolocator.reverse(tuple(centroid)))
     else:
         if len(tile_list_s2) > 0:
-            print("--- S2 Tiles ---")
             for elt in tile_list_s2:
-                elt.display()
+                sys.stdout.write(str(elt))
 
         if len(tile_list_l8) > 0:
-            print("--- L8 Tiles ---")
             for elt in tile_list_l8:
-                elt.display()
+                sys.stdout.write(str(elt))
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ Generate tile list according AOI
 :license: see LICENSE file.
 """
 
-from pathlib import PurePath
+from pathlib import Path
 from eotile.eotiles.eotiles import get_tile, bbox_to_wkt, geom_to_S2_tiles, geom_to_L8_tiles,\
     create_tiles_list_L8_from_geometry, create_tiles_list_S2_from_geometry
 from eotile.eotiles.eotiles import L8Tile, S2Tile
@@ -28,18 +28,15 @@ def get_tiles_from_tile_id(tile_id, aux_data_dirpath, s2_only, l8_only):
     """
 
     # S2 tiles grig
-    filename_tiles_S2 = str(
-                PurePath(aux_data_dirpath)
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
-            )
+    filename_tiles_S2 = Path(aux_data_dirpath) / \
+                        "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
 
     # L8 tiles grid
-    filename_tiles_L8 = str(
-        PurePath(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
-    )
+    filename_tiles_L8 = Path(aux_data_dirpath) / \
+                        "wrs2_descending" / "wrs2_descending.shp"
+
     check_bb_on_s2, check_bb_on_l8 = False, False
 
-    tiles = [] # Contains tiles of the superimposable source
     wkt = bbox_to_wkt(['-90', '90', '-180', '180'])
     output_s2, output_l8 = [], []
     if not s2_only:

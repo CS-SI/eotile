@@ -9,7 +9,7 @@ tile list utilities
 """
 
 import logging
-import pathlib
+from pathlib import Path
 from lxml import etree as ET
 import geopandas as gp
 import fiona
@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def write_tiles_bb(tile_list: Union[List[S2Tile],
-                                    List[L8Tile]], filename: str):
+                                    List[L8Tile]], filename: Path):
     """Writes the input tiles to a file
 
      :param tile_list: The list of input tiles to write
@@ -48,7 +48,7 @@ def load_aoi(filename_aoi):
     return(Polygon(p['geometry']['coordinates'][0]))
 
 
-def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optional[List[S2Tile]]:
+def create_tiles_list_S2(filename_tiles_list: Path, filename_aoi: str) -> Optional[List[S2Tile]]:
     """Create the S2 tile list according to an aoi file
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -61,7 +61,7 @@ def create_tiles_list_S2(filename_tiles_list: str, filename_aoi: str) -> Optiona
     return create_tiles_list_S2_from_geometry(filename_tiles_list, geom)
 
 
-def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optional[List[S2Tile]]:
+def create_tiles_list_S2_from_geometry(filename_tiles_list: Path, aoi) -> Optional[List[S2Tile]]:
     """Create the S2 tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -70,7 +70,7 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
     :type aoi: osgeo.ogr.Geometry
     """
     # Open the tiles list file
-    tree = ET.parse(filename_tiles_list)
+    tree = ET.parse(str(filename_tiles_list))
     root = tree.getroot()
     tile_list = []
     for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
@@ -101,7 +101,7 @@ def create_tiles_list_S2_from_geometry(filename_tiles_list: str, aoi) -> Optiona
 
 
 
-def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
+def create_tiles_list_L8_from_geometry(filename_tiles_list: Path, geom):
     """Create the L8 tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -114,13 +114,13 @@ def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
     dataSource_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
-        LOGGER.error("ERROR: Could not open {}".format(filename_tiles_list))
+        LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles_list)))
         raise IOError
 
     featureCount = len(dataSource_tile_list)
     LOGGER.info(
         "Number of features in {}: {}".format(
-            pathlib.Path(filename_tiles_list).name, featureCount
+            filename_tiles_list.name, featureCount
         )
     )
     tile_list = []
@@ -135,11 +135,11 @@ def create_tiles_list_L8_from_geometry(filename_tiles_list: str, geom):
 
     return tile_list
 
-def create_tiles_list_L8(filename_tiles_list: str, filename_aoi: str) -> Optional[List[L8Tile]]:
+def create_tiles_list_L8(filename_tiles_list: Path, filename_aoi: Path) -> Optional[List[L8Tile]]:
     """Create the L8 tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder
-    :type filename_tiles_list: string
+    :type filename_tiles_list: Path
     :param filename_aoi: Path to the input AOI file (Must be a shp file)
     :type filename_aoi: String
     """
@@ -163,7 +163,7 @@ def get_tile(tile_list: Union[List[S2Tile], List[L8Tile]], tile_id: int) -> \
     raise KeyError
 
 
-def read_tile_list_from_file(filename_tiles: str) \
+def read_tile_list_from_file(filename_tiles: Path) \
         -> Optional[Union[List[S2Tile], List[L8Tile], List[
             EOTile]]]:
     """Returns a tile list from a file previously created
@@ -175,13 +175,13 @@ def read_tile_list_from_file(filename_tiles: str) \
     dataSource_tile_list = gp.read_file(filename_tiles)
     # Check to see if shapefile is found.
     if dataSource_tile_list is None:
-        LOGGER.error("ERROR: Could not open {}".format(filename_tiles))
+        LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles)))
         raise IOError
 
     featureCount = len(dataSource_tile_list)
     LOGGER.info(
         "Number of features in {}: {}".format(
-            pathlib.Path(filename_tiles).name, featureCount
+            filename_tiles.name, featureCount
         )
     )
 
