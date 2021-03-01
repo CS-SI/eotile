@@ -84,6 +84,12 @@ class S2Tile(EOTile):
         )
 
     def compute_datetime_point(self, east_pt, west_pt):
+        """
+        Computes the latitude of the point on the datetime line from two points on each side of that line
+
+        :param east_pt: Point of the east part of the line
+        :param west_pt:  Point of the west part of the line
+        """
         lat = 1  # index of latitudes
         long = 1 - lat
         c1_den = -float(self.BB[east_pt[long]]) + float(self.BB[west_pt[long]]) + 360
@@ -95,8 +101,6 @@ class S2Tile(EOTile):
         """ Create the Shapely Polygon from the list of BB corner in the case where it crosses the datetime_line"""
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # compute latitude of cutting points
-        lat = 1  # index of latitudes
-        long = 1 - lat
         [a, b, c, d] = indices
         if (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and (
             abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
