@@ -13,7 +13,7 @@ from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
 from eotile.eotiles.eotiles import (
     create_tiles_list_L8,
     create_tiles_list_S2,
-    get_tile,
+    get_tile_S2,
     read_tile_list_from_file,
     write_tiles_bb,
 )
@@ -79,7 +79,7 @@ class TestEOTile(unittest.TestCase):
         )
         self.assertEqual(len(ls2), 33)
         self.assertTrue(
-            get_tile(ls2, ls2[1].ID).BB
+            get_tile_S2(ls2, ls2[1].ID).BB
             in [
                 [
                     "43.346200009",

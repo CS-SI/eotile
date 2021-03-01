@@ -13,12 +13,18 @@ import logging
 from pathlib import Path
 import sys
 
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, write_tiles_bb
+from eotile.eotiles.eotiles import (
+    create_tiles_list_L8,
+    create_tiles_list_S2,
+    write_tiles_bb,
+)
 
 LOGGER = logging.getLogger(__name__)
 
 
-def create_tiles_file_from_AOI(aoi_filepath: Path, aux_data_dirpath: Path, out_dirpath: Path, is_s2):
+def create_tiles_file_from_AOI(
+    aoi_filepath: Path, aux_data_dirpath: Path, out_dirpath: Path, is_s2
+):
     """
     Creates Shapefiles containing tiles of each Sentinel 2 and Landscape 8 that are cointained within the AOI given
     in input
@@ -34,12 +40,16 @@ def create_tiles_file_from_AOI(aoi_filepath: Path, aux_data_dirpath: Path, out_d
     basenameAOI_wt_ext = aoi_filepath.stem
     if is_s2:
         # S2 tiles
-        filename_tiles_S2 = Path(aux_data_dirpath) / \
-                            "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+        filename_tiles_S2 = (
+            Path(aux_data_dirpath)
+            / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+        )
 
         tile_list_S2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
 
-        LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2)))
+        LOGGER.info(
+            "Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2))
+        )
         write_tiles_bb(
             tile_list_S2,
             Path(out_dirpath) / (basenameAOI_wt_ext + "_tiles_S2.shp"),
@@ -50,10 +60,13 @@ def create_tiles_file_from_AOI(aoi_filepath: Path, aux_data_dirpath: Path, out_d
 
         tile_list_L8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
 
-        LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_L8)))
+        LOGGER.info(
+            "Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_L8))
+        )
 
         write_tiles_bb(
-            tile_list_L8, out_dirpath / (basenameAOI_wt_ext + "_tiles_L8.shp"))
+            tile_list_L8, out_dirpath / (basenameAOI_wt_ext + "_tiles_L8.shp")
+        )
 
 
 def build_parser():
