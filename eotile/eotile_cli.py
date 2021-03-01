@@ -107,7 +107,7 @@ def main(arguments=None):
     tile_list_s2, tile_list_l8 = [], []
     if args.input[0] == "tile_id":
         tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
-            Path(args.input[1]), aux_data_dirpath, args.s2_only, args.l8_only
+            args.input[1], aux_data_dirpath, args.s2_only, args.l8_only
         )
     else:
         if not args.l8_only:
@@ -165,7 +165,7 @@ def main(arguments=None):
             else:
                 logger.error(f"Unrecognized Option : {args.input[0]}")
 
-    # Outputing the result
+    # Outputting the result
     if args.to_file is not None:
         output_path = Path(args.to_file)
         if not args.l8_only:
