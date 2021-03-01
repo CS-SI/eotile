@@ -2,13 +2,20 @@
 # testing in general, but rather to support the `find_packages` example in
 # setup.py that excludes installing the "tests" package
 
+import logging
 import unittest
 
 import geopandas as gp
 from shapely import wkt
 
-from eotile.eotile.create_tile_shp_from_AOI import *
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2
+from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
+from eotile.eotiles.eotiles import (
+    create_tiles_list_L8,
+    create_tiles_list_S2,
+    get_tile,
+    read_tile_list_from_file,
+    write_tiles_bb,
+)
 
 
 class TestEOTile(unittest.TestCase):
@@ -18,7 +25,7 @@ class TestEOTile(unittest.TestCase):
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
             out_dirpath=output_path,
-            is_s2=True,
+            is_s2=False,
         )
         l8file = gp.read_file(output_path + "/illinois_tiles_L8.shp")
         self.assertEqual(l8file.count().geometry, 18)
@@ -31,11 +38,12 @@ class TestEOTile(unittest.TestCase):
             "40.8527, -92.76509068409111 41.16654042276556))"
         )
         self.assertTrue(polygon_test in l8file["geometry"])
+
         create_tiles_file_from_AOI(
             aoi_filepath="data/test_data/illinois.shp",
             aux_data_dirpath="data/aux_data",
             out_dirpath=output_path,
-            is_s2=False,
+            is_s2=True,
         )
         s2file = gp.read_file(output_path + "/illinois_tiles_S2.shp")
         self.assertEqual(s2file.count().geometry, 33)
