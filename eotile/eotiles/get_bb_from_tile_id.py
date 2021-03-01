@@ -36,7 +36,6 @@ def get_tiles_from_tile_id(
     :param l8_only: Is he requested tile a Landscape 8 tile ?
     :type l8_only: Boolean
     :return: Two lists of tiles
-    :rtype: Tuple[s2Tile, l8Tile]
     """
 
     # s2 tiles grig
