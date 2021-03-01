@@ -10,6 +10,7 @@ EO tile
 
 import logging
 from shapely.geometry import Polygon, MultiPolygon
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -34,6 +35,7 @@ class EOTile:
 
         """
         return self.polyBB.GetEnvelope()
+
 
 class L8Tile(EOTile):
     """ Class which represent a L8 tile """
@@ -77,51 +79,59 @@ class S2Tile(EOTile):
         """ Create the Shapely Polygon from the list of BB corner """
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # Create polygon
-        self.polyBB = Polygon([[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices])
-
+        self.polyBB = Polygon(
+            [[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices]
+        )
 
     def compute_datetime_point(self, east_pt, west_pt):
-        lat = 1 # index of latitudes
+        """
+        Computes the latitude of the point on the datetime line from two points on each side of that line
+
+        :param east_pt: Point of the east part of the line
+        :param west_pt:  Point of the west part of the line
+        """
+        lat = 1  # index of latitudes
         long = 1 - lat
         c1_den = -float(self.BB[east_pt[long]]) + float(self.BB[west_pt[long]]) + 360
         c1_num = 180 - float(self.BB[east_pt[long]])
         coeff1_lat = float(self.BB[west_pt[lat]]) - float(self.BB[east_pt[lat]])
         return float(self.BB[east_pt[lat]]) + c1_num / c1_den * coeff1_lat
 
-
-
     def datetime_cutter(self):
         """ Create the Shapely Polygon from the list of BB corner in the case where it crosses the datetime_line"""
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # compute latitude of cutting points
-        lat = 1 # index of latitudes
-        long = 1 - lat
         [a, b, c, d] = indices
         if (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and (
             abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
-        ): # Case where two segments are of each side of the datetime line
+        ):  # Case where two segments are of each side of the datetime line
             c1_lat = self.compute_datetime_point(a, b)
             c2_lat = self.compute_datetime_point(d, c)
             # Create east polygon
             east_part = Polygon(
-                ([
-                    [float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
-                    [180, c1_lat],
-                    [180, c2_lat],
-                    [float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])]
-                ])
+                (
+                    [
+                        [float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
+                        [180, c1_lat],
+                        [180, c2_lat],
+                        [float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])],
+                    ]
+                )
             )
             # Create west polygon
             west_part = Polygon(
-                ([[-180, c1_lat],
-                    [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
-                    [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
-                  [-180, c2_lat]
-                ])
+                (
+                    [
+                        [-180, c1_lat],
+                        [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
+                        [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
+                        [-180, c2_lat],
+                    ]
+                )
             )
-        elif (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and not(
+        elif (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and not (
             abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
-        ): # Case where only top line is crossed
+        ):  # Case where only top line is crossed
             # Case 1a
             #   _
             # /_/
@@ -129,20 +139,37 @@ class S2Tile(EOTile):
                 c1_lat = self.compute_datetime_point(a, b)
                 c2_lat = self.compute_datetime_point(c, b)
                 east_part = Polygon(
-                    ([
-                        [float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
-                        [180, c1_lat],
-                        [180, c2_lat],
-                        [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
-                        [float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])]
-                    ])
+                    (
+                        [
+                            [
+                                float(self.BB[indices[0][0]]),
+                                float(self.BB[indices[0][1]]),
+                            ],
+                            [180, c1_lat],
+                            [180, c2_lat],
+                            [
+                                float(self.BB[indices[2][0]]),
+                                float(self.BB[indices[2][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[3][0]]),
+                                float(self.BB[indices[3][1]]),
+                            ],
+                        ]
+                    )
                 )
                 # Create west polygon
                 west_part = Polygon(
-                    ([[-180, c1_lat],
-                      [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
-                      [-180, c2_lat]
-                      ])
+                    (
+                        [
+                            [-180, c1_lat],
+                            [
+                                float(self.BB[indices[1][0]]),
+                                float(self.BB[indices[1][1]]),
+                            ],
+                            [-180, c2_lat],
+                        ]
+                    )
                 )
             # Case 2a
             #  _
@@ -151,25 +178,43 @@ class S2Tile(EOTile):
                 c1_lat = self.compute_datetime_point(a, b)
                 c2_lat = self.compute_datetime_point(a, d)
                 east_part = Polygon(
-                    ([[float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
-                        [180, c1_lat],
-                      [180, c2_lat]
-                      ])
+                    (
+                        [
+                            [
+                                float(self.BB[indices[0][0]]),
+                                float(self.BB[indices[0][1]]),
+                            ],
+                            [180, c1_lat],
+                            [180, c2_lat],
+                        ]
+                    )
                 )
                 # Create west polygon
                 west_part = Polygon(
-                    ([[-180, c1_lat],
-                        [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
-                        [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
-                        [float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])],
-                        [-180, c2_lat]
-                    ])
+                    (
+                        [
+                            [-180, c1_lat],
+                            [
+                                float(self.BB[indices[1][0]]),
+                                float(self.BB[indices[1][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[2][0]]),
+                                float(self.BB[indices[2][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[3][0]]),
+                                float(self.BB[indices[3][1]]),
+                            ],
+                            [-180, c2_lat],
+                        ]
+                    )
                 )
             else:
                 LOGGER.error("Unrecognized crossing BBOX : ", self.BB)
 
-        elif not(abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and (
-                abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
+        elif not (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and (
+            abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
         ):  # Case where only bottom line is crossed
             # Case 1b
             #   _
@@ -178,19 +223,37 @@ class S2Tile(EOTile):
                 c1_lat = self.compute_datetime_point(d, a)
                 c2_lat = self.compute_datetime_point(d, c)
                 east_part = Polygon(
-                    ([[float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])],
-                        [180, c1_lat],
-                      [180, c2_lat]
-                      ])
+                    (
+                        [
+                            [
+                                float(self.BB[indices[3][0]]),
+                                float(self.BB[indices[3][1]]),
+                            ],
+                            [180, c1_lat],
+                            [180, c2_lat],
+                        ]
+                    )
                 )
                 # Create west polygon
                 west_part = Polygon(
-                    ([[-180, c1_lat],
-                      [float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
-                      [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
-                      [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
-                      [-180, c2_lat]
-                    ])
+                    (
+                        [
+                            [-180, c1_lat],
+                            [
+                                float(self.BB[indices[0][0]]),
+                                float(self.BB[indices[0][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[1][0]]),
+                                float(self.BB[indices[1][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[2][0]]),
+                                float(self.BB[indices[2][1]]),
+                            ],
+                            [-180, c2_lat],
+                        ]
+                    )
                 )
             # Case 2b
             #  _
@@ -199,20 +262,37 @@ class S2Tile(EOTile):
                 c1_lat = self.compute_datetime_point(b, c)
                 c2_lat = self.compute_datetime_point(d, c)
                 east_part = Polygon(
-                    ([
-                        [float(self.BB[indices[0][0]]), float(self.BB[indices[0][1]])],
-                        [float(self.BB[indices[1][0]]), float(self.BB[indices[1][1]])],
-                        [180, c1_lat],
-                        [180, c2_lat],
-                        [float(self.BB[indices[3][0]]), float(self.BB[indices[3][1]])]
-                    ])
+                    (
+                        [
+                            [
+                                float(self.BB[indices[0][0]]),
+                                float(self.BB[indices[0][1]]),
+                            ],
+                            [
+                                float(self.BB[indices[1][0]]),
+                                float(self.BB[indices[1][1]]),
+                            ],
+                            [180, c1_lat],
+                            [180, c2_lat],
+                            [
+                                float(self.BB[indices[3][0]]),
+                                float(self.BB[indices[3][1]]),
+                            ],
+                        ]
+                    )
                 )
                 # Create west polygon
                 west_part = Polygon(
-                    ([[-180, c1_lat],
-                      [float(self.BB[indices[2][0]]), float(self.BB[indices[2][1]])],
-                      [-180, c2_lat]
-                      ])
+                    (
+                        [
+                            [-180, c1_lat],
+                            [
+                                float(self.BB[indices[2][0]]),
+                                float(self.BB[indices[2][1]]),
+                            ],
+                            [-180, c2_lat],
+                        ]
+                    )
                 )
             else:
                 LOGGER.error("Unrecognized crossing BBOX : ", self.BB)

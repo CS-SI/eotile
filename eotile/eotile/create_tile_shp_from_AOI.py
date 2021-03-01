@@ -8,17 +8,21 @@ Generate tile list according AOI
 :license: see LICENSE file.
 """
 
-import argparse
 import logging
 from pathlib import Path
-import sys
 
-from eotile.eotiles.eotiles import create_tiles_list_L8, create_tiles_list_S2, write_tiles_bb
+from eotile.eotiles.eotiles import (
+    create_tiles_list_l8,
+    create_tiles_list_s2,
+    write_tiles_bb,
+)
 
 LOGGER = logging.getLogger(__name__)
 
 
-def create_tiles_file_from_AOI(aoi_filepath: Path, aux_data_dirpath: Path, out_dirpath: Path, is_s2):
+def create_tiles_file_from_aoi(
+    aoi_filepath: Path, aux_data_dirpath: Path, out_dirpath: Path, is_s2
+):
     """
     Creates Shapefiles containing tiles of each Sentinel 2 and Landscape 8 that are cointained within the AOI given
     in input
@@ -31,68 +35,33 @@ def create_tiles_file_from_AOI(aoi_filepath: Path, aux_data_dirpath: Path, out_d
     :param is_s2: Is he requested tile a Sentinel 2 tile if not then output a Landscape 8 tile
     :type is_s2: Boolean
     """
-    basenameAOI_wt_ext = aoi_filepath.stem
+    basename_aoi_wt_ext = aoi_filepath.stem
     if is_s2:
         # S2 tiles
-        filename_tiles_S2 = Path(aux_data_dirpath) / \
-                            "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+        filename_tiles_s2 = (
+            Path(aux_data_dirpath)
+            / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+        )
 
-        tile_list_S2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
+        tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath)
 
-        LOGGER.info("Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_S2)))
+        LOGGER.info(
+            "Nb of S2 tiles which crossing the AOI: {}".format(len(tile_list_s2))
+        )
         write_tiles_bb(
-            tile_list_S2,
-            Path(out_dirpath) / (basenameAOI_wt_ext + "_tiles_S2.shp"),
+            tile_list_s2,
+            Path(out_dirpath) / (basename_aoi_wt_ext + "_tiles_S2.shp"),
         )
     else:
         # L8 tiles
-        filename_tiles_L8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
+        filename_tiles_l8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
 
-        tile_list_L8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
+        tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath)
 
-        LOGGER.info("Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_L8)))
+        LOGGER.info(
+            "Nb of L8 tiles which crossing the AOI: {}".format(len(tile_list_l8))
+        )
 
         write_tiles_bb(
-            tile_list_L8, out_dirpath / (basenameAOI_wt_ext + "_tiles_L8.shp"))
-
-
-def build_parser():
-    """Creates a parser suitable for parsing a command line invoking this program.
-
-    :return: An parser.
-    :rtype: :class:`argparse.ArgumentParser`
-    """
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("aoi_filepath", help="aoi filepath")
-    parser.add_argument("auxdata_dirpath", help="path to the aux data directory")
-    parser.add_argument("out_dir", help="output directory")
-    parser.add_argument(
-        "-s2", action="store_true", help="output S2 tiles which intersect the aoi"
-    )
-    parser.add_argument(
-        "-l8", action="store_true", help="output L8 tiles which intersect the aoi"
-    )
-    return parser
-
-
-def main(arguments=None):
-    """
-    Command line interface to perform the creation of files which containt the S2 or L8 tiles
-    chich intersect the aoi
-
-    :param arguments: list of arguments
-    :type arguments: list
-    """
-
-    arg_parser = build_parser()
-
-    args = arg_parser.parse_args(args=arguments)
-
-    create_tiles_file_from_AOI(
-        args.aoi_filepath, args.auxdata_dirpath, args.out_dir, args.s2, args.l8
-    )
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+            tile_list_l8, out_dirpath / (basename_aoi_wt_ext + "_tiles_L8.shp")
+        )

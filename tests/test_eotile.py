@@ -9,56 +9,18 @@ from pathlib import Path
 import geopandas as gp
 from shapely import wkt
 
-from eotile.eotile.create_tile_shp_from_AOI import create_tiles_file_from_AOI
 from eotile.eotiles.eotiles import (
-    create_tiles_list_L8,
-    create_tiles_list_S2,
-    get_tile,
+    create_tiles_list_l8,
+    create_tiles_list_s2,
+    get_tile_s2,
     read_tile_list_from_file,
     write_tiles_bb,
 )
 
 
 class TestEOTile(unittest.TestCase):
-    def test_create_tiles_file_from_AOI(self):
-        output_path = Path("data/output")
-        aoi_path = Path("data/test_data/illinois.shp")
-        aux_path = Path("data/aux_data")
-        create_tiles_file_from_AOI(
-            aoi_filepath=aoi_path,
-            aux_data_dirpath=aux_path,
-            out_dirpath=output_path,
-            is_s2=False,
-        )
-        l8file = gp.read_file(output_path / "illinois_tiles_L8.shp")
-        self.assertEqual(l8file.count().geometry, 18)
-        polygon_test = wkt.loads(
-            "POLYGON ((-92.76509068409111 41.16654042276556, -92.7655 41.1666, -92.75222227023833"
-            " 41.20908647471725, -92.74229393529802 41.24085545623727, -92.31883652795568"
-            " 42.59584706653722, -92.30820221301863 42.6298750638544, -92.29559999999999 42.6702,"
-            " -92.29516926900379 42.67013726441029, -90.0903 42.349, -90.10354172180196"
-            " 42.31079408343177, -90.59568479060121 40.89082942117895, -90.60890000000001 "
-            "40.8527, -92.76509068409111 41.16654042276556))"
-        )
-        self.assertTrue(polygon_test in l8file["geometry"])
-
-        create_tiles_file_from_AOI(
-            aoi_filepath=aoi_path,
-            aux_data_dirpath=aux_path,
-            out_dirpath=output_path,
-            is_s2=True,
-        )
-        s2file = gp.read_file(output_path / "illinois_tiles_S2.shp")
-        self.assertEqual(s2file.count().geometry, 33)
-        polygon_test = wkt.loads(
-            "POLYGON ((-91.766187862 43.346200009, -90.533217951 43.326246335,"
-            " -90.56881764800001 42.426541772, -91.784009944 42.445880705, "
-            "-91.766187862 43.346200009))"
-        )
-        self.assertTrue(polygon_test in s2file["geometry"])
-
     def test_tile_list_utils_s2(self):
-        ls2 = create_tiles_list_S2(
+        ls2 = create_tiles_list_s2(
             Path(
                 "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             ),
@@ -79,7 +41,7 @@ class TestEOTile(unittest.TestCase):
         )
         self.assertEqual(len(ls2), 33)
         self.assertTrue(
-            get_tile(ls2, ls2[1].ID).BB
+            get_tile_s2(ls2, ls2[1].ID).BB
             in [
                 [
                     "43.346200009",
@@ -454,7 +416,7 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_tile_list_utils_l8(self):
-        l8 = create_tiles_list_L8(
+        l8 = create_tiles_list_l8(
             Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
         )
         self.assertEqual(len(l8), 18)
@@ -483,7 +445,7 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_read_write_tiles_bb(self):
-        ll8 = create_tiles_list_L8(
+        ll8 = create_tiles_list_l8(
             Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
         )
         test_file_path = Path("data/output/test_read_write.shp")
@@ -494,10 +456,10 @@ class TestEOTile(unittest.TestCase):
                 "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
             )
         )
-        ID_list = []
+        id_list = []
         for elt in read_file:
-            ID_list.append(elt.ID)
-        self.assertTrue("25030" in ID_list)
+            id_list.append(elt.ID)
+        self.assertTrue("25030" in id_list)
 
 
 if __name__ == "__main__":
