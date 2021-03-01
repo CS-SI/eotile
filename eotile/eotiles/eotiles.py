@@ -10,7 +10,7 @@ tile list utilities
 
 import logging
 from pathlib import Path
-from lxml import etree as ET
+from lxml import etree as et
 import geopandas as gp
 import fiona
 from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
@@ -48,7 +48,7 @@ def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
     return Polygon(p["geometry"]["coordinates"][0])
 
 
-def create_tiles_list_S2(filename_tiles_list: Path, filename_aoi: Path) -> List[S2Tile]:
+def create_tiles_list_s2(filename_tiles_list: Path, filename_aoi: Path) -> List[S2Tile]:
     """Create the S2 tile list according to an aoi file
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -58,10 +58,10 @@ def create_tiles_list_S2(filename_tiles_list: Path, filename_aoi: Path) -> List[
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
-    return create_tiles_list_S2_from_geometry(filename_tiles_list, geom)
+    return create_tiles_list_s2_from_geometry(filename_tiles_list, geom)
 
 
-def create_tiles_list_S2_from_geometry(
+def create_tiles_list_s2_from_geometry(
     filename_tiles_list: Path, aoi: Polygon
 ) -> List[S2Tile]:
     """Create the S2 tile list according to an aoi in ogr geometry format
@@ -72,7 +72,7 @@ def create_tiles_list_S2_from_geometry(
     :type aoi: shapely.geometry.Polygon
     """
     # Open the tiles list file
-    tree = ET.parse(str(filename_tiles_list))
+    tree = et.parse(str(filename_tiles_list))
     root = tree.getroot()
     tile_list = []
     for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
@@ -101,7 +101,7 @@ def create_tiles_list_S2_from_geometry(
     return tile_list
 
 
-def create_tiles_list_L8_from_geometry(
+def create_tiles_list_l8_from_geometry(
     filename_tiles_list: Path, geom: Polygon
 ) -> List[L8Tile]:
     """Create the L8 tile list according to an aoi in ogr geometry format
@@ -113,23 +113,23 @@ def create_tiles_list_L8_from_geometry(
     """
 
     # Open the tile list file
-    dataSource_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
+    data_source_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
-    if dataSource_tile_list is None:
+    if data_source_tile_list is None:
         LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles_list)))
         raise IOError
 
-    featureCount = len(dataSource_tile_list)
+    feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in {}: {}".format(filename_tiles_list.name, featureCount)
+        "Number of features in {}: {}".format(filename_tiles_list.name, feature_count)
     )
     tile_list = []
 
     # This is still required for fitter filtering
-    dataSource_filtered = dataSource_tile_list[
-        dataSource_tile_list["geometry"].intersects(geom)
+    data_source_filtered = data_source_tile_list[
+        data_source_tile_list["geometry"].intersects(geom)
     ][["PR", "geometry"]]
-    for index, feature_tile_list in dataSource_filtered.iterrows():
+    for index, feature_tile_list in data_source_filtered.iterrows():
         tile = L8Tile()
         tile.ID = feature_tile_list["PR"]
         tile.polyBB = feature_tile_list["geometry"]
@@ -138,7 +138,7 @@ def create_tiles_list_L8_from_geometry(
     return tile_list
 
 
-def create_tiles_list_L8(filename_tiles_list: Path, filename_aoi: Path) -> List[L8Tile]:
+def create_tiles_list_l8(filename_tiles_list: Path, filename_aoi: Path) -> List[L8Tile]:
     """Create the L8 tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder
@@ -148,10 +148,10 @@ def create_tiles_list_L8(filename_tiles_list: Path, filename_aoi: Path) -> List[
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
-    return create_tiles_list_L8_from_geometry(filename_tiles_list, geom)
+    return create_tiles_list_l8_from_geometry(filename_tiles_list, geom)
 
 
-def get_tile_L8(tile_list: List[L8Tile], tile_id: int) -> L8Tile:
+def get_tile_l8(tile_list: List[L8Tile], tile_id: int) -> L8Tile:
     """Returns a tile from a tile list from its tile ID
     raises KeyError if the ID corresponds to no tile within the list
 
@@ -164,7 +164,7 @@ def get_tile_L8(tile_list: List[L8Tile], tile_id: int) -> L8Tile:
     raise KeyError
 
 
-def get_tile_S2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
+def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
     """Returns a tile from a tile list from its tile ID
     raises KeyError if the ID corresponds to no tile within the list
 
@@ -186,19 +186,19 @@ def read_tile_list_from_file(
     :return: A tile list
     """
     # Open the tile list file
-    dataSource_tile_list = gp.read_file(filename_tiles)
+    data_source_tile_list = gp.read_file(filename_tiles)
     # Check to see if shapefile is found.
-    if dataSource_tile_list is None:
+    if data_source_tile_list is None:
         LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles)))
         raise IOError
 
-    featureCount = len(dataSource_tile_list)
+    feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in {}: {}".format(filename_tiles.name, featureCount)
+        "Number of features in {}: {}".format(filename_tiles.name, feature_count)
     )
 
     tile_list = []
-    for index, feature_tile_list in dataSource_tile_list[
+    for index, feature_tile_list in data_source_tile_list[
         ["TileID", "geometry"]
     ].iterrows():
         tile = EOTile()
@@ -224,44 +224,45 @@ def bbox_to_wkt(bbox_list) -> str:
      {ul_long} {lr_lat}, {ul_long} {ul_lat} ))"
 
 
-def geom_to_S2_tiles(
-    wkt: str, epsg: Optional[str], filename_tiles_S2: Path
+def geom_to_s2_tiles(
+    wkt: str, epsg: Optional[str], filename_tiles_s2: Path
 ) -> List[S2Tile]:
     """
     Generates a s2 tile list from a wkt string
 
     :param wkt: A wkt polygon in str format
-    :param epsg: An optionnal in the epsg code in case it is not WGS84
-    :param filename_tiles_S2: The filename to find the tiles in
+    :param epsg: An optional in the epsg code in case it is not WGS84
+    :param filename_tiles_s2: The filename to find the tiles in
     """
-    geom = shapely.wkt.loads(wkt)
-    # Projection Transformation if any
-    if epsg is not None:
-        source = pyproj.CRS("EPSG:32618")
-        target = pyproj.CRS("EPSG:4326")
-        project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
-        geom = shapely.ops.transform(project, geom)
-
-    return create_tiles_list_S2_from_geometry(filename_tiles_S2, geom)
+    geom = load_wkt_geom(wkt, epsg)
+    return create_tiles_list_s2_from_geometry(filename_tiles_s2, geom)
 
 
-def geom_to_L8_tiles(
+def geom_to_l8_tiles(
     wkt: str, epsg: Optional[str], filename_tiles_l8: Path
 ) -> List[L8Tile]:
     """
     Generates a l8 tile list from a wkt string
 
     :param wkt: A wkt polygon in str format
-    :param epsg: An optionnal in the epsg code in case it is not WGS84
+    :param epsg: An optional in the epsg code in case it is not WGS84
     :param filename_tiles_l8: The filename to find the tiles in
     """
+    geom = load_wkt_geom(wkt, epsg)
+    return create_tiles_list_l8_from_geometry(filename_tiles_l8, geom)
+
+
+def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
+    """
+    Loads a wkt geometry to a shapely objects and reprojects it if needed
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optional in the epsg code in case it is not WGS84
+    :return: a shapely Polygon geometry
+    """
     geom = shapely.wkt.loads(wkt)
-    # Projection Transformation if any
-    # Projection Transformation if any
     if epsg is not None:
         source = pyproj.CRS("EPSG:32618")
         target = pyproj.CRS("EPSG:4326")
         project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
         geom = shapely.ops.transform(project, geom)
-
-    return create_tiles_list_L8_from_geometry(filename_tiles_l8, geom)
+    return geom

@@ -17,10 +17,10 @@ from geopy.geocoders import Nominatim
 
 from eotile.eotiles.eotiles import (
     bbox_to_wkt,
-    create_tiles_list_L8,
-    create_tiles_list_S2,
-    geom_to_L8_tiles,
-    geom_to_S2_tiles,
+    create_tiles_list_l8,
+    create_tiles_list_s2,
+    geom_to_l8_tiles,
+    geom_to_s2_tiles,
     write_tiles_bb,
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
@@ -98,7 +98,7 @@ def main(arguments=None):
         logging.basicConfig(filename="eotile_cli.log", level=logging.ERROR)
     else:
         logging.basicConfig(filename="eotile_cli.log", level=logging.WARNING)
-    LOGGER = logging.getLogger(__name__)
+    logger = logging.getLogger(__name__)
 
     with open("config/data_path") as conf_file:
         data_path = conf_file.readline()
@@ -112,58 +112,58 @@ def main(arguments=None):
     else:
         if not args.l8_only:
             # S2 Tiles
-            filename_tiles_S2 = (
+            filename_tiles_s2 = (
                 aux_data_dirpath
                 / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             )
             if args.input[0] == "wkt":
                 wkt = args.input[1]
-                tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
             elif args.input[0] == "location":
                 geolocator = Nominatim(user_agent="EOTile")
                 location = geolocator.geocode(args.input[1])
                 wkt = bbox_to_wkt(location.raw["boundingbox"])
-                tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
             elif args.input[0] == "bbox":
                 wkt = bbox_to_wkt(args.input[1])
-                tile_list_s2 = geom_to_S2_tiles(wkt, args.epsg, filename_tiles_S2)
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
             elif args.input[0] == "file":
                 aoi_filepath = Path(args.input[1])
-                tile_list_s2 = create_tiles_list_S2(filename_tiles_S2, aoi_filepath)
-                LOGGER.info(
+                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath)
+                logger.info(
                     "Nb of S2 tiles which crossing the AOI: {}".format(
                         len(tile_list_s2)
                     )
                 )
             else:
-                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
+                logger.error(f"Unrecognized Option : {args.input[0]}")
 
         if not args.s2_only:
             # L8 Tiles
-            filename_tiles_L8 = (
+            filename_tiles_l8 = (
                 aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
             )
             if args.input[0] == "wkt":
                 wkt = args.input[1]
-                tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
             elif args.input[0] == "location":
                 geolocator = Nominatim(user_agent="EOTile")
                 location = geolocator.geocode(args.input[1])
                 wkt = bbox_to_wkt(location.raw["boundingbox"])
-                tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
             elif args.input[0] == "bbox":
                 wkt = bbox_to_wkt(args.input[1])
-                tile_list_l8 = geom_to_L8_tiles(wkt, args.epsg, filename_tiles_L8)
+                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
             elif args.input[0] == "file":
                 aoi_filepath = Path(args.input[1])
-                tile_list_l8 = create_tiles_list_L8(filename_tiles_L8, aoi_filepath)
-                LOGGER.info(
+                tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath)
+                logger.info(
                     "Nb of L8 tiles which crossing the AOI: {}".format(
                         len(tile_list_l8)
                     )
                 )
             else:
-                LOGGER.error(f"Unrecognized Option : {args.input[0]}")
+                logger.error(f"Unrecognized Option : {args.input[0]}")
 
     # Outputing the result
     if args.to_file is not None:

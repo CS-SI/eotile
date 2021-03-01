@@ -10,13 +10,13 @@ Generate tile list according AOI
 
 from pathlib import Path
 from eotile.eotiles.eotiles import (
-    get_tile_L8,
-    get_tile_S2,
+    get_tile_l8,
+    get_tile_s2,
     bbox_to_wkt,
-    geom_to_S2_tiles,
-    geom_to_L8_tiles,
-    create_tiles_list_L8_from_geometry,
-    create_tiles_list_S2_from_geometry,
+    geom_to_s2_tiles,
+    geom_to_l8_tiles,
+    create_tiles_list_l8_from_geometry,
+    create_tiles_list_s2_from_geometry,
 )
 from eotile.eotiles.eotiles import L8Tile, S2Tile
 
@@ -36,17 +36,17 @@ def get_tiles_from_tile_id(
     :param l8_only: Is he requested tile a Landscape 8 tile ?
     :type l8_only: Boolean
     :return: Two lists of tiles
-    :rtype: Tuple[S2Tile, L8Tile]
+    :rtype: Tuple[s2Tile, l8Tile]
     """
 
-    # S2 tiles grig
-    filename_tiles_S2 = (
+    # s2 tiles grig
+    filename_tiles_s2 = (
         Path(aux_data_dirpath)
         / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
     )
 
-    # L8 tiles grid
-    filename_tiles_L8 = (
+    # l8 tiles grid
+    filename_tiles_l8 = (
         Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
     )
 
@@ -55,10 +55,10 @@ def get_tiles_from_tile_id(
     wkt = bbox_to_wkt(["-90", "90", "-180", "180"])
     output_s2, output_l8 = [], []
     if not s2_only:
-        # Search on L8 Tiles
-        tile_list_l8 = geom_to_L8_tiles(wkt, None, filename_tiles_L8)
+        # Search on l8 Tiles
+        tile_list_l8 = geom_to_l8_tiles(wkt, None, filename_tiles_l8)
         try:
-            output_l8.append(get_tile_L8(tile_list_l8, int(tile_id)))
+            output_l8.append(get_tile_l8(tile_list_l8, int(tile_id)))
         except (
             KeyError,
             ValueError,
@@ -66,10 +66,10 @@ def get_tiles_from_tile_id(
             if not l8_only:
                 check_bb_on_l8 = True
     if not l8_only:
-        # Search on S2 Tiles
-        tile_list_s2 = geom_to_S2_tiles(wkt, None, filename_tiles_S2)
+        # Search on s2 Tiles
+        tile_list_s2 = geom_to_s2_tiles(wkt, None, filename_tiles_s2)
         try:
-            output_s2.append(get_tile_S2(tile_list_s2, tile_id))
+            output_s2.append(get_tile_s2(tile_list_s2, tile_id))
         except (
             KeyError,
             ValueError,
@@ -78,12 +78,12 @@ def get_tiles_from_tile_id(
                 check_bb_on_s2 = True
     try:
         if check_bb_on_l8:
-            output_l8 = create_tiles_list_L8_from_geometry(
-                filename_tiles_L8, output_s2[0].polyBB
+            output_l8 = create_tiles_list_l8_from_geometry(
+                filename_tiles_l8, output_s2[0].polyBB
             )
         elif check_bb_on_s2:
-            output_s2 = create_tiles_list_S2_from_geometry(
-                filename_tiles_S2, output_l8[0].polyBB
+            output_s2 = create_tiles_list_s2_from_geometry(
+                filename_tiles_s2, output_l8[0].polyBB
             )
     except (UnboundLocalError, IndexError):
         return [], []
