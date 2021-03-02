@@ -22,9 +22,9 @@ class TestEOTile(unittest.TestCase):
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_s2(
             Path(
-                "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+                "eotile/data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             ),
-            Path("data/test_data/illinois.shp"),
+            Path("tests/test_data/illinois.shp"),
         )
         self.assertEqual(
             [
@@ -417,7 +417,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_l8(self):
         l8 = create_tiles_list_l8(
-            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
@@ -446,14 +446,14 @@ class TestEOTile(unittest.TestCase):
 
     def test_read_write_tiles_bb(self):
         ll8 = create_tiles_list_l8(
-            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
         test_file_path = Path("data/output/test_read_write.shp")
         write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
             Path(
-                "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
+                "tests/test_data2/illinois2.shp"
             )
         )
         id_list = []
