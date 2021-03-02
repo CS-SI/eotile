@@ -114,7 +114,6 @@ def main(arguments=None):
     """
     arg_parser = build_parser()
     args = arg_parser.parse_args(args=arguments)
-    print("verbosity ", args.verbosity) # DEBUG
     if args.verbosity is None:  # Default
         log_level = logging.ERROR
     elif args.verbosity == 1:
@@ -127,10 +126,11 @@ def main(arguments=None):
         log_level = logging.NOTSET
     dev_logger, user_logger = build_logger(log_level, args.logger_file)
 
-    with open("config/data_path") as conf_file:
+    import pkg_resources
+    with open(pkg_resources.resource_filename(__name__, 'config/data_path')) as conf_file:
         data_path = conf_file.readline()
 
-    aux_data_dirpath = Path(data_path.strip())
+    aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
     tile_list_s2, tile_list_l8 = [], []
     if args.input[0] == "tile_id":
         tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
