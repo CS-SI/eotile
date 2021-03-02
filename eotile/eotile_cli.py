@@ -244,25 +244,25 @@ def main(arguments=None):
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile: " + elt.polyBB.wkt + "\n")
+                user_logger.info("S2 Tile: " + elt.polyBB.wkt)
 
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile: " + elt.polyBB.wkt + "\n")
+                user_logger.info("L8 Tile: " + elt.polyBB.wkt)
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile Bounds: " + str(elt.polyBB.bounds) + "\n")
+                user_logger.info("S2 Tile Bounds: " + str(elt.polyBB.bounds))
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile Bounds: " + str(elt.polyBB.bounds) + "\n")
+                user_logger.info("L8 Tile Bounds: " + str(elt.polyBB.bounds))
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile id: " + str(elt.ID) + "\n")
+                user_logger.info("S2 Tile id: " + str(elt.ID))
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile id: " + str(elt.ID) + "\n")
+                user_logger.info("L8 Tile id: " + str(elt.ID))
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         if len(tile_list_s2) > 0:
@@ -271,7 +271,7 @@ def main(arguments=None):
                 centroid.reverse()
                 location = geolocator.reverse(centroid)
                 if location is not None:
-                    user_logger.info(str(location) + "\n")
+                    user_logger.info(str(location))
 
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
@@ -279,7 +279,7 @@ def main(arguments=None):
                 centroid.reverse()
                 location = geolocator.reverse(centroid)
                 if location is not None:
-                    user_logger.info(str(location) + "\n")
+                    user_logger.info(str(location))
     else:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
