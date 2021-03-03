@@ -1,13 +1,15 @@
-# the inclusion of the tests module is not meant to offer best practices for
-# testing in general, but rather to support the `find_packages` example in
-# setup.py that excludes installing the "tests" package
+# -*- coding: utf-8 -*-
+"""
+:author: mgerma
+:organization: CS-Group
+:copyright: 2021 CS-Group France. All rights reserved.
+:license: see LICENSE file.
+"""
 
 import logging
 import unittest
 from pathlib import Path
 
-import geopandas as gp
-from shapely import wkt
 from eotile.eotile_cli import input_matcher
 from eotile.eotiles.eotiles import (
     create_tiles_list_l8,
