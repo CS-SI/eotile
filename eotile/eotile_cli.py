@@ -13,9 +13,11 @@ import logging
 import sys
 from pathlib import Path
 import re
+
 from geopy.geocoders import Nominatim
-from shapely.geometry import shape
+import pkg_resources
 import requests
+from shapely.geometry import shape
 
 from eotile.eotiles.eotiles import (
     bbox_to_wkt,
@@ -169,7 +171,7 @@ def main(arguments=None):
         log_level = logging.NOTSET
     dev_logger, user_logger = build_logger(log_level, args.logger_file)
 
-    import pkg_resources
+
     with open(pkg_resources.resource_filename(__name__, 'config/data_path')) as conf_file:
         data_path = conf_file.readline()
 
@@ -212,12 +214,11 @@ def main(arguments=None):
                 aoi_filepath = Path(args.input)
                 tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath)
                 dev_logger.info(
-                    "Nb of S2 tiles which crossing the AOI: {}".format(
+                    "Nb of S2 tiles which crossing the AOI: %s",
                         len(tile_list_s2)
-                    )
                 )
             else:
-                dev_logger.error(f"Unrecognized Option : {induced_type}")
+                dev_logger.error("Unrecognized Option: %s",induced_type)
 
         if not args.s2_only:
             # L8 Tiles
@@ -241,12 +242,11 @@ def main(arguments=None):
                 aoi_filepath = Path(args.input)
                 tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath)
                 dev_logger.info(
-                    "Nb of L8 tiles which crossing the AOI: {}".format(
+                    "Nb of L8 tiles which crossing the AOI: %s",
                         len(tile_list_l8)
-                    )
                 )
             else:
-                dev_logger.error(f"Unrecognized Option : {induced_type}")
+                dev_logger.error("Unrecognized Option: %s",induced_type)
 
     # Outputting the result
     if args.to_file is not None:
@@ -264,25 +264,25 @@ def main(arguments=None):
     elif args.to_wkt:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile: " + elt.polyBB.wkt)
+                user_logger.info("S2 Tile: %s", elt.polyBB.wkt)
 
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile: " + elt.polyBB.wkt)
+                user_logger.info("L8 Tile: %s", elt.polyBB.wkt)
     elif args.to_bbox:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile Bounds: " + str(elt.polyBB.bounds))
+                user_logger.info("S2 Tile Bounds:%s", str(elt.polyBB.bounds))
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile Bounds: " + str(elt.polyBB.bounds))
+                user_logger.info("L8 Tile Bounds: %s", str(elt.polyBB.bounds))
     elif args.to_tile_id:
         if len(tile_list_s2) > 0:
             for elt in tile_list_s2:
-                user_logger.info("S2 Tile id: " + str(elt.ID))
+                user_logger.info("S2 Tile id: %s", str(elt.ID))
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
-                user_logger.info("L8 Tile id: " + str(elt.ID))
+                user_logger.info("L8 Tile id: %s", str(elt.ID))
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         if len(tile_list_s2) > 0:
