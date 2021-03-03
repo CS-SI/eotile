@@ -11,7 +11,7 @@ EO tile
 import logging
 from shapely.geometry import Polygon, MultiPolygon
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("dev_logger")
 
 
 class EOTile:

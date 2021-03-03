@@ -17,7 +17,7 @@ from eotile.eotiles.eotiles import (
     write_tiles_bb,
 )
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("dev_logger")
 
 
 def create_tiles_file_from_aoi(

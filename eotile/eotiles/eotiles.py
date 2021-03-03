@@ -21,7 +21,7 @@ import shapely
 # mypy imports
 from typing import Optional, Union, List
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("dev_logger")
 
 
 def write_tiles_bb(

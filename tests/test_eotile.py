@@ -8,7 +8,7 @@ from pathlib import Path
 
 import geopandas as gp
 from shapely import wkt
-
+from eotile.eotile_cli import input_matcher
 from eotile.eotiles.eotiles import (
     create_tiles_list_l8,
     create_tiles_list_s2,
@@ -22,9 +22,9 @@ class TestEOTile(unittest.TestCase):
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_s2(
             Path(
-                "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+                "eotile/data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             ),
-            Path("data/test_data/illinois.shp"),
+            Path("tests/test_data/illinois.shp"),
         )
         self.assertEqual(
             [
@@ -417,7 +417,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_l8(self):
         l8 = create_tiles_list_l8(
-            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
@@ -446,20 +446,48 @@ class TestEOTile(unittest.TestCase):
 
     def test_read_write_tiles_bb(self):
         ll8 = create_tiles_list_l8(
-            Path("data/aux_data/wrs2_descending/"), Path("data/test_data/illinois.shp")
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
         test_file_path = Path("data/output/test_read_write.shp")
         write_tiles_bb(ll8, test_file_path)
 
         read_file = read_tile_list_from_file(
             Path(
-                "/home/mathis/Documents/EODAG/EOTILE/eotile/data/test_data2/illinois2.shp"
+                "tests/test_data2/illinois2.shp"
             )
         )
         id_list = []
         for elt in read_file:
             id_list.append(elt.ID)
         self.assertTrue("25030" in id_list)
+
+    def test_input_matcher(self):
+        polygon = "POLYGON((1 1,5 1,5 5,1 5,1 1))"
+        mpoly = "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2)),((6 3,9 2,9 4,6 3)))"
+
+        bbox1 = "['36.9701313', '42.5082935', '-91.5130518', '-87.0199244']"
+        bbox2 = "'36.9701313', '42.5082935', '-91.5130518', '-87.0199244'"
+        bbox3 = "'36.9701313','42.5082935','-91.5130518','-87.0199244'"
+        # bbox4 = "36.9701313 42.5082935 -91.5130518 -87.0199244"
+
+        location1 = "Toulouse"
+        location2 = "USA"
+        location3 = "France"
+
+        tile_id1 = "31TCJ"
+        tile_id2 = "199030"
+
+        file1 = "test.shp"
+        file2 = "/dev/null"
+
+        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location2, location3, tile_id1,
+                     tile_id2, file1, file2]
+        out_list = []
+        for elt in test_list:
+            out_list.append(input_matcher(elt))
+        self.assertTrue(out_list,
+                        ['wkt', 'wkt', 'bbox', 'bbox', 'bbox', 'location',
+                         'location', 'location', 'tile_id', 'tile_id', 'file', 'file'])
 
 
 if __name__ == "__main__":
