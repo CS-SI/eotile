@@ -146,7 +146,7 @@ def build_parser():
         "on standard output",
     )
 
-    parser.add_argument("-v", "--verbosity", action="count",
+    parser.add_argument("-v", "--verbose", action="count",
                         help="Increase output verbosity")
 
     parser.add_argument("-logger_file",
