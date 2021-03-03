@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Generate tile list according AOI
+
+:author: msavinaud; mgerma
+:organization: CS-Group
+:copyright: 2021 CS-Group France. All rights reserved.
+:license: see LICENSE file.
+"""
 
 from setuptools import find_packages, setup
 
@@ -22,12 +30,12 @@ setup(
         "requests"
     ],
 include_package_data = True,
-    package_data={'': ['data/aux_data/wrs2_descending/wrs2_descending.dbf', 
-'data/aux_data/wrs2_descending/wrs2_descending.prj', 
-'data/aux_data/wrs2_descending/wrs2_descending.sbn', 
-'data/aux_data/wrs2_descending/wrs2_descending.sbx', 
-'data/aux_data/wrs2_descending/wrs2_descending.shp', 
-'data/aux_data/wrs2_descending/wrs2_descending.shx', 
+    package_data={'': ['data/aux_data/wrs2_descending/wrs2_descending.dbf',
+'data/aux_data/wrs2_descending/wrs2_descending.prj',
+'data/aux_data/wrs2_descending/wrs2_descending.sbn',
+'data/aux_data/wrs2_descending/wrs2_descending.sbx',
+'data/aux_data/wrs2_descending/wrs2_descending.shp',
+'data/aux_data/wrs2_descending/wrs2_descending.shx',
 'data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml',
 'config/data_path']},
     extras_require={

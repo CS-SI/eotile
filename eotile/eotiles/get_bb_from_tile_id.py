@@ -9,6 +9,8 @@ Generate tile list according AOI
 """
 
 from pathlib import Path
+from typing import List, Tuple
+
 from eotile.eotiles.eotiles import (
     get_tile_l8,
     get_tile_s2,
@@ -20,8 +22,7 @@ from eotile.eotiles.eotiles import (
 )
 from eotile.eotiles.eotiles import L8Tile, S2Tile
 
-# mypy imports
-from typing import List, Tuple
+
 
 
 def get_tiles_from_tile_id(

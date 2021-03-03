@@ -1,13 +1,15 @@
-# the inclusion of the tests module is not meant to offer best practices for
-# testing in general, but rather to support the `find_packages` example in
-# setup.py that excludes installing the "tests" package
+# -*- coding: utf-8 -*-
+"""
+:author: mgerma
+:organization: CS-Group
+:copyright: 2021 CS-Group France. All rights reserved.
+:license: see LICENSE file.
+"""
 
 import logging
 import unittest
 from pathlib import Path
 
-import geopandas as gp
-from shapely import wkt
 from eotile.eotile_cli import input_matcher
 from eotile.eotiles.eotiles import (
     create_tiles_list_l8,
@@ -448,8 +450,7 @@ class TestEOTile(unittest.TestCase):
         ll8 = create_tiles_list_l8(
             Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
-        test_file_path = Path("data/output/test_read_write.shp")
-        write_tiles_bb(ll8, test_file_path)
+        write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 
         read_file = read_tile_list_from_file(
             Path(
@@ -468,25 +469,28 @@ class TestEOTile(unittest.TestCase):
         bbox1 = "['36.9701313', '42.5082935', '-91.5130518', '-87.0199244']"
         bbox2 = "'36.9701313', '42.5082935', '-91.5130518', '-87.0199244'"
         bbox3 = "'36.9701313','42.5082935','-91.5130518','-87.0199244'"
-        # bbox4 = "36.9701313 42.5082935 -91.5130518 -87.0199244"
 
         location1 = "Toulouse"
-        location2 = "USA"
+        location2 = "Nowhere"
         location3 = "France"
 
         tile_id1 = "31TCJ"
         tile_id2 = "199030"
 
-        file1 = "test.shp"
+        file1 = '/tmp'
         file2 = "/dev/null"
 
-        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location2, location3, tile_id1,
+        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location3, tile_id1,
                      tile_id2, file1, file2]
+
+        with self.assertRaises(ValueError):
+            input_matcher(location2)
+
         out_list = []
         for elt in test_list:
             out_list.append(input_matcher(elt))
-        self.assertTrue(out_list,
-                        ['wkt', 'wkt', 'bbox', 'bbox', 'bbox', 'location',
+
+        self.assertListEqual(out_list, ['wkt', 'wkt', 'bbox', 'bbox', 'bbox',
                          'location', 'location', 'tile_id', 'tile_id', 'file', 'file'])
 
 

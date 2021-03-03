@@ -10,16 +10,19 @@ tile list utilities
 
 import logging
 from pathlib import Path
+from typing import Optional, Union, List
+
 from lxml import etree as et
-import geopandas as gp
 import fiona
-from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
-from shapely.geometry import Polygon
+import geopandas as gp
 import pyproj
 import shapely
+from shapely.geometry import Polygon
+
+from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
 
 # mypy imports
-from typing import Optional, Union, List
+
 
 LOGGER = logging.getLogger("dev_logger")
 
@@ -55,6 +58,8 @@ def create_tiles_list_s2(filename_tiles_list: Path, filename_aoi: Path) -> List[
     :type filename_tiles_list: str
     :param filename_aoi: Path to the input AOI file (Must be a shp file)
     :type filename_aoi: Path
+    :return: list of S2 tiles
+    :rtype: list
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
@@ -70,6 +75,8 @@ def create_tiles_list_s2_from_geometry(
     :type filename_tiles_list: str
     :param aoi: AOI geometry
     :type aoi: shapely.geometry.Polygon
+    :return: list of S2 Tiles
+    :rtype: list
     """
     # Open the tiles list file
     tree = et.parse(str(filename_tiles_list))
@@ -110,26 +117,28 @@ def create_tiles_list_l8_from_geometry(
     :type filename_tiles_list: str
     :param geom: AOI geometry
     :type geom: shapely.geometry.Polygon
+    :raises OSError: when the file cannot be open
+    :return: list of L8 tiles
+    :rtype: list
     """
 
     # Open the tile list file
     data_source_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
     if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles_list)))
+        LOGGER.error("ERROR: Could not open %s",filename_tiles_list)
         raise IOError
 
     feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in {}: {}".format(filename_tiles_list.name, feature_count)
-    )
+        "Number of features in %s: %s",filename_tiles_list.name, feature_count)
     tile_list = []
 
     # This is still required for fitter filtering
     data_source_filtered = data_source_tile_list[
         data_source_tile_list["geometry"].intersects(geom)
     ][["PR", "geometry"]]
-    for index, feature_tile_list in data_source_filtered.iterrows():
+    for __unused, feature_tile_list in data_source_filtered.iterrows():
         tile = L8Tile()
         tile.ID = feature_tile_list["PR"]
         tile.polyBB = feature_tile_list["geometry"]
@@ -145,6 +154,8 @@ def create_tiles_list_l8(filename_tiles_list: Path, filename_aoi: Path) -> List[
     :type filename_tiles_list: pathlib.Path
     :param filename_aoi: Path to the input AOI file (Must be a shp file)
     :type filename_aoi: pathlib.Path
+    :return: list of L8 tiles
+    :rtype: list
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
@@ -157,6 +168,9 @@ def get_tile_l8(tile_list: List[L8Tile], tile_id: int) -> L8Tile:
 
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
+    :return: L8 tile
+    :rtype: L8Tile
+    :raises KeyError: when the tile id is not available
     """
     for elt in tile_list:
         if elt.ID == tile_id:
@@ -170,6 +184,9 @@ def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
 
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
+    :return: S2 tile
+    :rtype: S2Tile
+    :raises KeyError: when the tile id is not available
     """
     for elt in tile_list:
         if elt.ID == tile_id:
@@ -184,21 +201,21 @@ def read_tile_list_from_file(
 
     :param filename_tiles: File containing the tile list (shp file)
     :return: A tile list
+    :raises IOError: when the file cannot be open
     """
     # Open the tile list file
     data_source_tile_list = gp.read_file(filename_tiles)
     # Check to see if shapefile is found.
     if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open {}".format(str(filename_tiles)))
+        LOGGER.error("ERROR: Could not open %s",filename_tiles)
         raise IOError
 
     feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in {}: {}".format(filename_tiles.name, feature_count)
-    )
+        "Number of features in %s: %s",filename_tiles.name, feature_count)
 
     tile_list = []
-    for index, feature_tile_list in data_source_tile_list[
+    for __unused, feature_tile_list in data_source_tile_list[
         ["TileID", "geometry"]
     ].iterrows():
         tile = EOTile()
@@ -211,10 +228,10 @@ def read_tile_list_from_file(
 def bbox_to_wkt(bbox_list) -> str:
     """
     Transforms a bounding box to a wkt polygon
-    :param bbox_list: The bbox list, either it is in str format or list format
+    :param list bbox_list: The bbox list, either it is in str format or list format
     :return: a wkt polygon in str format
     """
-    if type(bbox_list) == str:
+    if isinstance(bbox_list, str):
         bbox_list = bbox_list.replace("[", "")
         bbox_list = bbox_list.replace("]", "")
         bbox_list = bbox_list.replace("'", "")
@@ -233,6 +250,8 @@ def geom_to_s2_tiles(
     :param wkt: A wkt polygon in str format
     :param epsg: An optional in the epsg code in case it is not WGS84
     :param filename_tiles_s2: The filename to find the tiles in
+    :return: list of S2 Tiles
+    :rtype: List[S2Tile]
     """
     geom = load_wkt_geom(wkt, epsg)
     return create_tiles_list_s2_from_geometry(filename_tiles_s2, geom)
@@ -247,6 +266,8 @@ def geom_to_l8_tiles(
     :param wkt: A wkt polygon in str format
     :param epsg: An optional in the epsg code in case it is not WGS84
     :param filename_tiles_l8: The filename to find the tiles in
+    :return: list of L8 Tiles
+    :rtype: List[L8Tile]
     """
     geom = load_wkt_geom(wkt, epsg)
     return create_tiles_list_l8_from_geometry(filename_tiles_l8, geom)
