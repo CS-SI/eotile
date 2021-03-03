@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 import re
 from geopy.geocoders import Nominatim
+from shapely.geometry import shape
+import requests
 
 from eotile.eotiles.eotiles import (
     bbox_to_wkt,
@@ -22,6 +24,8 @@ from eotile.eotiles.eotiles import (
     geom_to_l8_tiles,
     geom_to_s2_tiles,
     write_tiles_bb,
+    create_tiles_list_l8_from_geometry,
+    create_tiles_list_s2_from_geometry
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -136,6 +140,13 @@ def build_parser():
 
     parser.add_argument("-logger_file",
                         help="Redirect information from standard output to a file")
+
+    parser.add_argument("-location_type",
+                        help="If needed, specify the location type that is requested (city, county, state, country)")
+
+    parser.add_argument("-threshold",
+                        help="For large polygons at high resolution, you might want to simplify them using a threshold"
+                             "(0 to 1)")
     return parser
 
 
@@ -183,10 +194,18 @@ def main(arguments=None):
                 wkt = args.input
                 tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
             elif induced_type == "location":
-                geolocator = Nominatim(user_agent="EOTile")
-                location = geolocator.geocode(args.input)
-                wkt = bbox_to_wkt(location.raw["boundingbox"])
-                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
+                if args.location_type is not None:
+                    req = "args.location_type"
+                else:
+                    req = "q"
+                url = f"https://nominatim.openstreetmap.org/search?{req}={args.input}" \
+                      f"&format=geojson&polygon_geojson=1&limit=1"
+                if args.threshold is not None:
+                    url += f'& polygon_threshold = {args.threshold}'
+                data = requests.get(url)
+                elt = data.json()
+                geom = shape(elt["features"][0]["geometry"])
+                tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom)
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
                 tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
@@ -210,10 +229,12 @@ def main(arguments=None):
                 wkt = args.input
                 tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
             elif induced_type == "location":
-                geolocator = Nominatim(user_agent="EOTile")
-                location = geolocator.geocode(args.input)
-                wkt = bbox_to_wkt(location.raw["boundingbox"])
-                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
+                url = f"https://nominatim.openstreetmap.org/search?q={args.input}" \
+                      f"&format=geojson&polygon_geojson=1&limit=1"
+                data = requests.get(url)
+                elt = data.json()
+                geom = shape(elt["features"][0]["geometry"])
+                tile_list_l8 = create_tiles_list_l8_from_geometry(filename_tiles_l8, geom)
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
                 tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)

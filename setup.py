@@ -19,6 +19,7 @@ setup(
         "geopandas",
         "lxml",
         "geopy",
+        "requests"
     ],
 include_package_data = True,
     package_data={'': ['data/aux_data/wrs2_descending/wrs2_descending.dbf', 
