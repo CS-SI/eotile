@@ -448,8 +448,7 @@ class TestEOTile(unittest.TestCase):
         ll8 = create_tiles_list_l8(
             Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
         )
-        test_file_path = Path("data/output/test_read_write.shp")
-        write_tiles_bb(ll8, test_file_path)
+        write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 
         read_file = read_tile_list_from_file(
             Path(
