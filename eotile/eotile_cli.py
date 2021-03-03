@@ -56,11 +56,13 @@ def build_logger(level, user_file_name=None):
 
     return dev_logger, user_logger
 
-def input_matcher(input:str)->str:
+def input_matcher(input_value:str)->str:
     """
-    Induces the type of the input amongst wkt, bbox, path, location and tile_id with regex
+    Induces the type of the input from the user input
 
-    :param input: element to induce type from
+    :param input_value: input provided by user of the cli
+    :return: type of the input: wkt, bbox, tile_id, file, location
+    :rtype: str
     """
     poly_pattern = "(POLYGON|Polygon|MULTIPOLYGON|Multipolygon)(.*?)"
 
@@ -68,20 +70,17 @@ def input_matcher(input:str)->str:
 
     tile_id_pattern = "(([0-9]){6}|([0-9]){2}([A-Z]){3})"
 
-    path_pattern = "(.*)(\.|/|\\\\)(.+)"
-
     poly_reg = re.compile(poly_pattern)
     bbox_reg = re.compile(bbox_pattern)
     tile_id_reg = re.compile(tile_id_pattern)
-    path_reg = re.compile(path_pattern)
 
-    if poly_reg.match(input) and poly_reg.match(input).string == input:
+    if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
         induced_type = "wkt"
-    elif bbox_reg.match(input) and bbox_reg.match(input).string == input:
+    elif bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
         induced_type = "bbox"
-    elif tile_id_reg.match(input) and tile_id_reg.match(input).string == input:
+    elif tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
         induced_type = "tile_id"
-    elif path_reg.match(input) and path_reg.match(input).string == input:
+    elif Path(input_value).exists():
         induced_type = "file"
     else:
         induced_type = "location"
