@@ -469,25 +469,28 @@ class TestEOTile(unittest.TestCase):
         bbox1 = "['36.9701313', '42.5082935', '-91.5130518', '-87.0199244']"
         bbox2 = "'36.9701313', '42.5082935', '-91.5130518', '-87.0199244'"
         bbox3 = "'36.9701313','42.5082935','-91.5130518','-87.0199244'"
-        # bbox4 = "36.9701313 42.5082935 -91.5130518 -87.0199244"
 
         location1 = "Toulouse"
-        location2 = "USA"
+        location2 = "Nowhere"
         location3 = "France"
 
         tile_id1 = "31TCJ"
         tile_id2 = "199030"
 
-        file1 = "test.shp"
+        file1 = '/tmp'
         file2 = "/dev/null"
 
-        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location2, location3, tile_id1,
+        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location3, tile_id1,
                      tile_id2, file1, file2]
+
+        with self.assertRaises(ValueError):
+            input_matcher(location2)
+
         out_list = []
         for elt in test_list:
             out_list.append(input_matcher(elt))
-        self.assertTrue(out_list,
-                        ['wkt', 'wkt', 'bbox', 'bbox', 'bbox', 'location',
+
+        self.assertListEqual(out_list, ['wkt', 'wkt', 'bbox', 'bbox', 'bbox',
                          'location', 'location', 'tile_id', 'tile_id', 'file', 'file'])
 
 

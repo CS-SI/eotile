@@ -65,6 +65,7 @@ def input_matcher(input_value:str)->str:
     :param input_value: input provided by user of the cli
     :return: type of the input: wkt, bbox, tile_id, file, location
     :rtype: str
+    :raises ValueError: when the input value cannot be parsed
     """
     poly_pattern = "(POLYGON|Polygon|MULTIPOLYGON|Multipolygon)(.*?)"
 
@@ -77,19 +78,28 @@ def input_matcher(input_value:str)->str:
     tile_id_reg = re.compile(tile_id_pattern)
 
     if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
-        induced_type = "wkt"
-    elif bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
-        induced_type = "bbox"
-    elif tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
-        induced_type = "tile_id"
-    elif Path(input_value).exists():
-        induced_type = "file"
-    else:
-        induced_type = "location"
-    return induced_type
+        return "wkt"
 
+    if bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
+        return "bbox"
 
-# Location
+    if tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
+        return "tile_id"
+
+    if Path(input_value).exists():
+        return "file"
+
+    geolocator = Nominatim(user_agent="eotile")
+    location=geolocator.geocode(input_value)
+    if location is not None:
+        location_type = location.raw['type']
+        if location_type == 'administrative':
+            return "location"
+        raise ValueError('This location is has no administrative border: ' +
+            f'{input_value}, type= {location_type}')
+
+    raise ValueError(f'Cannot parse this input: {input_value}')
+
 
 def build_parser():
     """Creates a parser suitable for parsing a command line invoking this program.
