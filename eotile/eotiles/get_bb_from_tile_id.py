@@ -26,7 +26,7 @@ from eotile.eotiles.eotiles import L8Tile, S2Tile
 
 
 def get_tiles_from_tile_id(
-    tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool
+    tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, min_overlap=None
 ) -> Tuple[List[S2Tile], List[L8Tile]]:
     """Returns the bounding box of a tile designated by its ID.
 
@@ -79,11 +79,11 @@ def get_tiles_from_tile_id(
     try:
         if check_bb_on_l8:
             output_l8 = create_tiles_list_l8_from_geometry(
-                filename_tiles_l8, output_s2[0].polyBB
+                filename_tiles_l8, output_s2[0].polyBB, min_overlap
             )
         elif check_bb_on_s2:
             output_s2 = create_tiles_list_s2_from_geometry(
-                filename_tiles_s2, output_l8[0].polyBB
+                filename_tiles_s2, output_l8[0].polyBB, min_overlap
             )
     except (UnboundLocalError, IndexError):
         return [], []

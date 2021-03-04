@@ -158,6 +158,11 @@ def build_parser():
     parser.add_argument("-threshold",
                         help="For large polygons at high resolution, you might want to simplify them using a threshold"
                              "(0 to 1)")
+
+    parser.add_argument("-min_overlap",
+                        help="Minimum percentage of overlap to consider a tile"
+                             "(0 to 1)")
+
     return parser
 
 
@@ -169,16 +174,12 @@ def main(arguments=None):
     """
     arg_parser = build_parser()
     args = arg_parser.parse_args(args=arguments)
-    if args.verbosity is None:  # Default
-        log_level = logging.ERROR
-    elif args.verbosity == 1:
+    if args.verbose is None:  # Default
         log_level = logging.WARNING
-    elif args.verbosity == 2:
+    elif args.verbose == 1:
         log_level = logging.INFO
-    elif args.verbosity > 2:
-        log_level = logging.DEBUG
     else:
-        log_level = logging.NOTSET
+        log_level = logging.DEBUG
     dev_logger, user_logger = build_logger(log_level, args.logger_file)
 
 
@@ -191,7 +192,7 @@ def main(arguments=None):
 
     if induced_type == "tile_id":
         tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
-            args.input, aux_data_dirpath, args.s2_only, args.l8_only
+            args.input, aux_data_dirpath, args.s2_only, args.l8_only, args.min_overlap
         )
 
     else:
@@ -203,7 +204,7 @@ def main(arguments=None):
             )
             if induced_type == "wkt":
                 wkt = args.input
-                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
             elif induced_type == "location":
                 if args.location_type is not None:
                     req = "args.location_type"
@@ -216,13 +217,13 @@ def main(arguments=None):
                 data = requests.get(url)
                 elt = data.json()
                 geom = shape(elt["features"][0]["geometry"])
-                tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom)
+                tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom, args.min_overlap)
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
-                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2)
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
             elif induced_type == "file":
                 aoi_filepath = Path(args.input)
-                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath)
+                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath, args.min_overlap)
                 dev_logger.info(
                     "Nb of S2 tiles which crossing the AOI: %s",
                         len(tile_list_s2)
@@ -237,20 +238,20 @@ def main(arguments=None):
             )
             if induced_type == "wkt":
                 wkt = args.input
-                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
+                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8, args.min_overlap)
             elif induced_type == "location":
                 url = f"https://nominatim.openstreetmap.org/search?q={args.input}" \
                       f"&format=geojson&polygon_geojson=1&limit=1"
                 data = requests.get(url)
                 elt = data.json()
                 geom = shape(elt["features"][0]["geometry"])
-                tile_list_l8 = create_tiles_list_l8_from_geometry(filename_tiles_l8, geom)
+                tile_list_l8 = create_tiles_list_l8_from_geometry(filename_tiles_l8, geom, args.min_overlap)
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
-                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8)
+                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8, args.min_overlap)
             elif induced_type == "file":
                 aoi_filepath = Path(args.input)
-                tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath)
+                tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath, args.min_overlap)
                 dev_logger.info(
                     "Nb of L8 tiles which crossing the AOI: %s",
                         len(tile_list_l8)
