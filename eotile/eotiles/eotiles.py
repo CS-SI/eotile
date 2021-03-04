@@ -19,7 +19,7 @@ import pyproj
 import shapely
 from shapely.geometry import Polygon
 
-from eotile.eotile.eotile import EOTile, L8Tile, S2Tile
+from eotile.eotile.eotile import EOTile, L8Tile, S2Tile, SRTMTile
 
 # mypy imports
 
@@ -301,3 +301,85 @@ def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
         project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
         geom = shapely.ops.transform(project, geom)
     return geom
+
+
+
+
+
+
+
+
+
+
+def geom_to_srtm_tiles(
+    wkt: str, epsg: Optional[str], filename_tiles_srtm: Path, min_overlap=None
+) -> List[SRTMTile]:
+    """
+    Generates a srtm tile list from a wkt string
+
+    :param wkt: A wkt polygon in str format
+    :param epsg: An optional in the epsg code in case it is not WGS84
+    :param filename_tiles_srtm: The filename to find the tiles in
+    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
+    :return: list of L8 Tiles
+    :rtype: List[L8Tile]
+    """
+    geom = load_wkt_geom(wkt, epsg)
+    return create_tiles_list_srtm_from_geometry(filename_tiles_srtm, geom, min_overlap)
+
+
+def create_tiles_list_srtm_from_geometry(
+    filename_tiles_list: Path, geom: Polygon, min_overlap=None
+) -> List[SRTMTile]:
+    """Create the SRTM tile list according to an aoi in ogr geometry format
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :param geom: AOI geometry
+    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
+    :type geom: shapely.geometry.Polygon
+    :raises OSError: when the file cannot be open
+    :return: list of SRTM tiles
+    :rtype: list
+    """
+
+    # Open the tile list file
+    data_source_filtered = gp.read_file(filename_tiles_list, mask=geom)
+    # Check to see if shapefile is found.
+    if data_source_filtered is None:
+        LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
+        raise IOError
+
+    feature_count = len(data_source_filtered)
+    LOGGER.info(
+        "Number of features in %s: %s", filename_tiles_list.name, feature_count)
+    tile_list = []
+    if min_overlap is not None:
+        data_source_filtered = data_source_filtered[
+            data_source_filtered.intersection(geom).area /
+            data_source_filtered.area
+            >= float(min_overlap)
+            ]
+    for __unused, feature_tile_list in data_source_filtered.iterrows():
+        tile = SRTMTile()
+        tile.ID = feature_tile_list["id"]
+        tile.polyBB = feature_tile_list["geometry"]
+        tile_list.append(tile)
+
+    return tile_list
+
+
+def create_tiles_list_srtm(filename_tiles_list: Path, filename_aoi: Path, min_overlap=None) -> List[SRTMTile]:
+    """Create the L8 tile list according to an aoi
+
+    :param filename_tiles_list: Path to the wrs2_descending folder
+    :type filename_tiles_list: pathlib.Path
+    :param filename_aoi: Path to the input AOI file (Must be a shp file)
+    :type filename_aoi: pathlib.Path
+    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
+    :return: list of L8 tiles
+    :rtype: list
+    """
+    # Load the aoi
+    geom = load_aoi(filename_aoi)
+    return create_tiles_list_srtm_from_geometry(filename_tiles_list, geom, min_overlap)

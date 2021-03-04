@@ -76,3 +76,14 @@ In order to run the test, you can use the following command:
 ```sh
 python tests/test_create_tiles_file_from_AOI.py
 ```
+
+
+### Data sources & Licenses
+
+SRTM :
+Vector grid of SRTM 1x1 degree tiles
+https://figshare.com/articles/dataset/Vector_grid_of_SRTM_1x1_degree_tiles/1332753
+
+Vector file (shapefile format) of polygons representing the 1x1 degree tiles of SRTM (3-arcsec and 1-arcsec). There are 14280 polygons with an ID that matches the naming scheme of SRTM (such as N00E025). Lat/Long, WGS84. 
+
+

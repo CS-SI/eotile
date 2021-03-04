@@ -51,6 +51,20 @@ class L8Tile(EOTile):
         return string_representation
 
 
+class SRTMTile(EOTile):
+    """ Class which represent a L8 tile """
+
+    def __init__(self):
+        """ Constructor """
+        EOTile.__init__(self)
+
+    def __str__(self):
+        """ Display the content of a L8 tile"""
+        string_representation = "== Tile SRTM ==\n"
+        string_representation += super(SRTMTile, self).__str__()
+        return string_representation
+
+
 class S2Tile(EOTile):
     """Class which represent a S2 tile read from Tile_Part file"""
 

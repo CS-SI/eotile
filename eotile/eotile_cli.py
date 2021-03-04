@@ -22,10 +22,13 @@ from shapely.geometry import shape
 from eotile.eotiles.eotiles import (
     bbox_to_wkt,
     create_tiles_list_l8,
+    create_tiles_list_srtm,
     create_tiles_list_s2,
+    geom_to_srtm_tiles,
     geom_to_l8_tiles,
     geom_to_s2_tiles,
     write_tiles_bb,
+    create_tiles_list_srtm_from_geometry,
     create_tiles_list_l8_from_geometry,
     create_tiles_list_s2_from_geometry
 )
@@ -120,7 +123,9 @@ def build_parser():
     parser.add_argument(
         "-l8_only", action="store_true", help="output L8 tiles which intersect the aoi"
     )
-
+    parser.add_argument(
+        "-srtm", action="store_true", help="output SRTM tiles which intersect the aoi"
+    )
     # Output arguments
 
     parser.add_argument("-to_file", help="Write tiles to a file")
@@ -187,7 +192,7 @@ def main(arguments=None):
         data_path = conf_file.readline()
 
     aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
-    tile_list_s2, tile_list_l8 = [], []
+    tile_list_s2, tile_list_l8, tile_list_srtm = [], [], []
     induced_type = input_matcher(args.input)
 
     if induced_type == "tile_id":
@@ -259,6 +264,34 @@ def main(arguments=None):
             else:
                 dev_logger.error("Unrecognized Option: %s",induced_type)
 
+        if args.srtm:
+            # SRTM Tiles
+            filename_tiles_srtm = (
+                aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
+            )
+            if induced_type == "wkt":
+                wkt = args.input
+                tile_list_srtm = geom_to_srtm_tiles(wkt, args.epsg, filename_tiles_srtm, args.min_overlap)
+            elif induced_type == "location":
+                url = f"https://nominatim.openstreetmap.org/search?q={args.input}" \
+                      f"&format=geojson&polygon_geojson=1&limit=1"
+                data = requests.get(url)
+                elt = data.json()
+                geom = shape(elt["features"][0]["geometry"])
+                tile_list_srtm = create_tiles_list_srtm_from_geometry(filename_tiles_srtm, geom, args.min_overlap)
+            elif induced_type == "bbox":
+                wkt = bbox_to_wkt(args.input)
+                tile_list_srtm = geom_to_srtm_tiles(wkt, args.epsg, filename_tiles_srtm, args.min_overlap)
+            elif induced_type == "file":
+                aoi_filepath = Path(args.input)
+                tile_list_srtm = create_tiles_list_srtm(filename_tiles_srtm, aoi_filepath, args.min_overlap)
+                dev_logger.info(
+                    "Nb of SRTM tiles which crossing the AOI: %s",
+                        len(tile_list_srtm)
+                )
+            else:
+                dev_logger.error("Unrecognized Option: %s",induced_type)
+
     # Outputting the result
     if args.to_file is not None:
         output_path = Path(args.to_file)
@@ -319,11 +352,14 @@ def main(arguments=None):
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
                 user_logger.info(str(elt))
+        if len(tile_list_srtm) > 0:
+            for elt in tile_list_srtm:
+                user_logger.info(str(elt))
     # counts
     user_logger.info("--- Summary ---")
     user_logger.info("- %s S2 Tiles", len(tile_list_s2))
     user_logger.info("- %s L8 Tiles", len(tile_list_l8))
-
+    user_logger.info("- %s SRTM Tiles", len(tile_list_srtm))
 
 if __name__ == "__main__":
     sys.exit(main())
