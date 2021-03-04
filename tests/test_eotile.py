@@ -12,9 +12,9 @@ from pathlib import Path
 
 from eotile.eotile_cli import input_matcher
 from eotile.eotiles.eotiles import (
-    create_tiles_list_l8,
+    create_tiles_list_eo,
     create_tiles_list_s2,
-    get_tile_s2,
+    get_tile,
     read_tile_list_from_file,
     write_tiles_bb,
 )
@@ -43,7 +43,7 @@ class TestEOTile(unittest.TestCase):
         )
         self.assertEqual(len(ls2), 33)
         self.assertTrue(
-            get_tile_s2(ls2, ls2[1].ID).BB
+            get_tile(ls2, ls2[1].ID).BB
             in [
                 [
                     "43.346200009",
@@ -418,8 +418,8 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_tile_list_utils_l8(self):
-        l8 = create_tiles_list_l8(
-            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
+        l8 = create_tiles_list_eo(
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp"), "L8"
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
@@ -447,8 +447,8 @@ class TestEOTile(unittest.TestCase):
         )
 
     def test_read_write_tiles_bb(self):
-        ll8 = create_tiles_list_l8(
-            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp")
+        ll8 = create_tiles_list_eo(
+            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp"), "L8"
         )
         write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 

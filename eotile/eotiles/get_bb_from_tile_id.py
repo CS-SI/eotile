@@ -12,22 +12,21 @@ from pathlib import Path
 from typing import List, Tuple
 
 from eotile.eotiles.eotiles import (
-    get_tile_l8,
-    get_tile_s2,
+    get_tile,
     bbox_to_wkt,
     geom_to_s2_tiles,
-    geom_to_l8_tiles,
-    create_tiles_list_l8_from_geometry,
+    geom_to_eo_tiles,
+    create_tiles_list_eo_from_geometry,
     create_tiles_list_s2_from_geometry,
 )
-from eotile.eotiles.eotiles import L8Tile, S2Tile
+from eotile.eotiles.eotiles import EOTile, S2Tile
 
 
 
 
 def get_tiles_from_tile_id(
     tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, min_overlap=None
-) -> Tuple[List[S2Tile], List[L8Tile]]:
+) -> Tuple[List[S2Tile], List[EOTile]]:
     """Returns the bounding box of a tile designated by its ID.
 
     :param tile_id: The identifier of the tile
@@ -56,9 +55,9 @@ def get_tiles_from_tile_id(
     output_s2, output_l8 = [], []
     if not s2_only:
         # Search on l8 Tiles
-        tile_list_l8 = geom_to_l8_tiles(wkt, None, filename_tiles_l8)
+        tile_list_l8 = geom_to_eo_tiles(wkt, None, filename_tiles_l8, "L8")
         try:
-            output_l8.append(get_tile_l8(tile_list_l8, int(tile_id)))
+            output_l8.append(get_tile(tile_list_l8, int(tile_id)))
         except (
             KeyError,
             ValueError,
@@ -69,7 +68,7 @@ def get_tiles_from_tile_id(
         # Search on s2 Tiles
         tile_list_s2 = geom_to_s2_tiles(wkt, None, filename_tiles_s2)
         try:
-            output_s2.append(get_tile_s2(tile_list_s2, tile_id))
+            output_s2.append(get_tile(tile_list_s2, tile_id))
         except (
             KeyError,
             ValueError,
@@ -78,8 +77,8 @@ def get_tiles_from_tile_id(
                 check_bb_on_s2 = True
     try:
         if check_bb_on_l8:
-            output_l8 = create_tiles_list_l8_from_geometry(
-                filename_tiles_l8, output_s2[0].polyBB, min_overlap
+            output_l8 = create_tiles_list_eo_from_geometry(
+                filename_tiles_l8, output_s2[0].polyBB, "L8", min_overlap
             )
         elif check_bb_on_s2:
             output_s2 = create_tiles_list_s2_from_geometry(

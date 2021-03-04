@@ -22,10 +22,12 @@ class EOTile:
 
         self.ID = None
         self.polyBB = None
+        self.source = None
 
     def __str__(self):
         """ Display the content of a tile"""
-        string_representation = str(self.ID) + "\n"
+        string_representation = f"== Tile {self.source} ==\n"
+        string_representation += str(self.ID) + "\n"
         string_representation += str(self.polyBB) + "\n"
         return string_representation
 
@@ -37,39 +39,12 @@ class EOTile:
         return self.polyBB.GetEnvelope()
 
 
-class L8Tile(EOTile):
-    """ Class which represent a L8 tile """
-
-    def __init__(self):
-        """ Constructor """
-        EOTile.__init__(self)
-
-    def __str__(self):
-        """ Display the content of a L8 tile"""
-        string_representation = "== Tile L8 ==\n"
-        string_representation += super(L8Tile, self).__str__()
-        return string_representation
-
-
-class SRTMTile(EOTile):
-    """ Class which represent a L8 tile """
-
-    def __init__(self):
-        """ Constructor """
-        EOTile.__init__(self)
-
-    def __str__(self):
-        """ Display the content of a L8 tile"""
-        string_representation = "== Tile SRTM ==\n"
-        string_representation += super(SRTMTile, self).__str__()
-        return string_representation
-
-
 class S2Tile(EOTile):
     """Class which represent a S2 tile read from Tile_Part file"""
 
     def __init__(self):
         EOTile.__init__(self)
+        self.source = "S2"
         self.BB = [0, 0, 0, 0, 0, 0, 0, 0]
         self.poly = None
         self.UL = [0, 0]
@@ -79,14 +54,13 @@ class S2Tile(EOTile):
 
     def __str__(self):
         """ Display the content of tile"""
-        string_representation = "== S2 Tile ==\n"
-        string_representation += super().__str__()
+        string_representation = super().__str__()
         string_representation += str(self.BB) + "\n"
         string_representation += str(self.UL) + "\n"
         string_representation += str(self.SRS) + "\n"
         string_representation += str(self.NRows) + "\n"
         string_representation += str(self.NCols) + "\n"
-        string_representation += str(self.poly) + "\n"
+        # string_representation += str(self.poly) + "\n"
         return string_representation
 
     def create_poly_bb(self):

@@ -21,15 +21,12 @@ from shapely.geometry import shape
 
 from eotile.eotiles.eotiles import (
     bbox_to_wkt,
-    create_tiles_list_l8,
-    create_tiles_list_srtm,
+    create_tiles_list_eo,
     create_tiles_list_s2,
-    geom_to_srtm_tiles,
-    geom_to_l8_tiles,
+    geom_to_eo_tiles,
     geom_to_s2_tiles,
     write_tiles_bb,
-    create_tiles_list_srtm_from_geometry,
-    create_tiles_list_l8_from_geometry,
+    create_tiles_list_eo_from_geometry,
     create_tiles_list_s2_from_geometry
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
@@ -171,6 +168,33 @@ def build_parser():
     return parser
 
 
+def treat_eotiles(induced_type, input_arg, tile_type, dev_logger, epsg, filename_tiles, min_overlap):
+    if induced_type == "wkt":
+        wkt = input_arg
+        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+    elif induced_type == "location":
+        url = f"https://nominatim.openstreetmap.org/search?q={input_arg}" \
+              f"&format=geojson&polygon_geojson=1&limit=1"
+        data = requests.get(url)
+        elt = data.json()
+        geom = shape(elt["features"][0]["geometry"])
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+    elif induced_type == "bbox":
+        wkt = bbox_to_wkt(input_arg)
+        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+    elif induced_type == "file":
+        aoi_filepath = Path(input_arg)
+        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
+        dev_logger.info(
+            "Nb of %s tiles which crossing the AOI: %s", tile_type,
+            len(tile_list)
+        )
+    else:
+        dev_logger.error("Unrecognized Option: %s", induced_type)
+
+    return tile_list
+
+
 def main(arguments=None):
     """
     Command line interface to perform
@@ -241,58 +265,19 @@ def main(arguments=None):
             filename_tiles_l8 = (
                 aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
             )
-            if induced_type == "wkt":
-                wkt = args.input
-                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8, args.min_overlap)
-            elif induced_type == "location":
-                url = f"https://nominatim.openstreetmap.org/search?q={args.input}" \
-                      f"&format=geojson&polygon_geojson=1&limit=1"
-                data = requests.get(url)
-                elt = data.json()
-                geom = shape(elt["features"][0]["geometry"])
-                tile_list_l8 = create_tiles_list_l8_from_geometry(filename_tiles_l8, geom, args.min_overlap)
-            elif induced_type == "bbox":
-                wkt = bbox_to_wkt(args.input)
-                tile_list_l8 = geom_to_l8_tiles(wkt, args.epsg, filename_tiles_l8, args.min_overlap)
-            elif induced_type == "file":
-                aoi_filepath = Path(args.input)
-                tile_list_l8 = create_tiles_list_l8(filename_tiles_l8, aoi_filepath, args.min_overlap)
-                dev_logger.info(
-                    "Nb of L8 tiles which crossing the AOI: %s",
-                        len(tile_list_l8)
-                )
-            else:
-                dev_logger.error("Unrecognized Option: %s",induced_type)
+            tile_list_l8 = treat_eotiles(
+                induced_type, args.input, "L8", dev_logger, args.epsg, filename_tiles_l8, args.min_overlap)
 
         if args.srtm:
             # SRTM Tiles
             filename_tiles_srtm = (
                 aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
             )
-            if induced_type == "wkt":
-                wkt = args.input
-                tile_list_srtm = geom_to_srtm_tiles(wkt, args.epsg, filename_tiles_srtm, args.min_overlap)
-            elif induced_type == "location":
-                url = f"https://nominatim.openstreetmap.org/search?q={args.input}" \
-                      f"&format=geojson&polygon_geojson=1&limit=1"
-                data = requests.get(url)
-                elt = data.json()
-                geom = shape(elt["features"][0]["geometry"])
-                tile_list_srtm = create_tiles_list_srtm_from_geometry(filename_tiles_srtm, geom, args.min_overlap)
-            elif induced_type == "bbox":
-                wkt = bbox_to_wkt(args.input)
-                tile_list_srtm = geom_to_srtm_tiles(wkt, args.epsg, filename_tiles_srtm, args.min_overlap)
-            elif induced_type == "file":
-                aoi_filepath = Path(args.input)
-                tile_list_srtm = create_tiles_list_srtm(filename_tiles_srtm, aoi_filepath, args.min_overlap)
-                dev_logger.info(
-                    "Nb of SRTM tiles which crossing the AOI: %s",
-                        len(tile_list_srtm)
-                )
-            else:
-                dev_logger.error("Unrecognized Option: %s",induced_type)
+            tile_list_srtm = treat_eotiles(
+                induced_type, args.input, "SRTM", dev_logger, args.epsg, filename_tiles_srtm, args.min_overlap)
 
     # Outputting the result
+    tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm]
     if args.to_file is not None:
         output_path = Path(args.to_file)
         if not args.l8_only:
@@ -306,60 +291,40 @@ def main(arguments=None):
                 output_path.with_name(output_path.stem + "_L8" + output_path.suffix),
             )
     elif args.to_wkt:
-        if len(tile_list_s2) > 0:
-            for elt in tile_list_s2:
-                user_logger.info("S2 Tile: %s", elt.polyBB.wkt)
-
-        if len(tile_list_l8) > 0:
-            for elt in tile_list_l8:
-                user_logger.info("L8 Tile: %s", elt.polyBB.wkt)
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                for elt in tile_list:
+                    user_logger.info("%s Tile: %s", elt.source, elt.polyBB.wkt)
     elif args.to_bbox:
-        if len(tile_list_s2) > 0:
-            for elt in tile_list_s2:
-                user_logger.info("S2 Tile Bounds:%s", str(elt.polyBB.bounds))
-        if len(tile_list_l8) > 0:
-            for elt in tile_list_l8:
-                user_logger.info("L8 Tile Bounds: %s", str(elt.polyBB.bounds))
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                for elt in tile_list:
+                    user_logger.info("%s Tile Bounds: %s", elt.source, str(elt.polyBB.bounds))
     elif args.to_tile_id:
-        if len(tile_list_s2) > 0:
-            for elt in tile_list_s2:
-                user_logger.info("S2 Tile id: %s", str(elt.ID))
-        if len(tile_list_l8) > 0:
-            for elt in tile_list_l8:
-                user_logger.info("L8 Tile id: %s", str(elt.ID))
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                for elt in tile_list:
+                    user_logger.info("%s Tile id: %s", elt.source, str(elt.ID))
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
-        if len(tile_list_s2) > 0:
-            for elt in tile_list_s2:
-                centroid = list(list(elt.polyBB.centroid.coords)[0])
-                centroid.reverse()
-                location = geolocator.reverse(centroid)
-                if location is not None:
-                    user_logger.info(str(location))
-
-        if len(tile_list_l8) > 0:
-            for elt in tile_list_l8:
-                centroid = list(list(elt.polyBB.centroid.coords)[0])
-                centroid.reverse()
-                location = geolocator.reverse(centroid)
-                if location is not None:
-                    user_logger.info(str(location))
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                for elt in tile_list:
+                    centroid = list(list(elt.polyBB.centroid.coords)[0])
+                    centroid.reverse()
+                    location = geolocator.reverse(centroid)
+                    if location is not None:
+                        user_logger.info(str(location))
     else:
-        if len(tile_list_s2) > 0:
-            for elt in tile_list_s2:
-                user_logger.info(str(elt))
-
-        if len(tile_list_l8) > 0:
-            for elt in tile_list_l8:
-                user_logger.info(str(elt))
-        if len(tile_list_srtm) > 0:
-            for elt in tile_list_srtm:
-                user_logger.info(str(elt))
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                for elt in tile_list:
+                    user_logger.info(str(elt))
     # counts
     user_logger.info("--- Summary ---")
-    user_logger.info("- %s S2 Tiles", len(tile_list_s2))
-    user_logger.info("- %s L8 Tiles", len(tile_list_l8))
-    user_logger.info("- %s SRTM Tiles", len(tile_list_srtm))
+    for tile_list in tile_lists:
+        if len(tile_list) > 0:
+            user_logger.info("- %s %s Tiles", len(tile_list), tile_list[0].source)
 
 if __name__ == "__main__":
     sys.exit(main())

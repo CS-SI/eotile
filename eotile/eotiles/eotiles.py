@@ -19,7 +19,7 @@ import pyproj
 import shapely
 from shapely.geometry import Polygon
 
-from eotile.eotile.eotile import EOTile, L8Tile, S2Tile, SRTMTile
+from eotile.eotile.eotile import EOTile, S2Tile
 
 # mypy imports
 
@@ -28,7 +28,7 @@ LOGGER = logging.getLogger("dev_logger")
 
 
 def write_tiles_bb(
-    tile_list: Union[List[S2Tile], List[L8Tile]], filename: Path
+    tile_list: Union[List[S2Tile], List[EOTile]], filename: Path
 ) -> None:
     """Writes the input tiles to a file
 
@@ -112,92 +112,14 @@ def create_tiles_list_s2_from_geometry(
     return tile_list
 
 
-def create_tiles_list_l8_from_geometry(
-    filename_tiles_list: Path, geom: Polygon, min_overlap=None
-) -> List[L8Tile]:
-    """Create the L8 tile list according to an aoi in ogr geometry format
-
-    :param filename_tiles_list: Path to the XML file containing the list of tiles
-    :type filename_tiles_list: str
-    :param geom: AOI geometry
-    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :type geom: shapely.geometry.Polygon
-    :raises OSError: when the file cannot be open
-    :return: list of L8 tiles
-    :rtype: list
-    """
-
-    # Open the tile list file
-    data_source_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
-    # Check to see if shapefile is found.
-    if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
-        raise IOError
-
-    feature_count = len(data_source_tile_list)
-    LOGGER.info(
-        "Number of features in %s: %s", filename_tiles_list.name, feature_count)
-    tile_list = []
-
-    # This is still required for fitter filtering
-    data_source_filtered = data_source_tile_list[
-        data_source_tile_list["geometry"].intersects(geom)
-    ][["PR", "geometry"]]
-    if min_overlap is not None:
-        data_source_filtered = data_source_filtered[
-            data_source_filtered["geometry"].intersection(geom).area /
-            data_source_filtered["geometry"].area
-            >= float(min_overlap)
-            ]
-    for __unused, feature_tile_list in data_source_filtered.iterrows():
-        tile = L8Tile()
-        tile.ID = feature_tile_list["PR"]
-        tile.polyBB = feature_tile_list["geometry"]
-        tile_list.append(tile)
-
-    return tile_list
-
-
-def create_tiles_list_l8(filename_tiles_list: Path, filename_aoi: Path, min_overlap=None) -> List[L8Tile]:
-    """Create the L8 tile list according to an aoi
-
-    :param filename_tiles_list: Path to the wrs2_descending folder
-    :type filename_tiles_list: pathlib.Path
-    :param filename_aoi: Path to the input AOI file (Must be a shp file)
-    :type filename_aoi: pathlib.Path
-    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :return: list of L8 tiles
-    :rtype: list
-    """
-    # Load the aoi
-    geom = load_aoi(filename_aoi)
-    return create_tiles_list_l8_from_geometry(filename_tiles_list, geom, min_overlap)
-
-
-def get_tile_l8(tile_list: List[L8Tile], tile_id: int) -> L8Tile:
+def get_tile(tile_list: List[EOTile], tile_id: str) -> EOTile:
     """Returns a tile from a tile list from its tile ID
     raises KeyError if the ID corresponds to no tile within the list
 
     :param tile_list: The list of tiles to look in
     :param tile_id: The tile id of the tile to output
-    :return: L8 tile
-    :rtype: L8Tile
-    :raises KeyError: when the tile id is not available
-    """
-    for elt in tile_list:
-        if elt.ID == tile_id:
-            return elt
-    raise KeyError
-
-
-def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
-    """Returns a tile from a tile list from its tile ID
-    raises KeyError if the ID corresponds to no tile within the list
-
-    :param tile_list: The list of tiles to look in
-    :param tile_id: The tile id of the tile to output
-    :return: S2 tile
-    :rtype: S2Tile
+    :return: EO tile
+    :rtype: EOTile
     :raises KeyError: when the tile id is not available
     """
     for elt in tile_list:
@@ -208,7 +130,7 @@ def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
 
 def read_tile_list_from_file(
     filename_tiles: Path,
-) -> Union[List[S2Tile], List[L8Tile], List[EOTile]]:
+) -> Union[List[S2Tile], List[EOTile]]:
     """Returns a tile list from a file previously created
 
     :param filename_tiles: File containing the tile list (shp file)
@@ -270,23 +192,6 @@ def geom_to_s2_tiles(
     return create_tiles_list_s2_from_geometry(filename_tiles_s2, geom, min_overlap)
 
 
-def geom_to_l8_tiles(
-    wkt: str, epsg: Optional[str], filename_tiles_l8: Path, min_overlap=None
-) -> List[L8Tile]:
-    """
-    Generates a l8 tile list from a wkt string
-
-    :param wkt: A wkt polygon in str format
-    :param epsg: An optional in the epsg code in case it is not WGS84
-    :param filename_tiles_l8: The filename to find the tiles in
-    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :return: list of L8 Tiles
-    :rtype: List[L8Tile]
-    """
-    geom = load_wkt_geom(wkt, epsg)
-    return create_tiles_list_l8_from_geometry(filename_tiles_l8, geom, min_overlap)
-
-
 def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
     """
     Loads a wkt geometry to a shapely objects and reprojects it if needed
@@ -303,35 +208,27 @@ def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
     return geom
 
 
-
-
-
-
-
-
-
-
-def geom_to_srtm_tiles(
-    wkt: str, epsg: Optional[str], filename_tiles_srtm: Path, min_overlap=None
-) -> List[SRTMTile]:
+def geom_to_eo_tiles(
+    wkt: str, epsg: Optional[str], filename_tiles_eo: Path, tile_type, min_overlap=None
+) -> List[EOTile]:
     """
-    Generates a srtm tile list from a wkt string
+    Generates a eo tile list from a wkt string
 
     :param wkt: A wkt polygon in str format
     :param epsg: An optional in the epsg code in case it is not WGS84
-    :param filename_tiles_srtm: The filename to find the tiles in
+    :param filename_tiles_eo: The filename to find the tiles in
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :return: list of L8 Tiles
-    :rtype: List[L8Tile]
+    :return: list of EO Tiles
+    :rtype: List[EOTile]
     """
     geom = load_wkt_geom(wkt, epsg)
-    return create_tiles_list_srtm_from_geometry(filename_tiles_srtm, geom, min_overlap)
+    return create_tiles_list_eo_from_geometry(filename_tiles_eo, geom, tile_type, min_overlap)
 
 
-def create_tiles_list_srtm_from_geometry(
-    filename_tiles_list: Path, geom: Polygon, min_overlap=None
-) -> List[SRTMTile]:
-    """Create the SRTM tile list according to an aoi in ogr geometry format
+def create_tiles_list_eo_from_geometry(
+    filename_tiles_list: Path, geom: Polygon, tile_type, min_overlap=None
+) -> List[EOTile]:
+    """Create the EO tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
     :type filename_tiles_list: str
@@ -339,7 +236,7 @@ def create_tiles_list_srtm_from_geometry(
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
     :type geom: shapely.geometry.Polygon
     :raises OSError: when the file cannot be open
-    :return: list of SRTM tiles
+    :return: list of EO tiles
     :rtype: list
     """
 
@@ -361,25 +258,29 @@ def create_tiles_list_srtm_from_geometry(
             >= float(min_overlap)
             ]
     for __unused, feature_tile_list in data_source_filtered.iterrows():
-        tile = SRTMTile()
-        tile.ID = feature_tile_list["id"]
+        tile = EOTile()
+        if tile_type == "L8":
+            tile.ID = feature_tile_list["PR"]
+        else:
+            tile.ID = str(feature_tile_list["id"])
         tile.polyBB = feature_tile_list["geometry"]
+        tile.source = tile_type
         tile_list.append(tile)
 
     return tile_list
 
 
-def create_tiles_list_srtm(filename_tiles_list: Path, filename_aoi: Path, min_overlap=None) -> List[SRTMTile]:
-    """Create the L8 tile list according to an aoi
+def create_tiles_list_eo(filename_tiles_list: Path, filename_aoi: Path, tile_type, min_overlap=None) -> List[EOTile]:
+    """Create the EO tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder
     :type filename_tiles_list: pathlib.Path
     :param filename_aoi: Path to the input AOI file (Must be a shp file)
     :type filename_aoi: pathlib.Path
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :return: list of L8 tiles
+    :return: list of EO tiles
     :rtype: list
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
-    return create_tiles_list_srtm_from_geometry(filename_tiles_list, geom, min_overlap)
+    return create_tiles_list_eo_from_geometry(filename_tiles_list, geom, tile_type, min_overlap)
