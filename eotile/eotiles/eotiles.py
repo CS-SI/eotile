@@ -296,7 +296,7 @@ def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
     """
     geom = shapely.wkt.loads(wkt)
     if epsg is not None:
-        source = pyproj.CRS("EPSG:32618")
+        source = pyproj.CRS(f"EPSG:{epsg}")
         target = pyproj.CRS("EPSG:4326")
         project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
         geom = shapely.ops.transform(project, geom)
