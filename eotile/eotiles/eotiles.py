@@ -131,12 +131,12 @@ def create_tiles_list_l8_from_geometry(
     data_source_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
     if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open %s",filename_tiles_list)
+        LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
         raise IOError
 
     feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in %s: %s",filename_tiles_list.name, feature_count)
+        "Number of features in %s: %s", filename_tiles_list.name, feature_count)
     tile_list = []
 
     # This is still required for fitter filtering
