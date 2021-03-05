@@ -2,7 +2,7 @@
 """
 tile list utilities
 
-:author: msavinaud
+:author: msavinaud; mgerma
 :organization: CS-Group
 :copyright: 2021 CS-Group France. All rights reserved.
 :license: see LICENSE file.
@@ -20,9 +20,6 @@ import shapely
 from shapely.geometry import Polygon
 
 from eotile.eotile.eotile import EOTile, S2Tile
-
-# mypy imports
-
 
 LOGGER = logging.getLogger("dev_logger")
 

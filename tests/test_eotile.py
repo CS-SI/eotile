@@ -419,7 +419,9 @@ class TestEOTile(unittest.TestCase):
 
     def test_tile_list_utils_l8(self):
         l8 = create_tiles_list_eo(
-            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp"), "L8"
+            Path("eotile/data/aux_data/wrs2_descending/"),
+            Path("tests/test_data/illinois.shp"),
+            "L8",
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
@@ -448,15 +450,13 @@ class TestEOTile(unittest.TestCase):
 
     def test_read_write_tiles_bb(self):
         ll8 = create_tiles_list_eo(
-            Path("eotile/data/aux_data/wrs2_descending/"), Path("tests/test_data/illinois.shp"), "L8"
+            Path("eotile/data/aux_data/wrs2_descending/"),
+            Path("tests/test_data/illinois.shp"),
+            "L8",
         )
         write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 
-        read_file = read_tile_list_from_file(
-            Path(
-                "tests/test_data2/illinois2.shp"
-            )
-        )
+        read_file = read_tile_list_from_file(Path("tests/test_data2/illinois2.shp"))
         id_list = []
         for elt in read_file:
             id_list.append(elt.ID)
@@ -477,11 +477,22 @@ class TestEOTile(unittest.TestCase):
         tile_id1 = "31TCJ"
         tile_id2 = "199030"
 
-        file1 = '/tmp'
+        file1 = "/tmp"
         file2 = "/dev/null"
 
-        test_list = [polygon, mpoly, bbox1, bbox2, bbox3, location1, location3, tile_id1,
-                     tile_id2, file1, file2]
+        test_list = [
+            polygon,
+            mpoly,
+            bbox1,
+            bbox2,
+            bbox3,
+            location1,
+            location3,
+            tile_id1,
+            tile_id2,
+            file1,
+            file2,
+        ]
 
         with self.assertRaises(ValueError):
             input_matcher(location2)
@@ -490,8 +501,22 @@ class TestEOTile(unittest.TestCase):
         for elt in test_list:
             out_list.append(input_matcher(elt))
 
-        self.assertListEqual(out_list, ['wkt', 'wkt', 'bbox', 'bbox', 'bbox',
-                         'location', 'location', 'tile_id', 'tile_id', 'file', 'file'])
+        self.assertListEqual(
+            out_list,
+            [
+                "wkt",
+                "wkt",
+                "bbox",
+                "bbox",
+                "bbox",
+                "location",
+                "location",
+                "tile_id",
+                "tile_id",
+                "file",
+                "file",
+            ],
+        )
 
 
 if __name__ == "__main__":

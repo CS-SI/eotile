@@ -2,7 +2,7 @@
 """
 EO tile
 
-:author: msavinaud
+:author: msavinaud; mgerma
 :organization: CS-Group
 :copyright: 2021 CS-Group France. All rights reserved.
 :license: see LICENSE file.
@@ -89,12 +89,12 @@ class S2Tile(EOTile):
         """ Create the Shapely Polygon from the list of BB corner in the case where it crosses the datetime_line"""
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # compute latitude of cutting points
-        [a, b, c, d] = indices
+        [a_point, b_point, c_point, d_point] = indices
         if (abs(float(self.BB[1]) - float(self.BB[3])) > 355.0) and (
             abs(float(self.BB[5]) - float(self.BB[7])) > 355.0
         ):  # Case where two segments are of each side of the datetime line
-            c1_lat = self.compute_datetime_point(a, b)
-            c2_lat = self.compute_datetime_point(d, c)
+            c1_lat = self.compute_datetime_point(a_point, b_point)
+            c2_lat = self.compute_datetime_point(d_point, c_point)
             # Create east polygon
             east_part = Polygon(
                 (
@@ -124,8 +124,8 @@ class S2Tile(EOTile):
             #   _
             # /_/
             if float(self.BB[5]) > 0 and not float(self.BB[3]) > 0:
-                c1_lat = self.compute_datetime_point(a, b)
-                c2_lat = self.compute_datetime_point(c, b)
+                c1_lat = self.compute_datetime_point(a_point, b_point)
+                c2_lat = self.compute_datetime_point(c_point, b_point)
                 east_part = Polygon(
                     (
                         [
@@ -163,8 +163,8 @@ class S2Tile(EOTile):
             #  _
             #  \_\
             elif float(self.BB[1]) > 0 and not float(self.BB[7]) > 0:
-                c1_lat = self.compute_datetime_point(a, b)
-                c2_lat = self.compute_datetime_point(a, d)
+                c1_lat = self.compute_datetime_point(a_point, b_point)
+                c2_lat = self.compute_datetime_point(a_point, d_point)
                 east_part = Polygon(
                     (
                         [
@@ -208,8 +208,8 @@ class S2Tile(EOTile):
             #   _
             # /_/
             if float(self.BB[7]) > 0 and not float(self.BB[1]) > 0:
-                c1_lat = self.compute_datetime_point(d, a)
-                c2_lat = self.compute_datetime_point(d, c)
+                c1_lat = self.compute_datetime_point(d_point, a_point)
+                c2_lat = self.compute_datetime_point(d_point, c_point)
                 east_part = Polygon(
                     (
                         [
@@ -247,8 +247,8 @@ class S2Tile(EOTile):
             #  _
             #  \_\
             elif float(self.BB[3]) > 0 and not float(self.BB[5]) > 0:
-                c1_lat = self.compute_datetime_point(b, c)
-                c2_lat = self.compute_datetime_point(d, c)
+                c1_lat = self.compute_datetime_point(b_point, c_point)
+                c2_lat = self.compute_datetime_point(d_point, c_point)
                 east_part = Polygon(
                     (
                         [
