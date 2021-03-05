@@ -71,7 +71,7 @@ def input_matcher(input_value:str)->str:
 
     bbox_pattern = "(.*?)(([0-9]|.|-|,|'| )*,).(.*?)"
 
-    tile_id_pattern = "(([0-9]){6}|([0-9]){2}([A-Z]){3})"
+    tile_id_pattern = "(([0-9]){6}|([0-9]){2}([A-Z]){3}|(N|S)([0-9]){2}(E|W)([0-9]){3})"
 
     poly_reg = re.compile(poly_pattern)
     bbox_reg = re.compile(bbox_pattern)
@@ -121,7 +121,10 @@ def build_parser():
         "-l8_only", action="store_true", help="output L8 tiles which intersect the aoi"
     )
     parser.add_argument(
-        "-srtm", action="store_true", help="output SRTM tiles which intersect the aoi"
+        "-srtm", action="store_true", help="Use SRTM tiles as well"
+    )
+    parser.add_argument(
+        "-cop", action="store_true", help="Use Copernicus tiles as well"
     )
     # Output arguments
 
@@ -216,12 +219,12 @@ def main(arguments=None):
         data_path = conf_file.readline()
 
     aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
-    tile_list_s2, tile_list_l8, tile_list_srtm = [], [], []
+    tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop = [], [], [], []
     induced_type = input_matcher(args.input)
 
     if induced_type == "tile_id":
-        tile_list_s2, tile_list_l8 = get_tiles_from_tile_id(
-            args.input, aux_data_dirpath, args.s2_only, args.l8_only, args.min_overlap
+        tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop = get_tiles_from_tile_id(
+            args.input, aux_data_dirpath, args.s2_only, args.l8_only, args.srtm, args.cop, args.min_overlap
         )
 
     else:
@@ -276,8 +279,16 @@ def main(arguments=None):
             tile_list_srtm = treat_eotiles(
                 induced_type, args.input, "SRTM", dev_logger, args.epsg, filename_tiles_srtm, args.min_overlap)
 
+        if args.cop:
+            # Copernicus Tiles
+            filename_tiles_cop = (
+                aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
+            )
+            tile_list_cop = treat_eotiles(
+                induced_type, args.input, "Copernicus", dev_logger, args.epsg, filename_tiles_cop, args.min_overlap)
+#
     # Outputting the result
-    tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm]
+    tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
     if args.to_file is not None:
         output_path = Path(args.to_file)
         if not args.l8_only:
