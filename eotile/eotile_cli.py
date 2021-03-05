@@ -171,16 +171,12 @@ def build_parser():
     return parser
 
 
-def treat_eotiles(induced_type, input_arg, tile_type, dev_logger, epsg, filename_tiles, min_overlap):
+def treat_eotiles(induced_type, input_arg, tile_type, dev_logger, epsg, filename_tiles, min_overlap, location_type, threshold):
     if induced_type == "wkt":
         wkt = input_arg
         tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
     elif induced_type == "location":
-        url = f"https://nominatim.openstreetmap.org/search?q={input_arg}" \
-              f"&format=geojson&polygon_geojson=1&limit=1"
-        data = requests.get(url)
-        elt = data.json()
-        geom = shape(elt["features"][0]["geometry"])
+        geom = build_nominatim_request(location_type, input_arg, threshold)
         tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
     elif induced_type == "bbox":
         wkt = bbox_to_wkt(input_arg)
@@ -196,6 +192,21 @@ def treat_eotiles(induced_type, input_arg, tile_type, dev_logger, epsg, filename
         dev_logger.error("Unrecognized Option: %s", induced_type)
 
     return tile_list
+
+
+def build_nominatim_request(location_type, input_arg, threshold):
+    if location_type is not None:
+        req = location_type
+    else:
+        req = "q"
+    url = f"https://nominatim.openstreetmap.org/search?{req}={input_arg}" \
+          f"&format=geojson&polygon_geojson=1&limit=1"
+    if threshold is not None:
+        url += f'& polygon_threshold = {threshold}'
+    data = requests.get(url)
+    elt = data.json()
+    geom = shape(elt["features"][0]["geometry"])
+    return geom
 
 
 def main(arguments=None):
@@ -238,17 +249,7 @@ def main(arguments=None):
                 wkt = args.input
                 tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
             elif induced_type == "location":
-                if args.location_type is not None:
-                    req = "args.location_type"
-                else:
-                    req = "q"
-                url = f"https://nominatim.openstreetmap.org/search?{req}={args.input}" \
-                      f"&format=geojson&polygon_geojson=1&limit=1"
-                if args.threshold is not None:
-                    url += f'& polygon_threshold = {args.threshold}'
-                data = requests.get(url)
-                elt = data.json()
-                geom = shape(elt["features"][0]["geometry"])
+                geom = build_nominatim_request(args.location_type, args.input, args.threshold)
                 tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom, args.min_overlap)
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
@@ -269,7 +270,8 @@ def main(arguments=None):
                 aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
             )
             tile_list_l8 = treat_eotiles(
-                induced_type, args.input, "L8", dev_logger, args.epsg, filename_tiles_l8, args.min_overlap)
+                induced_type, args.input, "L8", dev_logger, args.epsg, filename_tiles_l8, args.min_overlap,
+                args.location_type, args.threshold)
 
         if args.srtm:
             # SRTM Tiles
@@ -277,7 +279,8 @@ def main(arguments=None):
                 aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
             )
             tile_list_srtm = treat_eotiles(
-                induced_type, args.input, "SRTM", dev_logger, args.epsg, filename_tiles_srtm, args.min_overlap)
+                induced_type, args.input, "SRTM", dev_logger, args.epsg, filename_tiles_srtm, args.min_overlap,
+                args.location_type, args.threshold)
 
         if args.cop:
             # Copernicus Tiles
@@ -285,22 +288,18 @@ def main(arguments=None):
                 aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
             )
             tile_list_cop = treat_eotiles(
-                induced_type, args.input, "Copernicus", dev_logger, args.epsg, filename_tiles_cop, args.min_overlap)
+                induced_type, args.input, "Copernicus", dev_logger, args.epsg, filename_tiles_cop, args.min_overlap,
+                args.location_type, args.threshold)
 #
     # Outputting the result
     tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
     if args.to_file is not None:
         output_path = Path(args.to_file)
-        if not args.l8_only:
-            write_tiles_bb(
-                tile_list_s2,
-                output_path.with_name(output_path.stem + "_S2" + output_path.suffix),
-            )
-        if not args.s2_only:
-            write_tiles_bb(
-                tile_list_l8,
-                output_path.with_name(output_path.stem + "_L8" + output_path.suffix),
-            )
+        for tile_list in tile_lists:
+            if len(tile_list) > 0:
+                write_tiles_bb(
+                    tile_list,
+                    output_path.with_name(output_path.stem + "_" + tile_list[0].source + output_path.suffix))
     elif args.to_wkt:
         for tile_list in tile_lists:
             if len(tile_list) > 0:
