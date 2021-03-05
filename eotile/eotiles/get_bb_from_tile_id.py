@@ -71,7 +71,7 @@ def get_tiles_from_tile_id(
             KeyError,
             ValueError,
         ):  # In this case, the key does not exist so we output empty
-            if not l8_only or srtm: # TODO REVIEW THIS
+            if not l8_only or srtm or cop:
                 check_bb_on_l8 = True
 
     if srtm:
@@ -108,7 +108,7 @@ def get_tiles_from_tile_id(
             KeyError,
             ValueError,
         ):  # In this case, the key does not exist so we output empty
-            if not s2_only or srtm:
+            if not s2_only or srtm or cop:
                 check_bb_on_s2 = True
     try:
         if check_bb_on_l8:
