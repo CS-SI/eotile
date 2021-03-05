@@ -25,8 +25,8 @@ from eotile.eotiles.eotiles import EOTile, S2Tile
 
 
 def get_tiles_from_tile_id(
-    tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, min_overlap=None
-) -> Tuple[List[S2Tile], List[EOTile]]:
+    tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, srtm: bool, Copernicus: bool, min_overlap=None
+) -> Tuple[List[S2Tile], List[EOTile], List[EOTile]]:
     """Returns the bounding box of a tile designated by its ID.
 
     :param tile_id: The identifier of the tile
@@ -48,42 +48,65 @@ def get_tiles_from_tile_id(
     filename_tiles_l8 = (
         Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
     )
-
-    check_bb_on_s2, check_bb_on_l8 = False, False
+    # SRTM Tiles
+    filename_tiles_srtm = (
+            aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
+    )
+    check_bb_on_s2, check_bb_on_l8, check_bb_on_srtm = False, False, False
 
     wkt = bbox_to_wkt(["-90", "90", "-180", "180"])
-    output_s2, output_l8 = [], []
+    output_s2, output_l8, output_srtm, output_cop = [], [], [], []
+    tile = None
     if not s2_only:
         # Search on l8 Tiles
         tile_list_l8 = geom_to_eo_tiles(wkt, None, filename_tiles_l8, "L8")
         try:
-            output_l8.append(get_tile(tile_list_l8, int(tile_id)))
+            output_l8.append(get_tile(tile_list_l8, tile_id))
+            tile = output_l8[0]
         except (
             KeyError,
             ValueError,
         ):  # In this case, the key does not exist so we output empty
-            if not l8_only:
+            if not l8_only or srtm:
                 check_bb_on_l8 = True
+
+    if srtm:
+        # Search on SRTM Tiles
+        tile_list_srtm = geom_to_eo_tiles(wkt, None, filename_tiles_srtm, "SRTM")
+        try:
+            output_srtm.append(get_tile(tile_list_srtm, tile_id))
+            tile = output_srtm[0]
+        except (
+            KeyError,
+            ValueError,
+        ):  # In this case, the key does not exist so we output empty
+            check_bb_on_srtm = True
+
     if not l8_only:
         # Search on s2 Tiles
         tile_list_s2 = geom_to_s2_tiles(wkt, None, filename_tiles_s2)
         try:
             output_s2.append(get_tile(tile_list_s2, tile_id))
+            tile = output_s2[0]
         except (
             KeyError,
             ValueError,
         ):  # In this case, the key does not exist so we output empty
-            if not s2_only:
+            if not s2_only or srtm:
                 check_bb_on_s2 = True
     try:
         if check_bb_on_l8:
             output_l8 = create_tiles_list_eo_from_geometry(
-                filename_tiles_l8, output_s2[0].polyBB, "L8", min_overlap
+                filename_tiles_l8, tile.polyBB, "L8", min_overlap
             )
-        elif check_bb_on_s2:
+        if check_bb_on_s2:
             output_s2 = create_tiles_list_s2_from_geometry(
-                filename_tiles_s2, output_l8[0].polyBB, min_overlap
+                filename_tiles_s2, tile.polyBB, min_overlap
+            )
+        if check_bb_on_srtm:
+            output_srtm = create_tiles_list_eo_from_geometry(
+                filename_tiles_srtm, tile.polyBB, "SRTM", min_overlap
             )
     except (UnboundLocalError, IndexError):
-        return [], []
-    return output_s2, output_l8
+        return [], [], [], []
+    return output_s2, output_l8, output_srtm, output_cop
