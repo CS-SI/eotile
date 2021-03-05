@@ -260,13 +260,13 @@ def create_tiles_list_eo_from_geometry(
     for __unused, feature_tile_list in data_source_filtered.iterrows():
         tile = EOTile()
         if tile_type == "L8":
-            tile.ID = feature_tile_list["PR"]
+            tile.ID = str(feature_tile_list["PR"])
         elif tile_type == "Copernicus":
             id_elt = feature_tile_list["id"]
             id_elt = id_elt.split("_")
             tile.ID = "".join([id_elt[i] for i in [4, 6]])
         else:
-            tile.ID = str(feature_tile_list["id"])
+            tile.ID = feature_tile_list["id"]
         tile.polyBB = feature_tile_list["geometry"]
         tile.source = tile_type
         tile_list.append(tile)

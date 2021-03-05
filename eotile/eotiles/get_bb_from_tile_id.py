@@ -56,7 +56,7 @@ def get_tiles_from_tile_id(
     filename_tiles_cop = (
             aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
     )
-    check_bb_on_s2, check_bb_on_l8, check_bb_on_srtm = False, False, False
+    check_bb_on_s2, check_bb_on_l8, check_bb_on_srtm, check_bb_on_cop = False, False, False, False
 
     wkt = bbox_to_wkt(["-90", "90", "-180", "180"])
     output_s2, output_l8, output_srtm, output_cop = [], [], [], []
@@ -71,7 +71,7 @@ def get_tiles_from_tile_id(
             KeyError,
             ValueError,
         ):  # In this case, the key does not exist so we output empty
-            if not l8_only or srtm:
+            if not l8_only or srtm: # TODO REVIEW THIS
                 check_bb_on_l8 = True
 
     if srtm:
@@ -90,8 +90,8 @@ def get_tiles_from_tile_id(
         # Search on Copernicus Tiles
         tile_list_cop = geom_to_eo_tiles(wkt, None, filename_tiles_cop, "Copernicus")
         try:
-            output_srtm.append(get_tile(tile_list_cop, tile_id))
-            tile = output_srtm[0]
+            output_cop.append(get_tile(tile_list_cop, tile_id))
+            tile = output_cop[0]
         except (
             KeyError,
             ValueError,
