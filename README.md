@@ -19,14 +19,9 @@ pip install .
 eotile [from] [to]
 ```
 
-from options :
-* file              Get tiles that corresponds to an AOI contained in a shapefile
-* tile_id           Get tiles that corresponds to a specific tile id
-* location          Get tiles that corresponds to a location (from Nominatim)
-* wkt               Get tiles that corresponds to an AOI designated by its wkt
-* bbox              Get tiles that corresponds to an AOI designated by its four coordinates
+You can **input** these elements : a file, a tile id, a location, a wkt polygon, a bbox
 
-to options :
+### To options :
 * -None                 Output all infos on standard output
 * -to_file TO_FILE      Write tiles to a file
 * -to_wkt               Output the geometry of matching tiles with wkt format on standard output
@@ -34,15 +29,23 @@ to options :
 * -to_tile_id           Output the id(s) of matching tiles on standard output
 * -to_location          Output the location of the centroid of matching tiles on standard output
 
+### Tiles selection :
+* -s2_only              output S2 tiles and not the L8 ones
+* -l8_only              output L8 tiles and not the S2 ones
+* -srtm                 Use SRTM tiles as well
+* -cop                  Use Copernicus tiles as well
 
-Other options :
-* -s2_only              output S2 tiles which intersect the aoi
-* -l8_only              output L8 tiles which intersect the aoi
-* -log_level		    Level of the logging system, default is warn : Amongst [debug, info, warn, error]
+##### Other options :
 * -epsg                 Specify the epsg of the input if not WGS84
+* -logger_file LOGGER_FILE Redirect information from standard output to a file
+* -location_type LOCATION_TYPE If needed, specify the location type that is requested
+                        (city, county, state, country)
+* -threshold THRESHOLD  For large polygons at high resolution, you might want
+                        to simplify them using a threshold(0 to 1)
+* -min_overlap MIN_OVERLAP Minimum percentage of overlap to consider a tile(0 to 1)
 
 
-Examples :
+## Examples
 
 * Using a location
 ```sh
@@ -67,7 +70,7 @@ eotile tests/test_data/illinois.shp -s2_only -vvv
 ```
 ## Running tests
 
-You need additionnal packages in order to run the tests:
+You need additional packages in order to run the tests:
 ```sh
 pip install ".[dev]"
 ```
@@ -78,12 +81,22 @@ python tests/test_create_tiles_file_from_AOI.py
 ```
 
 
-### Data sources & Licenses
+## Data sources & Licenses
 
-SRTM :
+* **SRTM**
+```
 Vector grid of SRTM 1x1 degree tiles
 https://figshare.com/articles/dataset/Vector_grid_of_SRTM_1x1_degree_tiles/1332753
 
 Vector file (shapefile format) of polygons representing the 1x1 degree tiles of SRTM (3-arcsec and 1-arcsec). There are 14280 polygons with an ID that matches the naming scheme of SRTM (such as N00E025). Lat/Long, WGS84. 
+```
 
+* **Copernicus**
+```
+s3://copernicus-dem-30m/grid.zip
+GLO-30 Public and GLO-90 are available on a free basis for the general public under the terms and conditions of the Licence found here:
+https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Annex.pdf
 
+See
+https://github.com/CS-SI/eodag/blob/develop/examples/tuto_cop_dem.ipynb
+```
