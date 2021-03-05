@@ -2,7 +2,7 @@
 """
 Generate tile list according AOI
 
-:author: jsiefert, msavinaud
+:author: jsiefert, msavinaud, mgerma
 :organization: CS-Group
 :copyright: 2021 CS-Group France. All rights reserved.
 :license: see LICENSE file.
@@ -22,8 +22,6 @@ from eotile.eotiles.eotiles import (
 from eotile.eotiles.eotiles import EOTile, S2Tile
 
 
-
-
 def get_tiles_from_tile_id(
     tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, srtm: bool, cop: bool, min_overlap=None
 ) -> Tuple[List[S2Tile], List[EOTile], List[EOTile], List[EOTile]]:
@@ -35,6 +33,12 @@ def get_tiles_from_tile_id(
     :type s2_only: Boolean
     :param l8_only: Is he requested tile a Landscape 8 tile ?
     :type l8_only: Boolean
+    :param srtm: Should SRTM tiles be used ?
+    :type srtm: Boolean
+    :param cop: Should Copernicus tiles be used ?
+    :type cop: Boolean
+    :param min_overlap: (Optional, default = None) Is there a minimum overlap percentage for a tile to be considered
+    overlapping ?
     :return: Two lists of tiles
     """
 
