@@ -73,7 +73,7 @@ def input_matcher(input_value: str) -> str:
 
     bbox_pattern = "(.*?)(([0-9]|.|-|,|'| )*,).(.*?)"
 
-    tile_id_pattern = "(([0-9]){6}|([0-9]){2}([A-Z]){3}|(N|S)([0-9]){2}(E|W)([0-9]){3})"
+    tile_id_pattern = "(([0-9]){4,6}|([0-9]){2}([A-Z]){3}|(N|S)([0-9]){2}(E|W)([0-9]){3})"
 
     poly_reg = re.compile(poly_pattern)
     bbox_reg = re.compile(bbox_pattern)

@@ -276,7 +276,12 @@ def create_tiles_list_eo_from_geometry(
         elif tile_type == "Copernicus":
             id_elt = feature_tile_list["id"]
             id_elt = id_elt.split("_")
-            tile.ID = "".join([id_elt[i] for i in [4, 6]])
+            if len(id_elt) == 9:
+                tile.ID = "".join([id_elt[i] for i in [4, 6]])
+            elif len(id_elt) == 1:
+                tile.ID = id_elt[0]
+            else:
+                LOGGER.error(f"Unrecognized id element : {id_elt}")
         else:
             tile.ID = feature_tile_list["id"]
         tile.polyBB = feature_tile_list["geometry"]

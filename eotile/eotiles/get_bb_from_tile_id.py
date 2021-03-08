@@ -20,7 +20,9 @@ from eotile.eotiles.eotiles import (
     create_tiles_list_s2_from_geometry,
 )
 from eotile.eotiles.eotiles import EOTile, S2Tile
+import logging
 
+dev_logger = logging.getLogger("dev_logger")
 
 def get_tiles_from_tile_id(
     tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, srtm: bool, cop: bool, min_overlap=None
@@ -131,6 +133,7 @@ def get_tiles_from_tile_id(
             output_cop = create_tiles_list_eo_from_geometry(
                 filename_tiles_srtm, tile.polyBB, "Copernicus", min_overlap
             )
-    except (UnboundLocalError, IndexError):
+    except (UnboundLocalError, IndexError) as e:
+        dev_logger.error(e)
         return [], [], [], []
     return output_s2, output_l8, output_srtm, output_cop
