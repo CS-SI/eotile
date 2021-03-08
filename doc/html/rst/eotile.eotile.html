@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eotile.eotile package &#8212; EOTile 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="eotile-eotile-package">
+<h1>eotile.eotile package<a class="headerlink" href="#eotile-eotile-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eotile.eotile.eotile">
+<span id="eotile-eotile-eotile-module"></span><h2>eotile.eotile.eotile module<a class="headerlink" href="#module-eotile.eotile.eotile" title="Permalink to this headline">¶</a></h2>
+<p>EO tile</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>msavinaud; mgerma</p>
+</dd>
+<dt class="field-even">organization</dt>
+<dd class="field-even"><p>CS-Group</p>
+</dd>
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>2021 CS-Group France. All rights reserved.</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>see LICENSE file.</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="eotile.eotile.eotile.EOTile">
+<em class="property">class </em><code class="sig-prename descclassname">eotile.eotile.eotile.</code><code class="sig-name descname">EOTile</code><a class="headerlink" href="#eotile.eotile.eotile.EOTile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which represent a tile</p>
+<dl class="py method">
+<dt id="eotile.eotile.eotile.EOTile.get_bb">
+<code class="sig-name descname">get_bb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eotile.eotile.eotile.EOTile.get_bb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the AABB (axis aligned bounding box) of a tile.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="eotile.eotile.eotile.S2Tile">
+<em class="property">class </em><code class="sig-prename descclassname">eotile.eotile.eotile.</code><code class="sig-name descname">S2Tile</code><a class="headerlink" href="#eotile.eotile.eotile.S2Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile"><code class="xref py py-class docutils literal notranslate"><span class="pre">eotile.eotile.eotile.EOTile</span></code></a></p>
+<p>Class which represent a S2 tile read from Tile_Part file</p>
+<dl class="py method">
+<dt id="eotile.eotile.eotile.S2Tile.compute_datetime_point">
+<code class="sig-name descname">compute_datetime_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">east_pt</span></em>, <em class="sig-param"><span class="n">west_pt</span></em><span class="sig-paren">)</span><a class="headerlink" href="#eotile.eotile.eotile.S2Tile.compute_datetime_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the latitude of the point on the datetime line from two points on each side of that line</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>east_pt</strong> – Point of the east part of the line</p></li>
+<li><p><strong>west_pt</strong> – Point of the west part of the line</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eotile.eotile.eotile.S2Tile.create_poly_bb">
+<code class="sig-name descname">create_poly_bb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eotile.eotile.eotile.S2Tile.create_poly_bb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the Shapely Polygon from the list of BB corner</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="eotile.eotile.eotile.S2Tile.datetime_cutter">
+<code class="sig-name descname">datetime_cutter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#eotile.eotile.eotile.S2Tile.datetime_cutter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the Shapely Polygon from the list of BB corner in the case where it crosses the datetime_line</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-eotile.eotile">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-eotile.eotile" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">EOTile</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, CS Group.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/rst/eotile.eotile.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

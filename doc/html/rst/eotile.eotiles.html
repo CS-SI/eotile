@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eotile.eotiles package &#8212; EOTile 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="eotile-eotiles-package">
+<h1>eotile.eotiles package<a class="headerlink" href="#eotile-eotiles-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-eotile.eotiles.eotiles">
+<span id="eotile-eotiles-eotiles-module"></span><h2>eotile.eotiles.eotiles module<a class="headerlink" href="#module-eotile.eotiles.eotiles" title="Permalink to this headline">¶</a></h2>
+<p>tile list utilities</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>msavinaud; mgerma</p>
+</dd>
+<dt class="field-even">organization</dt>
+<dd class="field-even"><p>CS-Group</p>
+</dd>
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>2021 CS-Group France. All rights reserved.</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>see LICENSE file.</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.bbox_to_wkt">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">bbox_to_wkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bbox_list</span></em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#eotile.eotiles.eotiles.bbox_to_wkt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a bounding box to a wkt polygon
+:param list bbox_list: The bbox list, either it is in str format or list format
+:return: a wkt polygon in str format</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.create_tiles_list_eo">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">create_tiles_list_eo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_tiles_list</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">filename_aoi</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">tile_type</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.create_tiles_list_eo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the EO tile list according to an aoi</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_tiles_list</strong> (<em>pathlib.Path</em>) – Path to the wrs2_descending folder</p></li>
+<li><p><strong>filename_aoi</strong> (<em>pathlib.Path</em>) – Path to the input AOI file (Must be a shp file)</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of EO tiles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.create_tiles_list_eo_from_geometry">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">create_tiles_list_eo_from_geometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_tiles_list</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">geom</span><span class="p">:</span> <span class="n">shapely.geometry.polygon.Polygon</span></em>, <em class="sig-param"><span class="n">tile_type</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.create_tiles_list_eo_from_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the EO tile list according to an aoi in ogr geometry format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_tiles_list</strong> (<em>str</em>) – Path to the XML file containing the list of tiles</p></li>
+<li><p><strong>geom</strong> (<em>shapely.geometry.Polygon</em>) – AOI geometry</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>OSError</strong> – when the file cannot be open</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of EO tiles</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.create_tiles_list_s2">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">create_tiles_list_s2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_tiles_list</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">filename_aoi</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.create_tiles_list_s2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the S2 tile list according to an aoi file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_tiles_list</strong> (<em>str</em>) – Path to the XML file containing the list of tiles</p></li>
+<li><p><strong>filename_aoi</strong> (<em>Path</em>) – Path to the input AOI file (Must be a shp file)</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of S2 tiles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.create_tiles_list_s2_from_geometry">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">create_tiles_list_s2_from_geometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_tiles_list</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">aoi</span><span class="p">:</span> <span class="n">shapely.geometry.polygon.Polygon</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.create_tiles_list_s2_from_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the S2 tile list according to an aoi in ogr geometry format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename_tiles_list</strong> (<em>str</em>) – Path to the XML file containing the list of tiles</p></li>
+<li><p><strong>aoi</strong> (<em>shapely.geometry.Polygon</em>) – AOI geometry</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of S2 Tiles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.geom_to_eo_tiles">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">geom_to_eo_tiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wkt</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">epsg</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">filename_tiles_eo</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">tile_type</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.geom_to_eo_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a eo tile list from a wkt string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wkt</strong> – A wkt polygon in str format</p></li>
+<li><p><strong>epsg</strong> – An optional in the epsg code in case it is not WGS84</p></li>
+<li><p><strong>filename_tiles_eo</strong> – The filename to find the tiles in</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of EO Tiles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">EOTile</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.geom_to_s2_tiles">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">geom_to_s2_tiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wkt</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">epsg</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">filename_tiles_s2</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.geom_to_s2_tiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a s2 tile list from a wkt string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wkt</strong> – A wkt polygon in str format</p></li>
+<li><p><strong>epsg</strong> – An optional in the epsg code in case it is not WGS84</p></li>
+<li><p><strong>filename_tiles_s2</strong> – The filename to find the tiles in</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default=None) Minimum percentage of overlap</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of S2 Tiles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">S2Tile</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.get_tile">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">get_tile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">tile_id</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><a class="headerlink" href="#eotile.eotiles.eotiles.get_tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tile from a tile list from its tile ID
+raises KeyError if the ID corresponds to no tile within the list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tile_list</strong> – The list of tiles to look in</p></li>
+<li><p><strong>tile_id</strong> – The tile id of the tile to output</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EO tile</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">EOTile</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>KeyError</strong> – when the tile id is not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.load_aoi">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">load_aoi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_aoi</span><span class="p">:</span> <span class="n">pathlib.Path</span></em><span class="sig-paren">)</span> &#x2192; shapely.geometry.polygon.Polygon<a class="headerlink" href="#eotile.eotiles.eotiles.load_aoi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.load_wkt_geom">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">load_wkt_geom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wkt</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">epsg</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; shapely.geometry.polygon.Polygon<a class="headerlink" href="#eotile.eotiles.eotiles.load_wkt_geom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a wkt geometry to a shapely objects and reprojects it if needed
+:param wkt: A wkt polygon in str format
+:param epsg: An optional in the epsg code in case it is not WGS84
+:return: a shapely Polygon geometry</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.read_tile_list_from_file">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">read_tile_list_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename_tiles</span><span class="p">:</span> <span class="n">pathlib.Path</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.eotiles.read_tile_list_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tile list from a file previously created</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename_tiles</strong> – File containing the tile list (shp file)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tile list</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IOError</strong> – when the file cannot be open</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="eotile.eotiles.eotiles.write_tiles_bb">
+<code class="sig-prename descclassname">eotile.eotiles.eotiles.</code><code class="sig-name descname">write_tiles_bb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_list</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">pathlib.Path</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#eotile.eotiles.eotiles.write_tiles_bb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the input tiles to a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tile_list</strong> (<em>list</em>) – The list of input tiles to write</p></li>
+<li><p><strong>filename</strong> (<em>Path</em>) – Path to the output file aux data (Must be a shp file)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-eotile.eotiles.get_bb_from_tile_id">
+<span id="eotile-eotiles-get-bb-from-tile-id-module"></span><h2>eotile.eotiles.get_bb_from_tile_id module<a class="headerlink" href="#module-eotile.eotiles.get_bb_from_tile_id" title="Permalink to this headline">¶</a></h2>
+<p>Generate tile list according AOI</p>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>jsiefert, msavinaud, mgerma</p>
+</dd>
+<dt class="field-even">organization</dt>
+<dd class="field-even"><p>CS-Group</p>
+</dd>
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>2021 CS-Group France. All rights reserved.</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>see LICENSE file.</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="eotile.eotiles.get_bb_from_tile_id.get_tiles_from_tile_id">
+<code class="sig-prename descclassname">eotile.eotiles.get_bb_from_tile_id.</code><code class="sig-name descname">get_tiles_from_tile_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tile_id</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">aux_data_dirpath</span><span class="p">:</span> <span class="n">pathlib.Path</span></em>, <em class="sig-param"><span class="n">s2_only</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">l8_only</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">srtm</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">cop</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">min_overlap</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.S2Tile" title="eotile.eotile.eotile.S2Tile">eotile.eotile.eotile.S2Tile</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="eotile.eotile.html#eotile.eotile.eotile.EOTile" title="eotile.eotile.eotile.EOTile">eotile.eotile.eotile.EOTile</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#eotile.eotiles.get_bb_from_tile_id.get_tiles_from_tile_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bounding box of a tile designated by its ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tile_id</strong> – The identifier of the tile</p></li>
+<li><p><strong>aux_data_dirpath</strong> – Path to the input aux data</p></li>
+<li><p><strong>s2_only</strong> (<em>Boolean</em>) – Is he requested tile a Sentinel 2 tile ?</p></li>
+<li><p><strong>l8_only</strong> (<em>Boolean</em>) – Is he requested tile a Landscape 8 tile ?</p></li>
+<li><p><strong>srtm</strong> (<em>Boolean</em>) – Should SRTM tiles be used ?</p></li>
+<li><p><strong>cop</strong> (<em>Boolean</em>) – Should Copernicus tiles be used ?</p></li>
+<li><p><strong>min_overlap</strong> – (Optional, default = None) Is there a minimum overlap percentage for a tile to be considered</p></li>
+</ul>
+</dd>
+</dl>
+<p>overlapping ?
+:return: Two lists of tiles</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-eotile.eotiles">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-eotile.eotiles" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">EOTile</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, CS Group.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/rst/eotile.eotiles.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
