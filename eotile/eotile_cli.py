@@ -319,6 +319,10 @@ def main(arguments=None):
         if len(tile_list_l8) > 0:
             for elt in tile_list_l8:
                 user_logger.info(str(elt))
+    # counts
+    user_logger.info("--- Summary ---")
+    user_logger.info("- %s S2 Tiles", len(tile_list_s2))
+    user_logger.info("- %s L8 Tiles", len(tile_list_l8))
 
 
 if __name__ == "__main__":

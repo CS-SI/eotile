@@ -131,12 +131,12 @@ def create_tiles_list_l8_from_geometry(
     data_source_tile_list = gp.read_file(filename_tiles_list, bbox=geom)
     # Check to see if shapefile is found.
     if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open %s",filename_tiles_list)
+        LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
         raise IOError
 
     feature_count = len(data_source_tile_list)
     LOGGER.info(
-        "Number of features in %s: %s",filename_tiles_list.name, feature_count)
+        "Number of features in %s: %s", filename_tiles_list.name, feature_count)
     tile_list = []
 
     # This is still required for fitter filtering
@@ -296,7 +296,7 @@ def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
     """
     geom = shapely.wkt.loads(wkt)
     if epsg is not None:
-        source = pyproj.CRS("EPSG:32618")
+        source = pyproj.CRS(f"EPSG:{epsg}")
         target = pyproj.CRS("EPSG:4326")
         project = pyproj.Transformer.from_crs(source, target, always_xy=True).transform
         geom = shapely.ops.transform(project, geom)
