@@ -17,7 +17,7 @@ import fiona
 import geopandas as gp
 import pyproj
 import shapely
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, MultiPolygon
 
 from eotile.eotile.eotile import EOTile, S2Tile
 
@@ -45,11 +45,16 @@ def write_tiles_bb(
 def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
     with fiona.open(filename_aoi) as src:
         p = src.get(0)
-    if len(p["geometry"]["coordinates"][0])<3:
-        p = Polygon(p["geometry"]["coordinates"][0][0])
+    if p["geometry"]['type'] == "Polygon":
+        geometry = Polygon(p["geometry"]["coordinates"][0])
+    elif p["geometry"]['type'] == "MultiPolygon":
+        poly_list = []
+        for poly in p["geometry"]["coordinates"]:
+            poly_list.append(Polygon(poly[0]))
+        geometry = MultiPolygon(poly_list)
     else:
-        p = Polygon(p["geometry"]["coordinates"][0])
-    return p
+        LOGGER.error(f"file must contain a (multi)polygon, not {p['geometry']['type']}")
+    return geometry
 
 
 def create_tiles_list_s2(filename_tiles_list: Path, filename_aoi: Path, min_overlap=None) -> List[S2Tile]:
