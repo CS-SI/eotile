@@ -38,7 +38,7 @@ def write_tiles_bb(
     for tile in tile_list:
         tile_list_tmp.append({"geometry": tile.polyBB, "id": tile.ID})
     tiles = gp.GeoDataFrame(tile_list_tmp)
-
+    tiles = tiles.set_crs(epsg=4326)
     tiles.to_file(str(filename))
 
 
