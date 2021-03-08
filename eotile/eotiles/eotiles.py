@@ -124,6 +124,21 @@ def get_tile(tile_list: List[EOTile], tile_id: str) -> EOTile:
             return elt
     raise KeyError
 
+def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
+    """Returns a tile from a tile list from its tile ID
+    raises KeyError if the ID corresponds to no tile within the list
+
+    Note: This function exists because of mypy
+    :param tile_list: The list of tiles to look in
+    :param tile_id: The tile id of the tile to output
+    :return: EO tile
+    :rtype: EOTile
+    :raises KeyError: when the tile id is not available
+    """
+    for elt in tile_list:
+        if elt.ID == tile_id:
+            return elt
+    raise KeyError
 
 def read_tile_list_from_file(
     filename_tiles: Path,

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from eotile.eotiles.eotiles import (
-    get_tile,
+    get_tile, get_tile_s2,
     bbox_to_wkt,
     geom_to_s2_tiles,
     geom_to_eo_tiles,
@@ -106,7 +106,7 @@ def get_tiles_from_tile_id(
         # Search on s2 Tiles
         tile_list_s2 = geom_to_s2_tiles(wkt, None, filename_tiles_s2)
         try:
-            output_s2.append(get_tile(tile_list_s2, tile_id))
+            output_s2.append(get_tile_s2(tile_list_s2, tile_id))
             tile = output_s2[0]
         except (
             KeyError,
@@ -115,19 +115,19 @@ def get_tiles_from_tile_id(
             if not s2_only or srtm or cop:
                 check_bb_on_s2 = True
     try:
-        if check_bb_on_l8:
+        if check_bb_on_l8 and tile is not None:
             output_l8 = create_tiles_list_eo_from_geometry(
                 filename_tiles_l8, tile.polyBB, "L8", min_overlap
             )
-        if check_bb_on_s2:
+        if check_bb_on_s2 and tile is not None:
             output_s2 = create_tiles_list_s2_from_geometry(
                 filename_tiles_s2, tile.polyBB, min_overlap
             )
-        if check_bb_on_srtm:
+        if check_bb_on_srtm and tile is not None:
             output_srtm = create_tiles_list_eo_from_geometry(
                 filename_tiles_srtm, tile.polyBB, "SRTM", min_overlap
             )
-        if check_bb_on_cop:
+        if check_bb_on_cop and tile is not None:
             output_cop = create_tiles_list_eo_from_geometry(
                 filename_tiles_srtm, tile.polyBB, "Copernicus", min_overlap
             )
