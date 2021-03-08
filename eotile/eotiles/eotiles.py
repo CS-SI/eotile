@@ -45,7 +45,11 @@ def write_tiles_bb(
 def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
     with fiona.open(filename_aoi) as src:
         p = src.get(0)
-    return Polygon(p["geometry"]["coordinates"][0])
+    if len(p["geometry"]["coordinates"][0])<3:
+        p = Polygon(p["geometry"]["coordinates"][0][0])
+    else:
+        p = Polygon(p["geometry"]["coordinates"][0])
+    return p
 
 
 def create_tiles_list_s2(filename_tiles_list: Path, filename_aoi: Path, min_overlap=None) -> List[S2Tile]:
