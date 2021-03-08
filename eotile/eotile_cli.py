@@ -59,6 +59,7 @@ def build_logger(level, user_file_name=None):
     return dev_logger, user_logger
 
 
+# noinspection Mypy
 def input_matcher(input_value: str) -> str:
     """
     Induces the type of the input from the user input
@@ -200,7 +201,7 @@ def treat_eotiles(
     threshold,
 ):
     """
-    TODO
+    Treats Tiles that can be loaded from a standard geography file
     """
     if induced_type == "wkt":
         wkt = input_arg
@@ -223,13 +224,14 @@ def treat_eotiles(
         )
     else:
         dev_logger.error("Unrecognized Option: %s", induced_type)
+        tile_list = []
 
     return tile_list
 
 
 def build_nominatim_request(location_type, input_arg, threshold):
     """
-    TODO
+    Builds an http requests for nominatim, then runs it and outputs a geometry object
     """
     if location_type is not None:
         req = location_type
