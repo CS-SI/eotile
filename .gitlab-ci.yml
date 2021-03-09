@@ -55,7 +55,7 @@ pylint:
 # Building doc
 pages:
   script:
-    - pip install sphinx, recommonmark
+    - pip install sphinx recommonmark
     - cd doc
     - sphinx-apidoc -f -o rst ../eotile
     - sphinx-build -b html . html
