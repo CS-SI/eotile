@@ -28,6 +28,14 @@ test:
   script:
     - pip install .
     - python tests/test_eotile.py
+  parallel:
+    matrix:
+      - PYTHON:
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.9"
+  image: python:$PYTHON
 
 pylint:
   stage: test
