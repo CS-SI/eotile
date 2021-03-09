@@ -61,4 +61,4 @@ pages:
     - sphinx-build -b html . html
   artifacts:
     paths:
-      - public
+      - doc
