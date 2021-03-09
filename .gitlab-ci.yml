@@ -57,7 +57,7 @@ pages:
   script:
     - pip install sphinx recommonmark
     - sphinx-apidoc -f -o doc/rst eotile
-    - sphinx-build -b html doc doc/html
+    - sphinx-build -b html doc public
   artifacts:
     paths:
-      - doc
+      - public
