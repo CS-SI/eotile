@@ -55,13 +55,11 @@ pylint:
 # Building doc
 pages:
   script:
-    - pip install sphinx sphinx-rtd-theme sphinx-apidoc
-    - cd doc ; make html
+    - pip install sphinx
+    - mkdir doc
+    - cd doc
     - sphinx-apidoc -f -o rst ../eotile
     - sphinx-build -b html . html
-    - mv html/ ../public/
   artifacts:
     paths:
       - public
-  only:
-    - master
