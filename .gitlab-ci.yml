@@ -56,7 +56,6 @@ pylint:
 pages:
   script:
     - pip install sphinx recommonmark
-    - cd doc
     - sphinx-apidoc -f -o doc/rst eotile
     - sphinx-build -b doc/html doc doc/html
   artifacts:
