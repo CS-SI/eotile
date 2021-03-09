@@ -60,4 +60,4 @@ pages:
     - sphinx-build -b doc/html doc doc/html
   artifacts:
     paths:
-      - doc/html
+      - doc
