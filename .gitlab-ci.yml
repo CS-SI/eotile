@@ -35,6 +35,7 @@ test:
         - "3.7"
         - "3.8"
         - "3.9"
+        FAKE: fake
   image: python:$PYTHON
 
 pylint:
