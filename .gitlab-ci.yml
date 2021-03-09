@@ -56,7 +56,6 @@ pylint:
 pages:
   script:
     - pip install sphinx
-    - mkdir doc
     - cd doc
     - sphinx-apidoc -f -o rst ../eotile
     - sphinx-build -b html . html
