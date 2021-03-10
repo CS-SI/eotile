@@ -380,15 +380,22 @@ def main(arguments=None):
         output_path = Path(args.to_file)
         for tile_list in tile_lists:
             if len(tile_list) > 0:
-                write_tiles_bb(
-                    tile_list,
-                    output_path.with_name(
-                        output_path.stem
-                        + "_"
-                        + tile_list[0].source
-                        + output_path.suffix
-                    ),
-                )
+                if output_path.suffix == '.gpkg':
+                    # Using layers method to combine sources if geopackage
+                    write_tiles_bb(
+                        tile_list,
+                        output_path)
+                else:
+                    # Else, we split into several files
+                    write_tiles_bb(
+                        tile_list,
+                        output_path.with_name(
+                            output_path.stem
+                            + "_"
+                            + tile_list[0].source
+                            + output_path.suffix
+                        ),
+                    )
     elif args.to_wkt:
         for tile_list in tile_lists:
             if len(tile_list) > 0:

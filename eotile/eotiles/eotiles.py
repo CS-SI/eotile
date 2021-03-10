@@ -39,7 +39,17 @@ def write_tiles_bb(
         tile_list_tmp.append({"geometry": tile.polyBB, "id": tile.ID})
     tiles = gp.GeoDataFrame(tile_list_tmp)
     tiles = tiles.set_crs(epsg=4326)
-    tiles.to_file(str(filename))
+    if filename.suffix == '.shp':
+        # Shapefile case
+        tiles.to_file(str(filename))
+    elif filename.suffix == '.geojson':
+        # GeoJSON case
+        tiles.to_file(str(filename), driver='GeoJSON')
+    elif filename.suffix == '.gpkg':
+        # GeoJSON case
+        tiles.to_file(str(filename), layer=tile_list[0].source, driver='GPKG')
+    else:
+        LOGGER.error(f"Unrecognized suffix {filename.suffix}")
 
 
 def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
