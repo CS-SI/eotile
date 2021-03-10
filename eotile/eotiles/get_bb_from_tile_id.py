@@ -12,7 +12,8 @@ from pathlib import Path
 from typing import List, Tuple
 
 from eotile.eotiles.eotiles import (
-    get_tile, get_tile_s2,
+    get_tile,
+    get_tile_s2,
     bbox_to_wkt,
     geom_to_s2_tiles,
     geom_to_eo_tiles,
@@ -24,8 +25,15 @@ import logging
 
 dev_logger = logging.getLogger("dev_logger")
 
+
 def get_tiles_from_tile_id(
-    tile_id: str, aux_data_dirpath: Path, s2_only: bool, l8_only: bool, srtm: bool, cop: bool, min_overlap=None
+    tile_id: str,
+    aux_data_dirpath: Path,
+    s2_only: bool,
+    l8_only: bool,
+    srtm: bool,
+    cop: bool,
+    min_overlap=None,
 ) -> Tuple[List[S2Tile], List[EOTile], List[EOTile], List[EOTile]]:
     """Returns the bounding box of a tile designated by its ID.
 
@@ -51,17 +59,11 @@ def get_tiles_from_tile_id(
     )
 
     # l8 tiles grid
-    filename_tiles_l8 = (
-        Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
-    )
+    filename_tiles_l8 = Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
     # SRTM Tiles
-    filename_tiles_srtm = (
-            aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
-    )
+    filename_tiles_srtm = aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
     # Copernicus Tiles
-    filename_tiles_cop = (
-            aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
-    )
+    filename_tiles_cop = aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
     check_bb_on_s2, check_bb_on_l8, check_bb_on_srtm, check_bb_on_cop = False, False, False, False
 
     wkt = bbox_to_wkt(["-90", "90", "-180", "180"])

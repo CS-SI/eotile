@@ -67,9 +67,7 @@ class S2Tile(EOTile):
         """ Create the Shapely Polygon from the list of BB corner """
         indices = [[1, 0], [3, 2], [5, 4], [7, 6]]
         # Create polygon
-        self.polyBB = Polygon(
-            [[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices]
-        )
+        self.polyBB = Polygon([[float(self.BB[ind[0]]), float(self.BB[ind[1]])] for ind in indices])
 
     def compute_datetime_point(self, east_pt, west_pt):
         """

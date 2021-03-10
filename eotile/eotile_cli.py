@@ -79,22 +79,13 @@ def input_matcher(input_value: str) -> str:
     bbox_reg = re.compile(bbox_pattern)
     tile_id_reg = re.compile(tile_id_pattern)
 
-    if (
-        poly_reg.match(input_value)
-        and poly_reg.match(input_value).string == input_value
-    ):
+    if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
         return "wkt"
 
-    if (
-        bbox_reg.match(input_value)
-        and bbox_reg.match(input_value).string == input_value
-    ):
+    if bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
         return "bbox"
 
-    if (
-        tile_id_reg.match(input_value)
-        and tile_id_reg.match(input_value).string == input_value
-    ):
+    if tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
         return "tile_id"
 
     if Path(input_value).exists():
@@ -134,9 +125,7 @@ def build_parser():
         "-l8_only", action="store_true", help="output L8 tiles which intersect the aoi"
     )
     parser.add_argument("-srtm", action="store_true", help="Use SRTM tiles as well")
-    parser.add_argument(
-        "-cop", action="store_true", help="Use Copernicus tiles as well"
-    )
+    parser.add_argument("-cop", action="store_true", help="Use Copernicus tiles as well")
     # Output arguments
 
     parser.add_argument("-to_file", help="Write tiles to a file")
@@ -158,17 +147,12 @@ def build_parser():
     parser.add_argument(
         "-to_location",
         action="store_true",
-        help="Output the location of the centroid of matching tiles "
-        "on standard output",
+        help="Output the location of the centroid of matching tiles " "on standard output",
     )
 
-    parser.add_argument(
-        "-v", "--verbose", action="count", help="Increase output verbosity"
-    )
+    parser.add_argument("-v", "--verbose", action="count", help="Increase output verbosity")
 
-    parser.add_argument(
-        "-logger_file", help="Redirect information from standard output to a file"
-    )
+    parser.add_argument("-logger_file", help="Redirect information from standard output to a file")
 
     parser.add_argument(
         "-location_type",
@@ -208,20 +192,14 @@ def treat_eotiles(
         tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
     elif induced_type == "location":
         geom = build_nominatim_request(location_type, input_arg, threshold)
-        tile_list = create_tiles_list_eo_from_geometry(
-            filename_tiles, geom, tile_type, min_overlap
-        )
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
     elif induced_type == "bbox":
         wkt = bbox_to_wkt(input_arg)
         tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
     elif induced_type == "file":
         aoi_filepath = Path(input_arg)
-        tile_list = create_tiles_list_eo(
-            filename_tiles, aoi_filepath, tile_type, min_overlap
-        )
-        dev_logger.info(
-            "Nb of %s tiles which crossing the AOI: %s", tile_type, len(tile_list)
-        )
+        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
+        dev_logger.info("Nb of %s tiles which crossing the AOI: %s", tile_type, len(tile_list))
     else:
         dev_logger.error("Unrecognized Option: %s", induced_type)
         tile_list = []
@@ -265,24 +243,15 @@ def main(arguments=None):
         log_level = logging.DEBUG
     dev_logger, user_logger = build_logger(log_level, args.logger_file)
 
-    with open(
-        pkg_resources.resource_filename(__name__, "config/data_path")
-    ) as conf_file:
+    with open(pkg_resources.resource_filename(__name__, "config/data_path")) as conf_file:
         data_path = conf_file.readline()
 
-    aux_data_dirpath = Path(
-        pkg_resources.resource_filename(__name__, data_path.strip())
-    )
+    aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
     tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop = [], [], [], []
     induced_type = input_matcher(args.input)
 
     if induced_type == "tile_id":
-        (
-            tile_list_s2,
-            tile_list_l8,
-            tile_list_srtm,
-            tile_list_cop,
-        ) = get_tiles_from_tile_id(
+        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop,) = get_tiles_from_tile_id(
             args.input,
             aux_data_dirpath,
             args.s2_only,
@@ -301,37 +270,27 @@ def main(arguments=None):
             )
             if induced_type == "wkt":
                 wkt = args.input
-                tile_list_s2 = geom_to_s2_tiles(
-                    wkt, args.epsg, filename_tiles_s2, args.min_overlap
-                )
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
             elif induced_type == "location":
-                geom = build_nominatim_request(
-                    args.location_type, args.input, args.threshold
-                )
+                geom = build_nominatim_request(args.location_type, args.input, args.threshold)
                 tile_list_s2 = create_tiles_list_s2_from_geometry(
                     filename_tiles_s2, geom, args.min_overlap
                 )
             elif induced_type == "bbox":
                 wkt = bbox_to_wkt(args.input)
-                tile_list_s2 = geom_to_s2_tiles(
-                    wkt, args.epsg, filename_tiles_s2, args.min_overlap
-                )
+                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
             elif induced_type == "file":
                 aoi_filepath = Path(args.input)
                 tile_list_s2 = create_tiles_list_s2(
                     filename_tiles_s2, aoi_filepath, args.min_overlap
                 )
-                dev_logger.info(
-                    "Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2)
-                )
+                dev_logger.info("Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2))
             else:
                 dev_logger.error("Unrecognized Option: %s", induced_type)
 
         if not args.s2_only:
             # L8 Tiles
-            filename_tiles_l8 = (
-                aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
-            )
+            filename_tiles_l8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
             tile_list_l8 = treat_eotiles(
                 induced_type,
                 args.input,
@@ -380,15 +339,17 @@ def main(arguments=None):
         output_path = Path(args.to_file)
         for tile_list in tile_lists:
             if len(tile_list) > 0:
-                write_tiles_bb(
-                    tile_list,
-                    output_path.with_name(
-                        output_path.stem
-                        + "_"
-                        + tile_list[0].source
-                        + output_path.suffix
-                    ),
-                )
+                if output_path.suffix == ".gpkg":
+                    # Using layers method to combine sources if geopackage
+                    write_tiles_bb(tile_list, output_path)
+                else:
+                    # Else, we split into several files
+                    write_tiles_bb(
+                        tile_list,
+                        output_path.with_name(
+                            output_path.stem + "_" + tile_list[0].source + output_path.suffix
+                        ),
+                    )
     elif args.to_wkt:
         for tile_list in tile_lists:
             if len(tile_list) > 0:
@@ -398,9 +359,7 @@ def main(arguments=None):
         for tile_list in tile_lists:
             if len(tile_list) > 0:
                 for elt in tile_list:
-                    user_logger.info(
-                        "%s Tile Bounds: %s", elt.source, str(elt.polyBB.bounds)
-                    )
+                    user_logger.info("%s Tile Bounds: %s", elt.source, str(elt.polyBB.bounds))
     elif args.to_tile_id:
         for tile_list in tile_lists:
             if len(tile_list) > 0:
