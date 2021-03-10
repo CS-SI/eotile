@@ -197,6 +197,7 @@ def bbox_to_wkt(bbox_list) -> str:
     :param list bbox_list: The bbox list, either it is in str format or list format
     :return: a wkt polygon in str format
     """
+    LOGGER.warning("bbox_to_wkt is a depreciated function, shouldn't be used !")
     if isinstance(bbox_list, str):
         bbox_list = bbox_list.replace("[", "")
         bbox_list = bbox_list.replace("]", "")
@@ -205,6 +206,21 @@ def bbox_to_wkt(bbox_list) -> str:
     [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
     return f"POLYGON (({ul_long} {ul_lat}, {lr_long} {ul_lat}, {lr_long} {lr_lat},\
      {ul_long} {lr_lat}, {ul_long} {ul_lat} ))"
+
+def bbox_to_list(bbox_list) -> list:
+    """
+    Transforms a bounding box str from args to a list
+
+    :param list bbox_list: The bbox list, either it is in str format or list format
+    :return: a list for the four coordinates
+    """
+    if isinstance(bbox_list, str):
+        bbox_list = bbox_list.replace("[", "")
+        bbox_list = bbox_list.replace("]", "")
+        bbox_list = bbox_list.replace("'", "")
+        bbox_list = list(bbox_list.split(","))
+    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    return [ul_lat, lr_lat, ul_long, lr_long]
 
 
 def geom_to_s2_tiles(

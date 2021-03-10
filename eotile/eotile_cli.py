@@ -17,10 +17,10 @@ from pathlib import Path
 import pkg_resources
 import requests
 from geopy.geocoders import Nominatim
-from shapely.geometry import shape
+from shapely.geometry import shape, box
 
 from eotile.eotiles.eotiles import (
-    bbox_to_wkt,
+    bbox_to_list,
     create_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
     create_tiles_list_s2,
@@ -194,8 +194,9 @@ def treat_eotiles(
         geom = build_nominatim_request(location_type, input_arg, threshold)
         tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
     elif induced_type == "bbox":
-        wkt = bbox_to_wkt(input_arg)
-        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+        bbox = bbox_to_list(input_arg)
+        geom = box(*bbox)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
     elif induced_type == "file":
         aoi_filepath = Path(input_arg)
         tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
@@ -277,8 +278,9 @@ def main(arguments=None):
                     filename_tiles_s2, geom, args.min_overlap
                 )
             elif induced_type == "bbox":
-                wkt = bbox_to_wkt(args.input)
-                tile_list_s2 = geom_to_s2_tiles(wkt, args.epsg, filename_tiles_s2, args.min_overlap)
+                bbox = bbox_to_list(args.input)
+                geom = box(*bbox)
+                tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom, args.min_overlap)
             elif induced_type == "file":
                 aoi_filepath = Path(args.input)
                 tile_list_s2 = create_tiles_list_s2(
