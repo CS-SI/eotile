@@ -14,7 +14,6 @@ from typing import List, Tuple
 from eotile.eotiles.eotiles import (
     get_tile,
     get_tile_s2,
-    bbox_to_wkt,
     load_tiles_list_eo,
     load_tiles_list_s2,
     create_tiles_list_eo_from_geometry,
@@ -27,7 +26,7 @@ import re
 dev_logger = logging.getLogger("dev_logger")
 
 
-def tile_id_matcher(input_value: str) -> str:
+def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
     """
     Induces the type of the input from the user input
 

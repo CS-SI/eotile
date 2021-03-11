@@ -137,9 +137,6 @@ def load_tiles_list_s2(
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
     :type filename_tiles_list: str
-    :param aoi: AOI geometry
-    :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :type aoi: shapely.geometry.Polygon
     :return: list of S2 Tiles
     :rtype: list
     """
