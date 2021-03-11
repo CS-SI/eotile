@@ -12,12 +12,11 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from eotile import eotile_module
+
 from geopy.geocoders import Nominatim
 
-from eotile.eotiles.eotiles import (
-    write_tiles_bb
-)
+from eotile import eotile_module
+from eotile.eotiles.eotiles import write_tiles_bb
 
 
 def build_parser():
@@ -77,7 +76,7 @@ def build_parser():
     parser.add_argument(
         "-threshold",
         help="For large polygons at high resolution, you might want to simplify them using a threshold"
-             "(0 to 1)",
+        "(0 to 1)",
     )
 
     parser.add_argument(
@@ -97,10 +96,19 @@ def main(arguments=None):
     arg_parser = build_parser()
     args = arg_parser.parse_args(args=arguments)
 
-    [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop] = \
-        eotile_module.main(args.input, args.logger_file, args.s2_only, args.l8_only, args.srtm, args.cop,
-                           args.location_type, args.min_overlap, args.epsg, args.threshold,
-                           args.verbose)
+    [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop] = eotile_module.main(
+        args.input,
+        args.logger_file,
+        args.s2_only,
+        args.l8_only,
+        args.srtm,
+        args.cop,
+        args.location_type,
+        args.min_overlap,
+        args.epsg,
+        args.threshold,
+        args.verbose,
+    )
 
     user_logger = logging.getLogger("user_logger")
 

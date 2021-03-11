@@ -15,7 +15,7 @@ from pathlib import Path
 import pkg_resources
 import requests
 from geopy.geocoders import Nominatim
-from shapely.geometry import shape, box
+from shapely.geometry import box, shape
 
 from eotile.eotiles.eotiles import (
     bbox_to_list,
@@ -24,7 +24,8 @@ from eotile.eotiles.eotiles import (
     create_tiles_list_s2,
     create_tiles_list_s2_from_geometry,
     geom_to_eo_tiles,
-    geom_to_s2_tiles)
+    geom_to_s2_tiles,
+)
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
 
@@ -102,15 +103,15 @@ def build_logger(level, user_file_name=None):
 
 
 def treat_eotiles(
-        induced_type,
-        input_arg,
-        tile_type,
-        dev_logger,
-        epsg,
-        filename_tiles,
-        min_overlap,
-        location_type,
-        threshold,
+    induced_type,
+    input_arg,
+    tile_type,
+    dev_logger,
+    epsg,
+    filename_tiles,
+    min_overlap,
+    location_type,
+    threshold,
 ):
     """
     Treats Tiles that can be loaded from a standard geography file
@@ -156,9 +157,19 @@ def build_nominatim_request(location_type, input_arg, threshold):
     return geom
 
 
-def main(input_arg, logger_file=None, s2_only=False, l8_only=False, srtm=False, cop=False,
-         location_type=None, min_overlap=None, epsg=None, threshold=None,
-         verbose=None):
+def main(
+    input_arg,
+    logger_file=None,
+    s2_only=False,
+    l8_only=False,
+    srtm=False,
+    cop=False,
+    location_type=None,
+    min_overlap=None,
+    epsg=None,
+    threshold=None,
+    verbose=None,
+):
     """
     Main module of eotile
     Outputs a list of four lists containing tiles from respectively : Sentinel-2,
@@ -221,8 +232,8 @@ def main(input_arg, logger_file=None, s2_only=False, l8_only=False, srtm=False, 
         if not l8_only:
             # S2 Tiles
             filename_tiles_s2 = (
-                    aux_data_dirpath
-                    / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+                aux_data_dirpath
+                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
             )
             if induced_type == "wkt":
                 wkt = input_arg
@@ -235,12 +246,12 @@ def main(input_arg, logger_file=None, s2_only=False, l8_only=False, srtm=False, 
             elif induced_type == "bbox":
                 bbox = bbox_to_list(input_arg)
                 geom = box(*bbox)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(filename_tiles_s2, geom, min_overlap)
+                tile_list_s2 = create_tiles_list_s2_from_geometry(
+                    filename_tiles_s2, geom, min_overlap
+                )
             elif induced_type == "file":
                 aoi_filepath = Path(input_arg)
-                tile_list_s2 = create_tiles_list_s2(
-                    filename_tiles_s2, aoi_filepath, min_overlap
-                )
+                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath, min_overlap)
                 dev_logger.info("Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2))
             else:
                 dev_logger.error("Unrecognized Option: %s", induced_type)
