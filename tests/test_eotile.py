@@ -10,12 +10,11 @@ import logging
 import unittest
 from pathlib import Path
 
-from eotile.eotile_cli import input_matcher
+from eotile.eotile_module import input_matcher
 from eotile.eotiles.eotiles import (
     create_tiles_list_eo,
     create_tiles_list_s2,
     get_tile,
-    read_tile_list_from_file,
     write_tiles_bb,
 )
 
@@ -456,9 +455,8 @@ class TestEOTile(unittest.TestCase):
         )
         write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 
-        read_file = read_tile_list_from_file(Path("tests/test_data2/illinois2.shp"))
         id_list = []
-        for elt in read_file:
+        for elt in ll8:
             id_list.append(elt.ID)
         self.assertTrue("25030" in id_list)
 

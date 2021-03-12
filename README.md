@@ -3,7 +3,7 @@
 
 Managed Sentinel-2 and Landsat8 tiles
 
-## 📡 Installation
+## ⏬ Installation
 
 Install the package using pip:
 ```sh
@@ -12,8 +12,9 @@ cd eotile
 pip install .
 ```
 
-## 📁 Usage
+## 🔲 Usage
 
+### 📟 Through the CLI
 ```sh
 eotile [input] [output]
 ```
@@ -42,8 +43,23 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
                         to simplify them using a threshold (0 to 1)
 * `-min_overlap MIN_OVERLAP` Minimum percentage of overlap to consider a tile (0 to 1)
 
+### 🐍 Through the python module
 
-## Examples
+Getting Started :
+```python
+# Import the module
+from eotile import eotile_module 
+
+# Create tile lists
+[S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", l8_only=True) 
+# Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
+
+for tile in L8_Tiles:
+    # Withdraw information from tile objects :
+    print(tile.ID,'\n', tile.polyBB.wkt)
+```
+
+## 🔖 Examples
 
 * Using a location
 ```sh
@@ -67,7 +83,7 @@ eotile 31TCJ -to_file data/TLS_tiles.shp
 eotile tests/test_data/illinois.shp -s2_only -vvv
 ```
 
-## Data sources & Licenses
+## 👁️‍🗨️ Data sources & Licenses
 
 * **SRTM**
 ```

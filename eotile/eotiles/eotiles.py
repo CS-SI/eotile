@@ -130,6 +130,45 @@ def create_tiles_list_s2_from_geometry(
     return tile_list
 
 
+def load_tiles_list_s2(
+    filename_tiles_list: Path
+) -> List[S2Tile]:
+    """Create the S2 tile list according to an aoi in ogr geometry format
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :return: list of S2 Tiles
+    :rtype: list
+    """
+    # Open the tiles list file
+    tree = et.parse(str(filename_tiles_list))
+    root = tree.getroot()
+    tile_list = []
+    for tile_elt in root.findall("./DATA/REPRESENTATION_CODE_LIST/TILE_LIST/TILE"):
+        tile = S2Tile()
+        tile_bb = tile_elt.find("B_BOX").text
+        tile.BB = tile_bb.split(" ")
+
+        # Create the polygon
+        # If it crosses the datetime line, then send it to the appropriate function
+        if (abs(float(tile.BB[1]) - float(tile.BB[3])) > 355.0) or (
+            abs(float(tile.BB[5]) - float(tile.BB[7])) > 355.0
+        ):
+            tile.datetime_cutter()
+        else:  # Otherwise, send to the the standard one
+            tile.create_poly_bb()
+        # Intersect with the AOI :
+        tile.ID = tile_elt.find("TILE_IDENTIFIER").text
+        tile.SRS = tile_elt.find("HORIZONTAL_CS_CODE").text
+        tile.UL[0] = int(tile_elt.find("ULX").text)
+        tile.UL[1] = int(tile_elt.find("ULY").text)
+        for tile_elt_size in tile_elt.findall("./TILE_SIZE_LIST/TILE_SIZE"):
+            tile.NRows.append(int(tile_elt_size.find("NROWS").text))
+            tile.NCols.append(int(tile_elt_size.find("NCOLS").text))
+        tile_list.append(tile)
+    return tile_list
+
+
 def get_tile(tile_list: List[EOTile], tile_id: str) -> EOTile:
     """Returns a tile from a tile list from its tile ID
     raises KeyError if the ID corresponds to no tile within the list
@@ -163,34 +202,6 @@ def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
     raise KeyError
 
 
-def read_tile_list_from_file(
-    filename_tiles: Path,
-) -> Union[List[S2Tile], List[EOTile]]:
-    """Returns a tile list from a file previously created
-
-    :param filename_tiles: File containing the tile list (shp file)
-    :return: A tile list
-    :raises IOError: when the file cannot be open
-    """
-    # Open the tile list file
-    data_source_tile_list = gp.read_file(filename_tiles)
-    # Check to see if shapefile is found.
-    if data_source_tile_list is None:
-        LOGGER.error("ERROR: Could not open %s", filename_tiles)
-        raise IOError
-
-    feature_count = len(data_source_tile_list)
-    LOGGER.info("Number of features in %s: %s", filename_tiles.name, feature_count)
-
-    tile_list = []
-    for __unused, feature_tile_list in data_source_tile_list[["TileID", "geometry"]].iterrows():
-        tile = EOTile()
-        tile.ID = feature_tile_list["TileID"]
-        tile.polyBB = feature_tile_list["geometry"]
-        tile_list.append(tile)
-    return tile_list
-
-
 def bbox_to_wkt(bbox_list) -> str:
     """
     Transforms a bounding box to a wkt polygon
@@ -206,6 +217,7 @@ def bbox_to_wkt(bbox_list) -> str:
     [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
     return f"POLYGON (({ul_long} {ul_lat}, {lr_long} {ul_lat}, {lr_long} {lr_lat},\
      {ul_long} {lr_lat}, {ul_long} {ul_lat} ))"
+
 
 def bbox_to_list(bbox_list) -> list:
     """
@@ -283,6 +295,8 @@ def create_tiles_list_eo_from_geometry(
     :param geom: AOI geometry
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
     :type geom: shapely.geometry.Polygon
+    :param tile_type: Type of the tiles
+    :type tile_type: Str
     :raises OSError: when the file cannot be open
     :return: list of EO tiles
     :rtype: list
@@ -304,25 +318,69 @@ def create_tiles_list_eo_from_geometry(
             >= float(min_overlap)
         ]
     for __unused, feature_tile_list in data_source_filtered.iterrows():
-        tile = EOTile()
-        if tile_type == "L8":
-            tile.ID = str(feature_tile_list["PR"])
-        elif tile_type == "Copernicus":
-            id_elt = feature_tile_list["id"]
-            id_elt = id_elt.split("_")
-            if len(id_elt) == 9:
-                tile.ID = "".join([id_elt[i] for i in [4, 6]])
-            elif len(id_elt) == 1:
-                tile.ID = id_elt[0]
-            else:
-                LOGGER.error(f"Unrecognized id element : {id_elt}")
-        else:
-            tile.ID = feature_tile_list["id"]
-        tile.polyBB = feature_tile_list["geometry"]
-        tile.source = tile_type
-        tile_list.append(tile)
+        tile_list.append(create_eo_tile(tile_type, feature_tile_list))
 
     return tile_list
+
+
+def load_tiles_list_eo(
+    filename_tiles_list: Path, tile_type
+) -> List[EOTile]:
+    """Create the EO tile list according to an aoi in ogr geometry format
+
+    :param filename_tiles_list: Path to the XML file containing the list of tiles
+    :type filename_tiles_list: str
+    :param tile_type: Type of the tiles
+    :type tile_type: Str
+    :raises OSError: when the file cannot be open
+    :return: list of EO tiles
+    :rtype: list
+    """
+
+    # Open the tile list file
+    data_source_filtered = gp.read_file(filename_tiles_list)
+    # Check to see if shapefile is found.
+    if data_source_filtered is None:
+        LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
+        raise IOError
+
+    feature_count = len(data_source_filtered)
+    LOGGER.info("Number of features in %s: %s", filename_tiles_list.name, feature_count)
+    tile_list = []
+
+    for __unused, feature_tile_list in data_source_filtered.iterrows():
+        tile_list.append(create_eo_tile(tile_type, feature_tile_list))
+
+    return tile_list
+
+
+def create_eo_tile(tile_type, feature_tile_list):
+    """
+    Creates an EO Tile
+
+    :param tile_type: Type of the tiles
+    :type tile_type: Str
+    :param feature_tile_list: feature tile
+    :return: a tile
+    """
+    tile = EOTile()
+    if tile_type == "L8":
+        tile.ID = str(feature_tile_list["PR"])
+    elif tile_type == "Copernicus":
+        id_elt = feature_tile_list["id"]
+        id_elt = id_elt.split("_")
+        if len(id_elt) == 9:
+            tile.ID = "".join([id_elt[i] for i in [4, 6]])
+        elif len(id_elt) == 1:
+            tile.ID = id_elt[0]
+        else:
+            LOGGER.error(f"Unrecognized id element : {id_elt}")
+    else:
+        tile.ID = feature_tile_list["id"]
+    tile.polyBB = feature_tile_list["geometry"]
+    tile.source = tile_type
+    return tile
+
 
 
 def create_tiles_list_eo(
