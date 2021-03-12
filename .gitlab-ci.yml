@@ -1,4 +1,8 @@
 # EOTile CI
+stages:
+  - test
+  - verify
+
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
 image: python:latest
@@ -25,19 +29,20 @@ before_script:
   - source venv/bin/activate
 
 test:
+  stage: test
+  image: python:3.7-slim
+  before_script:
+    - pip install ".[test]"
+    - mkdir -p reports
+    - rm -f reports/coverage*.xml
+    - rm -f reports/xunit*.xml
+    - coverage erase
   script:
-    - pip install .
-    - python tests/test_eotile.py
-  parallel:
-    matrix:
-      - PYTHON:
-        - "3.6"
-        - "3.7"
-        - "3.8"
-        - "3.9"
-        FAKE: fake
-  image: python:$PYTHON
-
+    - coverage run -m unittest discover 
+    - coverage xml -o public/coverage.xml  
+  artifacts:
+    paths:
+      - public
 pylint:
   stage: test
   image: python:3.7-slim
@@ -50,6 +55,7 @@ pylint:
     - sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' /tmp/pylint.txt > public/badges/$CI_JOB_NAME.score
     - pylint --exit-zero --output-format=pylint_gitlab.GitlabCodeClimateReporter $(find -type f -name "*.py" ! -path "**/venv/**") > codeclimate.json
     - pylint --exit-zero --output-format=pylint_gitlab.GitlabPagesHtmlReporter $(find -type f -name "*.py" ! -path "**/venv/**") > public/lint/index.html
+    - pylint --exit-zero --output-format=parseable $(find -type f -name "*.py" ! -path "**/venv/**") > public/lint/parseable
   after_script:
     - anybadge --overwrite --label $CI_JOB_NAME --value=$(cat public/badges/$CI_JOB_NAME.score) --file=public/badges/$CI_JOB_NAME.svg 4=red 6=orange 8=yellow 10=green
     - |
@@ -60,6 +66,18 @@ pylint:
     reports:
       codequality: codeclimate.json
     when: always
+
+sonar:
+  stage: verify
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    # Disable native entrypoint
+    entrypoint: [""]
+  before_script:
+    # Set branch's name except on master -> no option mean default branch on SonarQube
+    - test ${CI_COMMIT_REF_NAME} = master || SONAR_BRANCH_OPTION="-Dsonar.branch.name=${CI_COMMIT_REF_NAME}"
+  script:
+    - sonar-scanner -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN ${SONAR_BRANCH_OPTION}
 
 # Building doc
 pages:
