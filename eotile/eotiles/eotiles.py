@@ -202,23 +202,6 @@ def get_tile_s2(tile_list: List[S2Tile], tile_id: str) -> S2Tile:
     raise KeyError
 
 
-def bbox_to_wkt(bbox_list) -> str:
-    """
-    Transforms a bounding box to a wkt polygon
-    :param list bbox_list: The bbox list, either it is in str format or list format
-    :return: a wkt polygon in str format
-    """
-    LOGGER.warning("bbox_to_wkt is a depreciated function, shouldn't be used !")
-    if isinstance(bbox_list, str):
-        bbox_list = bbox_list.replace("[", "")
-        bbox_list = bbox_list.replace("]", "")
-        bbox_list = bbox_list.replace("'", "")
-        bbox_list = list(bbox_list.split(","))
-    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
-    return f"POLYGON (({ul_long} {ul_lat}, {lr_long} {ul_lat}, {lr_long} {lr_lat},\
-     {ul_long} {lr_lat}, {ul_long} {ul_lat} ))"
-
-
 def bbox_to_list(bbox_list) -> list:
     """
     Transforms a bounding box str from args to a list
