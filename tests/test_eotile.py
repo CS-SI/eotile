@@ -11,12 +11,16 @@ import unittest
 from pathlib import Path
 
 from eotile.eotile_module import input_matcher
+from eotile.eotile_module import main as eomain
+
 from eotile.eotiles.eotiles import (
     create_tiles_list_eo,
     create_tiles_list_s2,
     get_tile,
     write_tiles_bb,
 )
+
+from eotile.eotiles.get_bb_from_tile_id import tile_id_matcher, get_tiles_from_tile_id
 
 
 class TestEOTile(unittest.TestCase):
@@ -516,6 +520,49 @@ class TestEOTile(unittest.TestCase):
             ],
         )
 
+    def test_id_matcher(self):
+        test_id_srtm = "N02W102"
+        test_id_cop = "S02W102"
+        test_id_s2 = "18SWJ"
+        test_id_l8 = "12033"
+        self.assertEqual(tile_id_matcher(test_id_l8), (False, True, False, False))
+        self.assertEqual(tile_id_matcher(test_id_s2), (True, False, False, False))
+        self.assertEqual(tile_id_matcher(test_id_cop), (False, False, True, True))
+        self.assertEqual(tile_id_matcher(test_id_srtm), (False, False, True, True))
+
+    def test_get_tiles_from_tile_id(self):
+        output_s2, output_l8, output_srtm, output_cop = \
+            get_tiles_from_tile_id("31TCJ", Path(
+                "eotile/data/aux_data"
+            ), False, False, srtm=True, cop=True)
+        self.assertEqual(len(output_s2), 1)
+        self.assertEqual(len(output_l8), 4)
+        self.assertEqual(len(output_srtm), 4)
+        self.assertEqual(len(output_cop), 4)
+
+        output_s2, output_l8, output_srtm, output_cop = \
+            get_tiles_from_tile_id("200035"
+                                   , Path(
+                "eotile/data/aux_data"
+            ), False, False, srtm=True, cop=True)
+        self.assertEqual(len(output_s2), 8)
+        self.assertEqual(len(output_l8), 1)
+
+    def test_main_module(self):
+        output_s2, output_l8, output_srtm, output_cop = \
+            eomain("-74.657, 39.4284, -72.0429, 41.2409", s2_only=False, l8_only=False, srtm=True, cop=True)
+        self.assertEqual(len(output_s2), 12)
+        self.assertEqual(len(output_l8), 9)
+        self.assertEqual(len(output_srtm), 7)
+        self.assertEqual(len(output_cop), 9)
+
+    def test_main_module(self):
+        output_s2, output_l8, output_srtm, output_cop = \
+            eomain("tests/test_data/illinois.shp", s2_only=False, l8_only=False, srtm=True, cop=True)
+        self.assertEqual(len(output_s2), 33)
+        self.assertEqual(len(output_l8), 18)
+        self.assertEqual(len(output_srtm), 27)
+        self.assertEqual(len(output_cop), 27)
 
 if __name__ == "__main__":
     logging.basicConfig(filename="test_eotile.log", level=logging.INFO)
