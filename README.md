@@ -1,5 +1,6 @@
 # 🛰️ EOTile
-[![Version](https://img.shields.io/badge/Version-1.0.0-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+
+[![Version](https://img.shields.io/badge/Version-0.1-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 Managed Sentinel-2 and Landsat8 tiles
 
