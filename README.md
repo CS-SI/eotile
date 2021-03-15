@@ -1,10 +1,10 @@
-# EOTile
-[![Version](https://img.shields.io/badge/Version-1.0.0-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+# 🛰️ EOTile
 
+[![Version](https://img.shields.io/badge/Version-0.1-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
-### 🛰️ Managed Sentinel-2 and Landsat8 tiles
+Managed Sentinel-2 and Landsat8 tiles
 
-## 📡 Installation
+## ⏬ Installation
 
 Install the package using pip:
 ```sh
@@ -13,39 +13,54 @@ cd eotile
 pip install .
 ```
 
-## 📁 Usage
+## 🔲 Usage
 
+### 📟 Through the CLI
 ```sh
-eotile [from] [to]
+eotile [input] [output]
 ```
 
 You can **input** these elements : a file, a tile id, a location, a wkt polygon, a bbox
 
-### To options :
-* -None                 Output all infos on standard output
-* -to_file TO_FILE      Write tiles to a file
-* -to_wkt               Output the geometry of matching tiles with wkt format on standard output
-* -to_bbox              Output the bounding box of matching tiles on standard output
-* -to_tile_id           Output the id(s) of matching tiles on standard output
-* -to_location          Output the location of the centroid of matching tiles on standard output
+### To options (Optional):
+* `-to_file FILE_PATH`      Write tiles to a *geography* file
+* `-to_wkt`               Output the geometry of matching tiles with wkt format on standard output
+* `-to_bbox`              Output the bounding box of matching tiles on standard output
+* `-to_tile_id`           Output the id(s) of matching tiles on standard output
+* `-to_location`          Output the location of the centroid of matching tiles on standard output
 
 ### Tiles selection :
-* -s2_only              output S2 tiles and not the L8 ones
-* -l8_only              output L8 tiles and not the S2 ones
-* -srtm                 Use SRTM tiles as well
-* -cop                  Use Copernicus tiles as well
+* `-s2_only`              output S2 tiles and not the L8 ones
+* `-l8_only`              output L8 tiles and not the S2 ones
+* `-srtm`                 Use SRTM tiles as well
+* `-cop`                  Use Copernicus tiles as well
 
 ##### Other options :
-* -epsg                 Specify the epsg of the input if not WGS84
-* -logger_file LOGGER_FILE Redirect information from standard output to a file
-* -location_type LOCATION_TYPE If needed, specify the location type that is requested
-                        (city, county, state, country)
-* -threshold THRESHOLD  For large polygons at high resolution, you might want
-                        to simplify them using a threshold(0 to 1)
-* -min_overlap MIN_OVERLAP Minimum percentage of overlap to consider a tile(0 to 1)
+* `-epsg`                 Specify the epsg of the input if not WGS84
+* `-logger_file LOGGER_FILE_PATH` Redirect information from standard output to a file
+* `-location_type {city, county, state, country}` If needed, specify the location type that is requested
+                        
+* `-threshold THRESHOLD` For large polygons at high resolution, you might want
+                        to simplify them using a threshold (0 to 1)
+* `-min_overlap MIN_OVERLAP` Minimum percentage of overlap to consider a tile (0 to 1)
 
+### 🐍 Through the python module
 
-## Examples
+Getting Started :
+```python
+# Import the module
+from eotile import eotile_module 
+
+# Create tile lists
+[S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", l8_only=True) 
+# Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
+
+for tile in L8_Tiles:
+    # Withdraw information from tile objects :
+    print(tile.ID,'\n', tile.polyBB.wkt)
+```
+
+## 🔖 Examples
 
 * Using a location
 ```sh
@@ -68,20 +83,8 @@ eotile 31TCJ -to_file data/TLS_tiles.shp
 ```sh
 eotile tests/test_data/illinois.shp -s2_only -vvv
 ```
-## Running tests
 
-You need additional packages in order to run the tests:
-```sh
-pip install ".[dev]"
-```
-
-In order to run the test, you can use the following command:
-```sh
-python tests/test_create_tiles_file_from_AOI.py
-```
-
-
-## Data sources & Licenses
+## 👁️‍🗨️ Data sources & Licenses
 
 * **SRTM**
 ```

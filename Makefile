@@ -12,9 +12,9 @@ install:  ## install environment for development target
 test:  ## run tests (requires venv activation)
 	@pytest
 
-lint:  ## run black and isort (requires venv activation)
-	@isort **/*.py
-	@black **/*.py
+lint:  ## run black and isort
+	@isort **/*.py --line-length 100
+	@black **/*.py --line-length 100
 
 mypy :  ## run tests using mypy
 	@mypy tests/test_eotile.py --ignore-missing-import
