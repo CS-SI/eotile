@@ -86,6 +86,8 @@ upload:
     - pip install twine
     - python setup.py sdist bdist_wheel
     - TWINE_PASSWORD=${GITLAB_DEPLOY_TOKEN} TWINE_USERNAME=${GITLAB_DEPLOY_USERNAME} python -m twine upload --repository-url ${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/pypi --verbose dist/*
+  only:
+    - master
 
 # Building doc
 pages:
