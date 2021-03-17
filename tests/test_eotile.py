@@ -9,23 +9,19 @@
 import logging
 import unittest
 from pathlib import Path
+
 from eotile.eotile_module import build_nominatim_request, input_matcher
 from eotile.eotile_module import main as eomain
-from eotile.eotiles.eotiles import (
-    create_tiles_list_eo,
-    get_tile,
-    write_tiles_bb,
-)
+from eotile.eotiles.eotiles import create_tiles_list_eo, get_tile, write_tiles_bb
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id, tile_id_matcher
 
 
 class TestEOTile(unittest.TestCase):
     def test_tile_list_utils_s2(self):
         ls2 = create_tiles_list_eo(
-            Path(
-                "eotile/data/aux_data/s2/s2_no_overlap_S2.shp"
-            ),
-            Path("tests/test_data/illinois.shp"), "S2"
+            Path("eotile/data/aux_data/s2/s2_no_overlap_S2.shp"),
+            Path("tests/test_data/illinois.shp"),
+            "S2",
         )
         self.assertEqual(len(ls2), 33)
 
@@ -215,7 +211,13 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module_3(self):
         output_s2, output_l8, output_srtm, output_cop = eomain(
-            "Toulouse", s2_only=False, l8_only=False, srtm=True, cop=True, threshold=0.1, min_overlap=.001
+            "Toulouse",
+            s2_only=False,
+            l8_only=False,
+            srtm=True,
+            cop=True,
+            threshold=0.1,
+            min_overlap=0.001,
         )
         self.assertEqual(len(output_s2), 1)
         self.assertEqual(len(output_l8), 2)
@@ -223,7 +225,9 @@ class TestEOTile(unittest.TestCase):
         self.assertEqual(len(output_cop), 1)
 
     def test_build_nominatim_request(self):
-        self.assertTrue((build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005)
+        self.assertTrue(
+            (build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005
+        )
 
 
 if __name__ == "__main__":

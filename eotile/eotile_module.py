@@ -228,10 +228,7 @@ def main(
     else:
         if not l8_only:
             # S2 Tiles
-            filename_tiles_s2 = (
-                aux_data_dirpath
-                / "s2" / "s2_no_overlap_S2.shp"
-            )
+            filename_tiles_s2 = aux_data_dirpath / "s2" / "s2_no_overlap_S2.shp"
             tile_list_s2 = treat_eotiles(
                 induced_type,
                 input_arg,
