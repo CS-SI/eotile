@@ -13,13 +13,9 @@ from typing import List, Tuple
 
 from eotile.eotiles.eotiles import (
     get_tile,
-    get_tile_s2,
     load_tiles_list_eo,
-    load_tiles_list_s2,
-    create_tiles_list_eo_from_geometry,
-    create_tiles_list_s2_from_geometry,
-)
-from eotile.eotiles.eotiles import EOTile, S2Tile
+    create_tiles_list_eo_from_geometry)
+from eotile.eotiles.eotiles import EOTile
 import logging
 import re
 
@@ -65,7 +61,7 @@ def get_tiles_from_tile_id(
     srtm: bool,
     cop: bool,
     min_overlap=None,
-) -> Tuple[List[S2Tile], List[EOTile], List[EOTile], List[EOTile]]:
+) -> Tuple[List[EOTile], List[EOTile], List[EOTile], List[EOTile]]:
     """Returns the bounding box of a tile designated by its ID.
 
     :param tile_id: The identifier of the tile
