@@ -85,10 +85,9 @@ def get_tiles_from_tile_id(
 
     # s2 tiles grig
     filename_tiles_s2 = (
-        Path(aux_data_dirpath)
-        / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            aux_data_dirpath
+            / "s2" / "s2_no_overlap_S2.shp"
     )
-
     # l8 tiles grid
     filename_tiles_l8 = Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
     # SRTM Tiles
@@ -119,8 +118,8 @@ def get_tiles_from_tile_id(
 
     if not l8_only and is_s2:
         # Search on s2 Tiles
-        tile_list_s2 = load_tiles_list_s2(filename_tiles_s2)
-        output_s2.append(get_tile_s2(tile_list_s2, tile_id))
+        tile_list_s2 = load_tiles_list_eo(filename_tiles_s2, "S2")
+        output_s2.append(get_tile(tile_list_s2, tile_id))
         tile = output_s2[0]
 
     try:
@@ -129,8 +128,8 @@ def get_tiles_from_tile_id(
                 filename_tiles_l8, tile.polyBB, "L8", min_overlap
             )
         if tile is not None and not is_s2 and not l8_only:
-            output_s2 = create_tiles_list_s2_from_geometry(
-                filename_tiles_s2, tile.polyBB, min_overlap
+            output_s2 = create_tiles_list_eo_from_geometry(
+                filename_tiles_s2, tile.polyBB, "S2", min_overlap
             )
         if tile is not None and not is_srtm and srtm:
             output_srtm = create_tiles_list_eo_from_geometry(

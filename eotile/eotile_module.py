@@ -215,7 +215,7 @@ def main(
     induced_type = input_matcher(input_arg)
 
     if induced_type == "tile_id":
-        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop,) = get_tiles_from_tile_id(
+        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop) = get_tiles_from_tile_id(
             input_arg,
             aux_data_dirpath,
             s2_only,
@@ -232,7 +232,7 @@ def main(
                 aux_data_dirpath
                 / "s2" / "s2_no_overlap_S2.shp"
             )
-            tile_list_l8 = treat_eotiles(
+            tile_list_s2 = treat_eotiles(
                 induced_type,
                 input_arg,
                 "S2",
