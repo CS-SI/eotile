@@ -21,10 +21,7 @@ from eotile.eotiles.eotiles import (
     bbox_to_list,
     create_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
-    create_tiles_list_s2,
-    create_tiles_list_s2_from_geometry,
     geom_to_eo_tiles,
-    geom_to_s2_tiles,
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -233,28 +230,19 @@ def main(
             # S2 Tiles
             filename_tiles_s2 = (
                 aux_data_dirpath
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+                / "s2" / "s2_no_overlap_S2.shp"
             )
-            if induced_type == "wkt":
-                wkt = input_arg
-                tile_list_s2 = geom_to_s2_tiles(wkt, epsg, filename_tiles_s2, min_overlap)
-            elif induced_type == "location":
-                geom = build_nominatim_request(location_type, input_arg, threshold)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "bbox":
-                bbox = bbox_to_list(input_arg)
-                geom = box(*bbox)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "file":
-                aoi_filepath = Path(input_arg)
-                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath, min_overlap)
-                dev_logger.info("Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2))
-            else:
-                dev_logger.error("Unrecognized Option: %s", induced_type)
+            tile_list_l8 = treat_eotiles(
+                induced_type,
+                input_arg,
+                "S2",
+                dev_logger,
+                epsg,
+                filename_tiles_s2,
+                min_overlap,
+                location_type,
+                threshold,
+            )
 
         if not s2_only:
             # L8 Tiles
