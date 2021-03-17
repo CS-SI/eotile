@@ -50,8 +50,6 @@ setup(
             "data/aux_data/Copernicus/dem30mGrid.shx",
             "data/aux_data/Copernicus/dem30mGrid.shp",
             "data/aux_data/Copernicus/dem30mGrid.dbf",
-            "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000"
-            "_V20000101T000000_20200101T000000_B00.xml",
             "config/data_path",
         ]
     },
