@@ -9,7 +9,7 @@ Generate tile list according AOI
 """
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import Tuple
 import geopandas as gp
 from eotile.eotiles.eotiles import (
     get_tile,
@@ -17,6 +17,7 @@ from eotile.eotiles.eotiles import (
     create_tiles_list_eo_from_geometry)
 import logging
 import re
+import pandas as pd
 
 dev_logger = logging.getLogger("dev_logger")
 
@@ -53,13 +54,13 @@ def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
 
 
 def get_tiles_from_tile_id(
-    tile_id: str,
-    aux_data_dirpath: Path,
-    s2_only: bool,
-    l8_only: bool,
-    srtm: bool,
-    cop: bool,
-    min_overlap=None,
+        tile_id: str,
+        aux_data_dirpath: Path,
+        s2_only: bool,
+        l8_only: bool,
+        srtm: bool,
+        cop: bool,
+        min_overlap=None,
 ) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
     """Returns the bounding box of a tile designated by its ID.
 
@@ -84,9 +85,10 @@ def get_tiles_from_tile_id(
     filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
 
     [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id)
-    output_s2, output_l8, output_srtm, output_cop = gp.GeoDataFrame(), gp.GeoDataFrame(),\
+    output_s2, output_l8, output_srtm, output_cop = gp.GeoDataFrame(), gp.GeoDataFrame(), \
                                                     gp.GeoDataFrame(), gp.GeoDataFrame()
     tile = None
+    pd.options.mode.chained_assignment = None
     if not s2_only and is_l8:
         # Search on l8 Tiles
         tile_list_l8 = load_tiles_list_eo(filename_tiles_l8)
