@@ -2,7 +2,7 @@ This file contains information about where does the data sources comes from.
 
 ## S2 Tiles from xml file
 
-To get the gpkg file from xml data, you'll need to checkout the **xml_cutter** branch
+To get the gpkg file from xml data, you'll need to checkout the **xml_cutter** branch.
 This branch will also work for the other data sources
 
 eotile "POLYGON((-180 -90, 180 -90, 180 90, -180 90, -180 -90))" -s2_only -to_file eotile/data/aux_data/s2/s2_no_overlap.gpkg 
