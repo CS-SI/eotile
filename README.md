@@ -68,7 +68,7 @@ for tile in L8_Tiles.iterrows():
 
 * Using a location
 ```sh
-eotile "Metropolitan+France" -threshold 1 -to_tile_id
+eotile "Metropolitan France" -threshold 1 -to_tile_id
 ```
 * Using a BBOX
 ```sh

@@ -128,7 +128,7 @@ def main(arguments=None):
                     write_tiles_bb(
                         tile_list,
                         output_path.with_name(
-                            output_path.stem + "_" + tile_list[0].source + output_path.suffix
+                            output_path.stem + "_" + source + output_path.suffix
                         ),
                     )
     elif args.to_wkt:
