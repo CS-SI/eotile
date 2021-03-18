@@ -228,7 +228,7 @@ def main(
     else:
         if not l8_only:
             # S2 Tiles
-            filename_tiles_s2 = aux_data_dirpath / "s2" / "s2_no_overlap_S2.shp"
+            filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
             tile_list_s2 = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -243,7 +243,7 @@ def main(
 
         if not s2_only:
             # L8 Tiles
-            filename_tiles_l8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
+            filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
             tile_list_l8 = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -258,7 +258,7 @@ def main(
 
         if srtm:
             # SRTM Tiles
-            filename_tiles_srtm = aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
+            filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
             tile_list_srtm = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -273,7 +273,7 @@ def main(
 
         if cop:
             # Copernicus Tiles
-            filename_tiles_cop = aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
+            filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
             tile_list_cop = treat_eotiles(
                 induced_type,
                 input_arg,

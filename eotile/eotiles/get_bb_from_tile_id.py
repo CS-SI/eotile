@@ -10,12 +10,11 @@ Generate tile list according AOI
 
 from pathlib import Path
 from typing import List, Tuple
-
+import geopandas as gp
 from eotile.eotiles.eotiles import (
     get_tile,
     load_tiles_list_eo,
     create_tiles_list_eo_from_geometry)
-from eotile.eotiles.eotiles import EOTile
 import logging
 import re
 
@@ -61,7 +60,7 @@ def get_tiles_from_tile_id(
     srtm: bool,
     cop: bool,
     min_overlap=None,
-) -> Tuple[List[EOTile], List[EOTile], List[EOTile], List[EOTile]]:
+) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
     """Returns the bounding box of a tile designated by its ID.
 
     :param tile_id: The identifier of the tile
@@ -79,63 +78,57 @@ def get_tiles_from_tile_id(
     :return: Two lists of tiles
     """
 
-    # s2 tiles grig
-    filename_tiles_s2 = (
-            aux_data_dirpath
-            / "s2" / "s2_no_overlap_S2.shp"
-    )
-    # l8 tiles grid
-    filename_tiles_l8 = Path(aux_data_dirpath) / "wrs2_descending" / "wrs2_descending.shp"
-    # SRTM Tiles
-    filename_tiles_srtm = aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
-    # Copernicus Tiles
-    filename_tiles_cop = aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
+    filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+    filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
+    filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
+    filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
 
     [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id)
-    output_s2, output_l8, output_srtm, output_cop = [], [], [], []
+    output_s2, output_l8, output_srtm, output_cop = gp.GeoDataFrame(), gp.GeoDataFrame(),\
+                                                    gp.GeoDataFrame(), gp.GeoDataFrame()
     tile = None
     if not s2_only and is_l8:
         # Search on l8 Tiles
-        tile_list_l8 = load_tiles_list_eo(filename_tiles_l8, "L8")
-        output_l8.append(get_tile(tile_list_l8, tile_id))
-        tile = output_l8[0]
+        tile_list_l8 = load_tiles_list_eo(filename_tiles_l8)
+        tile = get_tile(tile_list_l8, tile_id)
+        output_l8 = output_l8.append(tile)
 
     if srtm and is_srtm:
         # Search on SRTM Tiles
-        tile_list_srtm = load_tiles_list_eo(filename_tiles_srtm, "SRTM")
-        output_srtm.append(get_tile(tile_list_srtm, tile_id))
-        tile = output_srtm[0]
+        tile_list_srtm = load_tiles_list_eo(filename_tiles_srtm)
+        tile = get_tile(tile_list_srtm, tile_id)
+        output_srtm = output_srtm.append(tile)
 
     if cop and is_cop:
         # Search on Copernicus Tiles
-        tile_list_cop = load_tiles_list_eo(filename_tiles_cop, "Copernicus")
-        output_cop.append(get_tile(tile_list_cop, tile_id))
-        tile = output_cop[0]
+        tile_list_cop = load_tiles_list_eo(filename_tiles_cop)
+        tile = get_tile(tile_list_cop, tile_id)
+        output_cop = output_cop.append(tile)
 
     if not l8_only and is_s2:
         # Search on s2 Tiles
-        tile_list_s2 = load_tiles_list_eo(filename_tiles_s2, "S2")
-        output_s2.append(get_tile(tile_list_s2, tile_id))
-        tile = output_s2[0]
+        tile_list_s2 = load_tiles_list_eo(filename_tiles_s2)
+        tile = get_tile(tile_list_s2, tile_id)
+        output_s2 = output_s2.append(tile)
 
     try:
         if tile is not None and not is_l8 and not s2_only:
             output_l8 = create_tiles_list_eo_from_geometry(
-                filename_tiles_l8, tile.polyBB, "L8", min_overlap
+                filename_tiles_l8, tile.geometry, "L8", min_overlap
             )
         if tile is not None and not is_s2 and not l8_only:
             output_s2 = create_tiles_list_eo_from_geometry(
-                filename_tiles_s2, tile.polyBB, "S2", min_overlap
+                filename_tiles_s2, tile.geometry, "S2", min_overlap
             )
         if tile is not None and not is_srtm and srtm:
             output_srtm = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.polyBB, "SRTM", min_overlap
+                filename_tiles_srtm, tile.geometry, "SRTM", min_overlap
             )
         if tile is not None and not is_cop and cop:
             output_cop = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.polyBB, "Copernicus", min_overlap
+                filename_tiles_srtm, tile.geometry, "Copernicus", min_overlap
             )
     except (UnboundLocalError, IndexError) as e:
         dev_logger.error(e)
-        return [], [], [], []
+        return gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame()
     return output_s2, output_l8, output_srtm, output_cop

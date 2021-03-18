@@ -18,12 +18,10 @@ import pyproj
 import shapely
 from shapely.geometry import Polygon, MultiPolygon
 
-from eotile.eotile.eotile import EOTile
-
 LOGGER = logging.getLogger("dev_logger")
 
 
-def write_tiles_bb(tile_list: List[EOTile], filename: Path) -> None:
+def write_tiles_bb(tile_list: gp.geodataframe, filename: Path) -> None:
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
@@ -31,11 +29,7 @@ def write_tiles_bb(tile_list: List[EOTile], filename: Path) -> None:
     :param filename: Path to the output file aux data (Must be a shp file)
     :type filename: Path
     """
-    tile_list_tmp = []
-    for tile in tile_list:
-        tile_list_tmp.append({"geometry": tile.polyBB, "id": tile.ID})
-    tiles = gp.GeoDataFrame(tile_list_tmp)
-    tiles = tiles.set_crs(epsg=4326)
+    tiles = tile_list.set_crs(epsg=4326)
     if filename.suffix == ".shp":
         # Shapefile case
         tiles.to_file(str(filename))
@@ -64,7 +58,7 @@ def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
     return geometry
 
 
-def get_tile(tile_list: List[EOTile], tile_id: str) -> EOTile:
+def get_tile(tile_list: gp.geodataframe, tile_id: str) -> gp.geoseries:
     """Returns a tile from a tile list from its tile ID
     raises KeyError if the ID corresponds to no tile within the list
 
@@ -74,10 +68,8 @@ def get_tile(tile_list: List[EOTile], tile_id: str) -> EOTile:
     :rtype: EOTile
     :raises KeyError: when the tile id is not available
     """
-    for elt in tile_list:
-        if elt.ID == tile_id:
-            return elt
-    raise KeyError
+    tiles_df = tile_list.set_index("id")
+    return tiles_df.loc[tile_id]
 
 
 def bbox_to_list(bbox_list) -> list:
@@ -114,7 +106,7 @@ def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
 
 def geom_to_eo_tiles(
     wkt: str, epsg: Optional[str], filename_tiles_eo: Path, tile_type, min_overlap=None
-) -> List[EOTile]:
+) -> gp.geodataframe:
     """
     Generates a eo tile list from a wkt string
 
@@ -124,7 +116,7 @@ def geom_to_eo_tiles(
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
     :param tile_type: Type of the tile
     :return: list of EO Tiles
-    :rtype: List[EOTile]
+    :rtype: gp.geodataframe
     """
     geom = load_wkt_geom(wkt, epsg)
     return create_tiles_list_eo_from_geometry(filename_tiles_eo, geom, tile_type, min_overlap)
@@ -132,7 +124,7 @@ def geom_to_eo_tiles(
 
 def create_tiles_list_eo_from_geometry(
     filename_tiles_list: Path, geom: Polygon, tile_type, min_overlap=None
-) -> List[EOTile]:
+) -> gp.geodataframe:
     """Create the EO tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -148,7 +140,7 @@ def create_tiles_list_eo_from_geometry(
     """
 
     # Open the tile list file
-    data_source_filtered = gp.read_file(filename_tiles_list, mask=geom)
+    data_source_filtered = gp.read_file(filename_tiles_list, mask=geom, index_col="id")
     # Check to see if shapefile is found.
     if data_source_filtered is None:
         LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
@@ -162,15 +154,13 @@ def create_tiles_list_eo_from_geometry(
             data_source_filtered.intersection(geom).area / data_source_filtered.area
             >= float(min_overlap)
         ]
-    for __unused, feature_tile_list in data_source_filtered.iterrows():
-        tile_list.append(create_eo_tile(tile_type, feature_tile_list))
 
-    return tile_list
+    return data_source_filtered
 
 
 def load_tiles_list_eo(
-    filename_tiles_list: Path, tile_type
-) -> List[EOTile]:
+    filename_tiles_list: Path
+) -> gp.geodataframe:
     """Create the EO tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
@@ -183,7 +173,7 @@ def load_tiles_list_eo(
     """
 
     # Open the tile list file
-    data_source_filtered = gp.read_file(filename_tiles_list)
+    data_source_filtered = gp.read_file(filename_tiles_list, index_col="id")
     # Check to see if shapefile is found.
     if data_source_filtered is None:
         LOGGER.error("ERROR: Could not open %s", filename_tiles_list)
@@ -191,45 +181,13 @@ def load_tiles_list_eo(
 
     feature_count = len(data_source_filtered)
     LOGGER.info("Number of features in %s: %s", filename_tiles_list.name, feature_count)
-    tile_list = []
 
-    for __unused, feature_tile_list in data_source_filtered.iterrows():
-        tile_list.append(create_eo_tile(tile_type, feature_tile_list))
-
-    return tile_list
-
-
-def create_eo_tile(tile_type, feature_tile_list):
-    """
-    Creates an EO Tile
-
-    :param tile_type: Type of the tiles
-    :type tile_type: Str
-    :param feature_tile_list: feature tile
-    :return: a tile
-    """
-    tile = EOTile()
-    if tile_type == "L8":
-        tile.ID = str(feature_tile_list["PR"])
-    elif tile_type == "Copernicus":
-        id_elt = feature_tile_list["id"]
-        id_elt = id_elt.split("_")
-        if len(id_elt) == 9:
-            tile.ID = "".join([id_elt[i] for i in [4, 6]])
-        elif len(id_elt) == 1:
-            tile.ID = id_elt[0]
-        else:
-            LOGGER.error(f"Unrecognized id element : {id_elt}")
-    else:
-        tile.ID = feature_tile_list["id"]
-    tile.polyBB = feature_tile_list["geometry"]
-    tile.source = tile_type
-    return tile
+    return data_source_filtered
 
 
 def create_tiles_list_eo(
     filename_tiles_list: Path, filename_aoi: Path, tile_type, min_overlap=None
-) -> List[EOTile]:
+) -> gp.geodataframe:
     """Create the EO tile list according to an aoi
 
     :param filename_tiles_list: Path to the wrs2_descending folder

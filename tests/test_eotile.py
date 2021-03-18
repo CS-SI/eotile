@@ -18,97 +18,45 @@ from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id, tile_id_m
 
 class TestEOTile(unittest.TestCase):
     def test_tile_list_utils_s2(self):
+        aux_data_dirpath = Path("eotile/data/aux_data")
+        filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
         ls2 = create_tiles_list_eo(
-            Path("eotile/data/aux_data/s2/s2_no_overlap_S2.shp"),
+            filename_tiles_s2,
             Path("tests/test_data/illinois.shp"),
             "S2",
         )
         self.assertEqual(len(ls2), 33)
 
         self.assertTrue(
-            ls2[1].ID
-            in [
-                "15TXH",
-                "15TYH",
-                "15TYG",
-                "15TXF",
-                "15TYF",
-                "15TXE",
-                "15TYE",
-                "15SXD",
-                "15SYD",
-                "15SYC",
-                "15SYB",
-                "16TCN",
-                "16TDN",
-                "16TBM",
-                "16TCM",
-                "16TDM",
-                "16TBL",
-                "16TCL",
-                "16TDL",
-                "16TBK",
-                "16TCK",
-                "16TDK",
-                "16SBJ",
-                "16SCJ",
-                "16SDJ",
-                "16SBH",
-                "16SCH",
-                "16SDH",
-                "16SBG",
-                "16SCG",
-                "16SDG",
-                "16SBF",
-                "16SCF",
-            ]
+            get_tile(ls2, "15TXH") is not None
         )
 
         self.assertTrue(get_tile(ls2, "15TXF") is not None)
 
     def test_tile_list_utils_l8(self):
+        aux_data_dirpath = Path("eotile/data/aux_data")
+        filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
         l8 = create_tiles_list_eo(
-            Path("eotile/data/aux_data/wrs2_descending/"),
+            filename_tiles_l8,
             Path("tests/test_data/illinois.shp"),
             "L8",
         )
         self.assertEqual(len(l8), 18)
         self.assertTrue(
-            l8[1].ID
-            in [
-                "25030",
-                "25031",
-                "25032",
-                "25033",
-                "23030",
-                "23031",
-                "23032",
-                "23033",
-                "23034",
-                "24030",
-                "24031",
-                "24032",
-                "24033",
-                "24034",
-                "22031",
-                "22032",
-                "22033",
-                "22034",
-            ]
+            get_tile(l8, "25030") is not None
         )
 
     def test_read_write_tiles_bb(self):
+        aux_data_dirpath = Path("eotile/data/aux_data")
+        filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
         ll8 = create_tiles_list_eo(
-            Path("eotile/data/aux_data/wrs2_descending/"),
+            filename_tiles_l8,
             Path("tests/test_data/illinois.shp"),
             "L8",
         )
         write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 
-        id_list = []
-        for elt in ll8:
-            id_list.append(elt.ID)
-        self.assertTrue("25030" in id_list)
+        self.assertTrue(get_tile(ll8, "25030") is not None)
 
     def test_input_matcher(self):
         polygon = "POLYGON((1 1,5 1,5 5,1 5,1 1))"
@@ -177,8 +125,9 @@ class TestEOTile(unittest.TestCase):
         self.assertEqual(tile_id_matcher(test_id_srtm), (False, False, True, True))
 
     def test_get_tiles_from_tile_id(self):
+        aux_data_dirpath = Path("eotile/data/aux_data")
         output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            "31TCJ", Path("eotile/data/aux_data"), False, False, srtm=True, cop=True
+            "31TCJ", aux_data_dirpath, False, False, srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 1)
         self.assertEqual(len(output_l8), 4)
@@ -186,7 +135,7 @@ class TestEOTile(unittest.TestCase):
         self.assertEqual(len(output_cop), 4)
 
         output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            "200035", Path("eotile/data/aux_data"), False, False, srtm=True, cop=True
+            "200035", aux_data_dirpath, False, False, srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 8)
         self.assertEqual(len(output_l8), 1)
