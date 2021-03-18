@@ -21,10 +21,7 @@ from eotile.eotiles.eotiles import (
     bbox_to_list,
     create_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
-    create_tiles_list_s2,
-    create_tiles_list_s2_from_geometry,
     geom_to_eo_tiles,
-    geom_to_s2_tiles,
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -118,17 +115,17 @@ def treat_eotiles(
     """
     if induced_type == "wkt":
         wkt = input_arg
-        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, min_overlap)
     elif induced_type == "location":
         geom = build_nominatim_request(location_type, input_arg, threshold)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "bbox":
         bbox = bbox_to_list(input_arg)
         geom = box(*bbox)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "file":
         aoi_filepath = Path(input_arg)
-        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, min_overlap)
         dev_logger.info("Nb of %s tiles which crossing the AOI: %s", tile_type, len(tile_list))
     else:
         dev_logger.error("Unrecognized Option: %s", induced_type)
@@ -218,7 +215,7 @@ def main(
     induced_type = input_matcher(input_arg)
 
     if induced_type == "tile_id":
-        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop,) = get_tiles_from_tile_id(
+        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop) = get_tiles_from_tile_id(
             input_arg,
             aux_data_dirpath,
             s2_only,
@@ -231,34 +228,22 @@ def main(
     else:
         if not l8_only:
             # S2 Tiles
-            filename_tiles_s2 = (
-                aux_data_dirpath
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+            tile_list_s2 = treat_eotiles(
+                induced_type,
+                input_arg,
+                "S2",
+                dev_logger,
+                epsg,
+                filename_tiles_s2,
+                min_overlap,
+                location_type,
+                threshold,
             )
-            if induced_type == "wkt":
-                wkt = input_arg
-                tile_list_s2 = geom_to_s2_tiles(wkt, epsg, filename_tiles_s2, min_overlap)
-            elif induced_type == "location":
-                geom = build_nominatim_request(location_type, input_arg, threshold)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "bbox":
-                bbox = bbox_to_list(input_arg)
-                geom = box(*bbox)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "file":
-                aoi_filepath = Path(input_arg)
-                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath, min_overlap)
-                dev_logger.info("Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2))
-            else:
-                dev_logger.error("Unrecognized Option: %s", induced_type)
 
         if not s2_only:
             # L8 Tiles
-            filename_tiles_l8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
+            filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
             tile_list_l8 = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -273,7 +258,7 @@ def main(
 
         if srtm:
             # SRTM Tiles
-            filename_tiles_srtm = aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
+            filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
             tile_list_srtm = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -288,7 +273,7 @@ def main(
 
         if cop:
             # Copernicus Tiles
-            filename_tiles_cop = aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
+            filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
             tile_list_cop = treat_eotiles(
                 induced_type,
                 input_arg,

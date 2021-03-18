@@ -55,9 +55,13 @@ from eotile import eotile_module
 [S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", l8_only=True) 
 # Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
 
-for tile in L8_Tiles:
-    # Withdraw information from tile objects :
-    print(tile.ID,'\n', tile.polyBB.wkt)
+# Returned elements are GeoPandas Dataframes :
+print(S2_Tiles.id)
+
+# Iter over the Dataframe :
+for tile in L8_Tiles.iterrows():
+    print(tile[1].geometry.wkt)
+
 ```
 
 ## 🔖 Examples
