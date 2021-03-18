@@ -168,7 +168,9 @@ def main(arguments=None):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 for elt in tile_list[["id", "geometry"]].iterrows():
-                        user_logger.info("["+source+" tile]\n"+elt[1]["id"]+"\n"+elt[1]["geometry"].wkt)
+                    user_logger.info(
+                        "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
+                    )
     # counts
     user_logger.info("--- Summary ---")
     for i in range(len(tile_lists)):

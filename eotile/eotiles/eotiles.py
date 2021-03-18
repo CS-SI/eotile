@@ -159,14 +159,14 @@ def create_tiles_list_eo_from_geometry(
 
 def load_tiles_list_eo(
     filename_tiles_list: Path
-) -> gp.geodataframe:
+) -> gp.geodataframe.GeoDataFrame:
     """Create the EO tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
     :type filename_tiles_list: str
     :raises OSError: when the file cannot be open
     :return: list of EO tiles
-    :rtype: list
+    :rtype: gp.geodataframe.GeoDataFrame
     """
 
     # Open the tile list file
@@ -183,7 +183,7 @@ def load_tiles_list_eo(
 
 
 def create_tiles_list_eo(
-    filename_tiles_list: Path, filename_aoi: Path, tile_type, min_overlap=None
+    filename_tiles_list: Path, filename_aoi: Path, min_overlap=None
 ) -> gp.geodataframe.GeoDataFrame:
     """Create the EO tile list according to an aoi
 
@@ -192,10 +192,9 @@ def create_tiles_list_eo(
     :param filename_aoi: Path to the input AOI file (Must be a shp file)
     :type filename_aoi: pathlib.Path
     :param min_overlap: (Optional, default=None) Minimum percentage of overlap
-    :param tile_type: Type of the tile
     :return: list of EO tiles
     :rtype: gp.geodataframe.GeoDataFrame
     """
     # Load the aoi
     geom = load_aoi(filename_aoi)
-    return create_tiles_list_eo_from_geometry(filename_tiles_list, geom, tile_type, min_overlap)
+    return create_tiles_list_eo_from_geometry(filename_tiles_list, geom, min_overlap)

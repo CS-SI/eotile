@@ -115,17 +115,17 @@ def treat_eotiles(
     """
     if induced_type == "wkt":
         wkt = input_arg
-        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, min_overlap)
     elif induced_type == "location":
         geom = build_nominatim_request(location_type, input_arg, threshold)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "bbox":
         bbox = bbox_to_list(input_arg)
         geom = box(*bbox)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "file":
         aoi_filepath = Path(input_arg)
-        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, min_overlap)
         dev_logger.info("Nb of %s tiles which crossing the AOI: %s", tile_type, len(tile_list))
     else:
         dev_logger.error("Unrecognized Option: %s", induced_type)

@@ -23,13 +23,10 @@ class TestEOTile(unittest.TestCase):
         ls2 = create_tiles_list_eo(
             filename_tiles_s2,
             Path("tests/test_data/illinois.shp"),
-            "S2",
         )
         self.assertEqual(len(ls2), 33)
 
-        self.assertTrue(
-            get_tile(ls2, "15TXH") is not None
-        )
+        self.assertTrue(get_tile(ls2, "15TXH") is not None)
 
         self.assertTrue(get_tile(ls2, "15TXF") is not None)
 
@@ -39,12 +36,9 @@ class TestEOTile(unittest.TestCase):
         l8 = create_tiles_list_eo(
             filename_tiles_l8,
             Path("tests/test_data/illinois.shp"),
-            "L8",
         )
         self.assertEqual(len(l8), 18)
-        self.assertTrue(
-            get_tile(l8, "25030") is not None
-        )
+        self.assertTrue(get_tile(l8, "25030") is not None)
 
     def test_read_write_tiles_bb(self):
         aux_data_dirpath = Path("eotile/data/aux_data")
@@ -52,7 +46,6 @@ class TestEOTile(unittest.TestCase):
         ll8 = create_tiles_list_eo(
             filename_tiles_l8,
             Path("tests/test_data/illinois.shp"),
-            "L8",
         )
         write_tiles_bb(ll8, Path("/tmp/test_read_write.shp"))
 

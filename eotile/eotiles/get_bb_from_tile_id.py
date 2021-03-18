@@ -116,19 +116,19 @@ def get_tiles_from_tile_id(
     try:
         if tile is not None and not is_l8 and not s2_only:
             output_l8 = create_tiles_list_eo_from_geometry(
-                filename_tiles_l8, tile.geometry, "L8", min_overlap
+                filename_tiles_l8, tile.geometry, min_overlap
             )
         if tile is not None and not is_s2 and not l8_only:
             output_s2 = create_tiles_list_eo_from_geometry(
-                filename_tiles_s2, tile.geometry, "S2", min_overlap
+                filename_tiles_s2, tile.geometry, min_overlap
             )
         if tile is not None and not is_srtm and srtm:
             output_srtm = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.geometry, "SRTM", min_overlap
+                filename_tiles_srtm, tile.geometry, min_overlap
             )
         if tile is not None and not is_cop and cop:
             output_cop = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.geometry, "Copernicus", min_overlap
+                filename_tiles_srtm, tile.geometry, min_overlap
             )
     except (UnboundLocalError, IndexError) as e:
         dev_logger.error(e)
