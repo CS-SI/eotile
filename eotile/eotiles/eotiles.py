@@ -63,17 +63,9 @@ def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, sour
 
 
 def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
-    with fiona.open(filename_aoi) as src:
-        p = src.get(0)
-    if p["geometry"]["type"] == "Polygon":
-        geometry = Polygon(p["geometry"]["coordinates"][0])
-    elif p["geometry"]["type"] == "MultiPolygon":
-        poly_list = []
-        for poly in p["geometry"]["coordinates"]:
-            poly_list.append(Polygon(poly[0]))
-        geometry = MultiPolygon(poly_list)
-    else:
-        LOGGER.error(f"file must contain a (multi)polygon, not {p['geometry']['type']}")
+    aoi = gp.read_file(filename_aoi)
+    aoi = aoi.to_crs("epsg:4326")
+    geometry = aoi.iloc[0].geometry
     return geometry
 
 
