@@ -66,6 +66,8 @@ def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
     aoi = gp.read_file(filename_aoi)
     aoi = aoi.to_crs("epsg:4326")
     geometry = aoi.iloc[0].geometry
+    if len(aoi)>1:
+        LOGGER.warning(f"The input file {filename_aoi} contains more than one geometry")
     return geometry
 
 
