@@ -93,8 +93,10 @@ def input_matcher(input_value: str) -> str:
 def build_logger(level, user_file_name=None):
     # Creating DEV logger
     dev_formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-
-    dev_handler = logging.FileHandler("dev_log.log")
+    if level != logging.ERROR:
+        dev_handler = logging.FileHandler("dev_log.log")
+    else:
+        dev_handler = logging.StreamHandler()
     dev_handler.setFormatter(dev_formatter)
 
     dev_logger = logging.getLogger("dev_logger")
@@ -217,9 +219,11 @@ def main(
     :param verbose: [Optional, default = None] Verbosity value, from 1 to 2
     :type verbose: Integer
     """
-    if verbose is None:  # Default
+    if verbose is None:  # Default, no file
+        log_level = logging.ERROR
+    elif verbose == 1: # Else, in a file
         log_level = logging.WARNING
-    elif verbose == 1:
+    elif verbose == 2:
         log_level = logging.INFO
     else:
         log_level = logging.DEBUG
