@@ -81,9 +81,13 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
     :rtype: EOTile
     :raises KeyError: when the tile id is not available
     """
-    tiles_df = tile_list.set_index("id")
-    tile = tiles_df.loc[tile_id]
-    tile["id"] = tile_id
+    try:
+        tiles_df = tile_list.set_index("id")
+        tile = tiles_df.loc[tile_id]
+        tile["id"] = tile_id
+    except KeyError:
+        LOGGER.error("Tile ID is not valid. Returning empty")
+        return gp.GeoDataFrame()
     return tile
 
 
@@ -99,7 +103,12 @@ def bbox_to_list(bbox_list) -> list:
         bbox_list = bbox_list.replace("]", "")
         bbox_list = bbox_list.replace("'", "")
         bbox_list = list(bbox_list.split(","))
-    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    try:
+        [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    except ValueError as e:
+        LOGGER.error(e)
+        LOGGER.error("Input was recognized as a BBOX but values are incorrect, returning empty")
+        return [0 for _ in range(4)]
     return [ul_lat, lr_lat, ul_long, lr_long]
 
 
