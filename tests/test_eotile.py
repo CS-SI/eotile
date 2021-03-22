@@ -84,6 +84,11 @@ class TestEOTile(unittest.TestCase):
         tile_id1 = "31TCJ"
         tile_id2 = "199030"
 
+        tile_id_list_1 = """
+        31TCJ
+        31TCE"""
+        tile_id_list_2 = "31TCJ, 31TCE, "
+
         file1 = "/tmp"
         file2 = "/dev/null"
 

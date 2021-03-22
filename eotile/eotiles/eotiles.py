@@ -86,10 +86,29 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
         tile = tiles_df.loc[tile_id]
         tile["id"] = tile_id
     except KeyError:
-        LOGGER.error("Tile ID is not valid. Returning empty")
-        return gp.GeoDataFrame()
+        LOGGER.error("Tile ID is not valid. Exiting...")
+        raise SystemExit(f'Invalid Tile id {tile_id}')
+
     return tile
 
+
+def parse_to_list(input_elt) -> list:
+    """
+    Transforms an input string to a list
+
+    :param list input_elt: The input element, either it is in str format or list format
+    :return: a list
+    """
+    if isinstance(input_elt, str):
+        input_elt = input_elt.replace("[", "")
+        input_elt = input_elt.replace("]", "")
+        input_elt = input_elt.replace("'", "")
+        input_elt = input_elt.replace(" ", "")
+        parsing_dict = {}
+        for parsing_separator in [",", "\n"]:
+            parsing_dict[len(list(input_elt.split(parsing_separator)))] = list(input_elt.split(parsing_separator))
+        input_elt = parsing_dict[max(parsing_dict.keys())]
+    return input_elt
 
 def bbox_to_list(bbox_list) -> list:
     """
