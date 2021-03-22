@@ -103,7 +103,12 @@ def bbox_to_list(bbox_list) -> list:
         bbox_list = bbox_list.replace("]", "")
         bbox_list = bbox_list.replace("'", "")
         bbox_list = list(bbox_list.split(","))
-    [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    try:
+        [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
+    except ValueError as e:
+        LOGGER.error(e)
+        LOGGER.error("Input was recognized as a BBOX but values are incorrect, returning empty")
+        return [0 for _ in range(4)]
     return [ul_lat, lr_lat, ul_long, lr_long]
 
 
