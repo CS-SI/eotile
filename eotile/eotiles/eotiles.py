@@ -34,7 +34,8 @@ import fiona
 import geopandas as gp
 import pyproj
 import shapely
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon
+import warnings
 
 LOGGER = logging.getLogger("dev_logger")
 
@@ -188,6 +189,13 @@ def create_tiles_list_eo_from_geometry(
 
     feature_count = len(data_source_filtered)
     LOGGER.info("Number of features in %s: %s", filename_tiles_list.name, feature_count)
+    warnings.filterwarnings("ignore")
+    # Ignore the
+    # UserWarning: Geometry is in a geographic CRS.
+    # Results from 'area' are likely incorrect.
+    # Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
+    #
+    # We keep the square degrees results as is. Since we use a ratio, this does not matter
     if min_overlap is not None:
         data_source_filtered = data_source_filtered[
             data_source_filtered.intersection(geom).area / data_source_filtered.area
