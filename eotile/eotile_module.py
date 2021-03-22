@@ -221,7 +221,7 @@ def main(
     """
     if verbose is None:  # Default, no file
         log_level = logging.ERROR
-    elif verbose == 1: # Else, in a file
+    elif verbose == 1:  # Else, in a file
         log_level = logging.WARNING
     elif verbose == 2:
         log_level = logging.INFO
