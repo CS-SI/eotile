@@ -30,7 +30,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import fiona
 import geopandas as gp
 import pyproj
 import shapely
@@ -40,7 +39,8 @@ import warnings
 LOGGER = logging.getLogger("dev_logger")
 
 
-def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, source="Unknown") -> None:
+def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, source="Unknown") \
+        -> None:
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
@@ -93,7 +93,7 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
     return tile
 
 
-def parse_to_list(input_elt) -> list:
+def parse_to_list(input_elt: str) -> list:
     """
     Transforms an input string to a list
 
@@ -107,9 +107,11 @@ def parse_to_list(input_elt) -> list:
         input_elt = input_elt.replace(" ", "")
         parsing_dict = {}
         for parsing_separator in [",", "\n"]:
-            parsing_dict[len(list(input_elt.split(parsing_separator)))] = list(input_elt.split(parsing_separator))
+            parsing_dict[len(list(input_elt.split(parsing_separator)))] = \
+                list(input_elt.split(parsing_separator))
         input_elt = parsing_dict[max(parsing_dict.keys())]
     return input_elt
+
 
 def bbox_to_list(bbox_list) -> list:
     """

@@ -145,7 +145,8 @@ def main(arguments=None):
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(output_path.stem + "_" + source + output_path.suffix),
+                        output_path.with_name(output_path.stem + "_" + source +
+                                              output_path.suffix),
                     )
     elif args.to_wkt:
         for i in range(len(tile_lists)):

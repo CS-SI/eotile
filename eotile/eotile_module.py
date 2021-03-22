@@ -201,8 +201,8 @@ def main(
 
     :param input_arg:  Choose amongst : a file, a tile_id, a location, a wkt, a bbox
     :type input_arg: Str
-    :param logger_file: [Optional, default = None] Redirect information from standard output to a file
-    given by its path
+    :param logger_file: [Optional, default = None] Redirect information
+    from standard output to a file given by its path
     :type logger_file: Str
     :param epsg: [Optional, default = "4326"] Specify the epsg of the input
     :type epsg: Str

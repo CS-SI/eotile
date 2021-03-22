@@ -164,7 +164,8 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module(self):
         output_s2, output_l8, output_srtm, output_cop = eomain(
-            "-74.657, 39.4284, -72.0429, 41.2409", s2_only=False, l8_only=False, srtm=True, cop=True
+            "-74.657, 39.4284, -72.0429, 41.2409", s2_only=False, l8_only=False,
+            srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 12)
         self.assertEqual(len(output_l8), 9)
