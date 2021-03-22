@@ -39,7 +39,7 @@ from eotile.eotiles.eotiles import (
     bbox_to_list,
     create_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
-    geom_to_eo_tiles,
+    geom_to_eo_tiles, parse_to_list
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -67,11 +67,18 @@ def input_matcher(input_value: str) -> str:
     if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
         return "wkt"
 
+    # To parse a tile_id (list), we check that all inputted values corresponds to the tile_id regex
+    list_input = parse_to_list(input_value)
+    can_be_tile_id = True
+    for possible_tile in list_input:
+        if not(tile_id_reg.match(possible_tile) and
+               tile_id_reg.match(possible_tile).string == possible_tile):
+            can_be_tile_id = False
+    if can_be_tile_id:
+        return "tile_id"
+
     if bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
         return "bbox"
-
-    if tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
-        return "tile_id"
 
     if Path(input_value).exists():
         return "file"
@@ -238,7 +245,7 @@ def main(
 
     if induced_type == "tile_id":
         (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop) = get_tiles_from_tile_id(
-            input_arg,
+            parse_to_list(input_arg),
             aux_data_dirpath,
             s2_only,
             l8_only,

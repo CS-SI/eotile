@@ -125,6 +125,17 @@ class TestEOTile(unittest.TestCase):
             ],
         )
 
+    def test_tile_id_list_test(self):
+        tile_id_list_2 = "31TCJ, 31TCF"
+        tile_id_list_3 = "199030, 199029, 197031"
+        out_list = []
+        for elt in [tile_id_list_2, tile_id_list_3]:
+            out_list.append(input_matcher(elt))
+        self.assertListEqual(
+            out_list,
+            ["tile_id", "tile_id"])
+
+
     def test_id_matcher(self):
         test_id_srtm = "N02W102"
         test_id_cop = "S02W102"
@@ -138,7 +149,7 @@ class TestEOTile(unittest.TestCase):
     def test_get_tiles_from_tile_id(self):
         aux_data_dirpath = Path("eotile/data/aux_data")
         output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            "31TCJ", aux_data_dirpath, False, False, srtm=True, cop=True
+            ["31TCJ"], aux_data_dirpath, False, False, srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 1)
         self.assertEqual(len(output_l8), 4)
@@ -146,7 +157,7 @@ class TestEOTile(unittest.TestCase):
         self.assertEqual(len(output_cop), 4)
 
         output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            "200035", aux_data_dirpath, False, False, srtm=True, cop=True
+            ["200035"], aux_data_dirpath, False, False, srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 8)
         self.assertEqual(len(output_l8), 1)

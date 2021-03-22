@@ -27,7 +27,7 @@ Generate tile list according AOI
 """
 
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 import geopandas as gp
 from eotile.eotiles.eotiles import (
     get_tile,
@@ -36,6 +36,7 @@ from eotile.eotiles.eotiles import (
 import logging
 import re
 import pandas as pd
+from shapely.ops import cascaded_union
 
 dev_logger = logging.getLogger("dev_logger")
 
@@ -72,7 +73,7 @@ def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
 
 
 def get_tiles_from_tile_id(
-        tile_id: str,
+        tile_id_list: List,
         aux_data_dirpath: Path,
         s2_only: bool,
         l8_only: bool,
@@ -82,7 +83,7 @@ def get_tiles_from_tile_id(
 ) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
     """Returns the bounding box of a tile designated by its ID.
 
-    :param tile_id: The identifier of the tile
+    :param tile_id_list: The identifier of the tile
     :param aux_data_dirpath: Path to the input aux data
     :param s2_only: Is he requested tile a Sentinel 2 tile ?
     :type s2_only: Boolean
@@ -102,7 +103,7 @@ def get_tiles_from_tile_id(
     filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
     filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
 
-    [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id)
+    [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id_list[0])
     output_s2, output_l8, output_srtm, output_cop = gp.GeoDataFrame(), gp.GeoDataFrame(), \
                                                     gp.GeoDataFrame(), gp.GeoDataFrame()
     tile = None
@@ -110,43 +111,51 @@ def get_tiles_from_tile_id(
     if not s2_only and is_l8:
         # Search on l8 Tiles
         tile_list_l8 = load_tiles_list_eo(filename_tiles_l8)
-        tile = get_tile(tile_list_l8, tile_id)
-        output_l8 = output_l8.append(tile)
+        for tile_id in tile_id_list:
+            tile = get_tile(tile_list_l8, tile_id)
+            output_l8 = output_l8.append(tile)
+        geometry = cascaded_union(output_l8.geometry)
 
     if srtm and is_srtm:
         # Search on SRTM Tiles
         tile_list_srtm = load_tiles_list_eo(filename_tiles_srtm)
-        tile = get_tile(tile_list_srtm, tile_id)
-        output_srtm = output_srtm.append(tile)
+        for tile_id in tile_id_list:
+            tile = get_tile(tile_list_srtm, tile_id)
+            output_srtm = output_srtm.append(tile)
+        geometry = cascaded_union(output_srtm.geometry)
 
     if cop and is_cop:
         # Search on Copernicus Tiles
         tile_list_cop = load_tiles_list_eo(filename_tiles_cop)
-        tile = get_tile(tile_list_cop, tile_id)
-        output_cop = output_cop.append(tile)
+        for tile_id in tile_id_list:
+            tile = get_tile(tile_list_cop, tile_id)
+            output_cop = output_cop.append(tile)
+        geometry = cascaded_union(output_cop.geometry)
 
     if not l8_only and is_s2:
         # Search on s2 Tiles
         tile_list_s2 = load_tiles_list_eo(filename_tiles_s2)
-        tile = get_tile(tile_list_s2, tile_id)
-        output_s2 = output_s2.append(tile)
+        for tile_id in tile_id_list:
+            tile = get_tile(tile_list_s2, tile_id)
+            output_s2 = output_s2.append(tile)
+        geometry = cascaded_union(output_s2.geometry)
 
     try:
         if tile is not None and not is_l8 and not s2_only:
             output_l8 = create_tiles_list_eo_from_geometry(
-                filename_tiles_l8, tile.geometry, min_overlap
+                filename_tiles_l8, geometry, min_overlap
             )
         if tile is not None and not is_s2 and not l8_only:
             output_s2 = create_tiles_list_eo_from_geometry(
-                filename_tiles_s2, tile.geometry, min_overlap
+                filename_tiles_s2, geometry, min_overlap
             )
         if tile is not None and not is_srtm and srtm:
             output_srtm = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.geometry, min_overlap
+                filename_tiles_srtm, geometry, min_overlap
             )
         if tile is not None and not is_cop and cop:
             output_cop = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, tile.geometry, min_overlap
+                filename_tiles_srtm, geometry, min_overlap
             )
     except (UnboundLocalError, IndexError) as e:
         dev_logger.error(e)

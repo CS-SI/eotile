@@ -38,12 +38,7 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
     install_requires=[
-        "shapely",
-        "fiona",
-        "geopy",
-        "pyproj",
         "geopandas",
-        "lxml",
         "geopy",
         "requests",
     ],

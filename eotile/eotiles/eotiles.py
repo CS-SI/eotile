@@ -34,7 +34,8 @@ import fiona
 import geopandas as gp
 import pyproj
 import shapely
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon
+import warnings
 
 LOGGER = logging.getLogger("dev_logger")
 
@@ -86,10 +87,29 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
         tile = tiles_df.loc[tile_id]
         tile["id"] = tile_id
     except KeyError:
-        LOGGER.error("Tile ID is not valid. Returning empty")
-        return gp.GeoDataFrame()
+        LOGGER.error("Tile ID is not valid. Exiting...")
+        raise SystemExit(f'Invalid Tile id {tile_id}')
+
     return tile
 
+
+def parse_to_list(input_elt) -> list:
+    """
+    Transforms an input string to a list
+
+    :param list input_elt: The input element, either it is in str format or list format
+    :return: a list
+    """
+    if isinstance(input_elt, str):
+        input_elt = input_elt.replace("[", "")
+        input_elt = input_elt.replace("]", "")
+        input_elt = input_elt.replace("'", "")
+        input_elt = input_elt.replace(" ", "")
+        parsing_dict = {}
+        for parsing_separator in [",", "\n"]:
+            parsing_dict[len(list(input_elt.split(parsing_separator)))] = list(input_elt.split(parsing_separator))
+        input_elt = parsing_dict[max(parsing_dict.keys())]
+    return input_elt
 
 def bbox_to_list(bbox_list) -> list:
     """
@@ -169,6 +189,13 @@ def create_tiles_list_eo_from_geometry(
 
     feature_count = len(data_source_filtered)
     LOGGER.info("Number of features in %s: %s", filename_tiles_list.name, feature_count)
+    warnings.filterwarnings("ignore")
+    # Ignore the
+    # UserWarning: Geometry is in a geographic CRS.
+    # Results from 'area' are likely incorrect.
+    # Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
+    #
+    # We keep the square degrees results as is. Since we use a ratio, this does not matter
     if min_overlap is not None:
         data_source_filtered = data_source_filtered[
             data_source_filtered.intersection(geom).area / data_source_filtered.area
