@@ -109,7 +109,7 @@ def parse_to_list(input_elt: str) -> list:
         for parsing_separator in [",", "\n"]:
             parsing_dict[len(list(input_elt.split(parsing_separator)))] = \
                 list(input_elt.split(parsing_separator))
-        input_elt = parsing_dict[max(parsing_dict.keys())]
+        return parsing_dict[max(parsing_dict.keys())]
     return input_elt
 
 
