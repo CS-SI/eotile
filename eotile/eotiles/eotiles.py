@@ -81,9 +81,13 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
     :rtype: EOTile
     :raises KeyError: when the tile id is not available
     """
-    tiles_df = tile_list.set_index("id")
-    tile = tiles_df.loc[tile_id]
-    tile["id"] = tile_id
+    try:
+        tiles_df = tile_list.set_index("id")
+        tile = tiles_df.loc[tile_id]
+        tile["id"] = tile_id
+    except KeyError:
+        LOGGER.error("Tile ID is not valid. Returning empty")
+        return gp.GeoDataFrame()
     return tile
 
 
