@@ -48,6 +48,7 @@ def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, sour
     :param filename: Path to the output file aux data (Must be a shp file)
     :type filename: Path
     :param source: Source type of the geoDataframe to write
+    :type source: String
     """
     tiles = tile_list.set_crs(epsg=4326)
     if filename.suffix == ".shp":
@@ -127,8 +128,8 @@ def bbox_to_list(bbox_list) -> list:
         bbox_list = list(bbox_list.split(","))
     try:
         [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
-    except ValueError as e:
-        LOGGER.error(e)
+    except ValueError as error:
+        LOGGER.error(error)
         LOGGER.error("Input was recognized as a BBOX but values are incorrect, returning empty")
         return [0 for _ in range(4)]
     return [ul_lat, lr_lat, ul_long, lr_long]
