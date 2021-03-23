@@ -130,8 +130,8 @@ def bbox_to_list(bbox_list) -> list:
         [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
     except ValueError as error:
         LOGGER.error(error)
-        LOGGER.error("Input was recognized as a BBOX but values are incorrect, returning empty")
-        return [0 for _ in range(4)]
+        LOGGER.error("Input was recognized as a BBOX but values are incorrect")
+        raise ValueError
     return [ul_lat, lr_lat, ul_long, lr_long]
 
 
