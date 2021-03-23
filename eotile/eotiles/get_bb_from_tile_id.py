@@ -93,8 +93,8 @@ def get_tiles_from_tile_id(
     :type srtm: Boolean
     :param cop: Should Copernicus tiles be used ?
     :type cop: Boolean
-    :param min_overlap: (Optional, default = None) Is there a minimum overlap percentage for a tile to be considered
-    overlapping ?
+    :param min_overlap: (Optional, default = None) Is there a minimum overlap percentage for a
+    tile to be considered overlapping ?
     :return: Two lists of tiles
     """
 

@@ -30,7 +30,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import fiona
 import geopandas as gp
 import pyproj
 import shapely
@@ -40,7 +39,8 @@ import warnings
 LOGGER = logging.getLogger("dev_logger")
 
 
-def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, source="Unknown") -> None:
+def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, source="Unknown") \
+        -> None:
     """Writes the input tiles to a file
 
     :param tile_list: The list of input tiles to write
@@ -48,6 +48,7 @@ def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, sour
     :param filename: Path to the output file aux data (Must be a shp file)
     :type filename: Path
     :param source: Source type of the geoDataframe to write
+    :type source: String
     """
     tiles = tile_list.set_crs(epsg=4326)
     if filename.suffix == ".shp":
@@ -93,7 +94,7 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
     return tile
 
 
-def parse_to_list(input_elt) -> list:
+def parse_to_list(input_elt: str) -> list:
     """
     Transforms an input string to a list
 
@@ -107,9 +108,11 @@ def parse_to_list(input_elt) -> list:
         input_elt = input_elt.replace(" ", "")
         parsing_dict = {}
         for parsing_separator in [",", "\n"]:
-            parsing_dict[len(list(input_elt.split(parsing_separator)))] = list(input_elt.split(parsing_separator))
-        input_elt = parsing_dict[max(parsing_dict.keys())]
+            parsing_dict[len(list(input_elt.split(parsing_separator)))] = \
+                list(input_elt.split(parsing_separator))
+        return parsing_dict[max(parsing_dict.keys())]
     return input_elt
+
 
 def bbox_to_list(bbox_list) -> list:
     """
@@ -125,8 +128,8 @@ def bbox_to_list(bbox_list) -> list:
         bbox_list = list(bbox_list.split(","))
     try:
         [ul_lat, lr_lat, ul_long, lr_long] = [float(elt) for elt in bbox_list]
-    except ValueError as e:
-        LOGGER.error(e)
+    except ValueError as error:
+        LOGGER.error(error)
         LOGGER.error("Input was recognized as a BBOX but values are incorrect, returning empty")
         return [0 for _ in range(4)]
     return [ul_lat, lr_lat, ul_long, lr_long]

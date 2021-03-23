@@ -134,8 +134,7 @@ def main(arguments=None):
     tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
     if args.to_file is not None:
         output_path = Path(args.to_file)
-        for i in range(len(tile_lists)):
-            tile_list = tile_lists[i]
+        for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 if output_path.suffix == ".gpkg":
@@ -145,25 +144,23 @@ def main(arguments=None):
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(output_path.stem + "_" + source + output_path.suffix),
+                        output_path.with_name(output_path.stem + "_" + source +
+                                              output_path.suffix),
                     )
     elif args.to_wkt:
-        for i in range(len(tile_lists)):
-            tile_list = tile_lists[i]
+        for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 for elt in tile_list["geometry"]:
                     user_logger.info("%s Tile: %s", source, elt.wkt)
     elif args.to_bbox:
-        for i in range(len(tile_lists)):
-            tile_list = tile_lists[i]
+        for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 for elt in tile_list["geometry"]:
                     user_logger.info("%s Tile Bounds: %s", source, str(elt.bounds))
     elif args.to_tile_id:
-        for i in range(len(tile_lists)):
-            tile_list = tile_lists[i]
+        for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 for elt in tile_list["id"]:
@@ -179,8 +176,7 @@ def main(arguments=None):
                     if location is not None:
                         user_logger.info(str(location))
     else:
-        for i in range(len(tile_lists)):
-            tile_list = tile_lists[i]
+        for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 for elt in tile_list[["id", "geometry"]].iterrows():
@@ -189,8 +185,7 @@ def main(arguments=None):
                     )
     # counts
     user_logger.info("--- Summary ---")
-    for i in range(len(tile_lists)):
-        tile_list = tile_lists[i]
+    for i, tile_list in enumerate(tile_lists):
         source = tile_sources[i]
         if len(tile_list) > 0:
             user_logger.info("- %s %s Tiles", len(tile_list), source)
