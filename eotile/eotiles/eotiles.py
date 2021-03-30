@@ -35,6 +35,7 @@ import pyproj
 import shapely
 from shapely.geometry import Polygon
 import warnings
+from typing import Union
 
 LOGGER = logging.getLogger("dev_logger")
 
@@ -65,10 +66,17 @@ def write_tiles_bb(tile_list: gp.geodataframe.GeoDataFrame, filename: Path, sour
 
 
 def load_aoi(filename_aoi: Path) -> shapely.geometry.Polygon:
+    """
+    Loads an Area of Interest from a file using geopandas
+    :param filename_aoi: The path to the file containing the AOI
+    :type filename_aoi: Path
+    :return: the geometry polygon
+    :rtype: shapely.geometry.Polygon
+    """
     aoi = gp.read_file(filename_aoi)
     aoi = aoi.to_crs("epsg:4326")
     geometry = aoi.iloc[0].geometry
-    if len(aoi)>1:
+    if len(aoi) > 1:
         LOGGER.warning(f"The input file {filename_aoi} contains more than one geometry")
     return geometry
 
@@ -94,7 +102,7 @@ def get_tile(tile_list: gp.geodataframe.GeoDataFrame, tile_id: str) -> gp.geoser
     return tile
 
 
-def parse_to_list(input_elt: str) -> list:
+def parse_to_list(input_elt: Union[str, list]) -> list:
     """
     Transforms an input string to a list
 
@@ -138,6 +146,7 @@ def bbox_to_list(bbox_list) -> list:
 def load_wkt_geom(wkt: str, epsg: Optional[str]) -> Polygon:
     """
     Loads a wkt geometry to a shapely objects and reprojects it if needed
+
     :param wkt: A wkt polygon in str format
     :param epsg: An optional in the epsg code in case it is not WGS84
     :return: a shapely Polygon geometry
@@ -171,7 +180,7 @@ def geom_to_eo_tiles(
 def create_tiles_list_eo_from_geometry(
     filename_tiles_list: Path, geom: Polygon, min_overlap=None
 ) -> gp.geodataframe.GeoDataFrame:
-    """Create the EO tile list according to an aoi in ogr geometry format
+    """Create the EO tile list according to an aoi geometry
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
     :type filename_tiles_list: str
@@ -214,7 +223,7 @@ def load_tiles_list_eo(
     """Create the EO tile list according to an aoi in ogr geometry format
 
     :param filename_tiles_list: Path to the XML file containing the list of tiles
-    :type filename_tiles_list: str
+    :type filename_tiles_list: Path
     :raises OSError: when the file cannot be open
     :return: list of EO tiles
     :rtype: gp.geodataframe.GeoDataFrame

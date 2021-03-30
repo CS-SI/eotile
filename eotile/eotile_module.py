@@ -98,6 +98,14 @@ def input_matcher(input_value: str) -> str:
 
 
 def build_logger(level, user_file_name=None):
+    """
+    Builds two loggers : a dev one as well as a user one.
+    :param level: The desired level of logging for the dev log.
+    If is logging.ERROR (default) then the logging is handled on the stream.
+    Otherwise, it outputs in the dev_log.log file
+    :type level: logging level
+    :returns: The two logger objects
+    """
     # Creating DEV logger
     dev_formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
     if level != logging.ERROR:
@@ -139,6 +147,26 @@ def treat_eotiles(
 ):
     """
     Treats Tiles that can be loaded from a standard geography file
+    :param induced_type: Induced type of the input argument
+    :type induced_type: string
+    :param input_arg: Argument out of which we select the tiles.
+    :type input_arg: Union(list, str)
+    :param tile_type: type of tiles (what satellite do they come from)
+    :type tile_type: str
+    :param dev_logger: the dev logger to log dev info to
+    :type dev_logger: logging object
+    :param epsg: if input is a wkt polygon not coded in epsg 4326 (wgs84), then a conversion from
+    that epsg is produced
+    :type epsg: str
+    :param filename_tiles: File to get the tiles from
+    :type filename_tiles: Path
+    :param min_overlap: minimum overlap value for a tile to be considered matching with
+    the geometry specified in input.
+    :type min_overlap: str
+    :param location_type: specified type of nominatim request
+    :type location_type: str
+    :param threshold: simplifying factor for the nominatim request
+    :type threshold: str
     """
     if induced_type == "wkt":
         wkt = input_arg
@@ -164,6 +192,12 @@ def treat_eotiles(
 def build_nominatim_request(location_type, input_arg, threshold):
     """
     Builds an http requests for nominatim, then runs it and outputs a geometry object
+    :param input_arg: Argument out of which we select the tiles.
+    :type input_arg: Union(list, str)
+    :param location_type: specified type of nominatim request
+    :type location_type: str
+    :param threshold: simplifying factor for the nominatim request
+    :type threshold: str
     """
     if location_type is not None:
         req = location_type
