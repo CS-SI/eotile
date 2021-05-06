@@ -22,6 +22,17 @@ limitations under the License.
 
 Managed Sentinel-2 and Landsat8 tiles
 
+/!\ WARNING :
+S2 Tile count is incorrect.
+Due to some version modification, S2 Tiling system have been modified and is now incorrect.
+
+The errors seems to be located at the corners of the UTM map:
+![S2 Errors](doc/missing_tiles.png)
+
+We get 56686 S2 Tiles instead of 56984. Some of the north and south tiles have incorrect geometries.
+
+Awaiting for a patch.
+
 ## ⏬ Installation
 
 Install the package using pip:
