@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2021 CS Group.
+#
+# This file is part of EOTile.
+# See https://github.com/CS-SI/eotile for further info.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """
 EO tile
 
@@ -109,61 +127,68 @@ def main(arguments=None):
         args.threshold,
         args.verbose,
     )
-
+    tile_sources = ["S2", "L8", "SRTM", "Copernicus"]
     user_logger = logging.getLogger("user_logger")
 
     # Outputting the result
     tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
     if args.to_file is not None:
         output_path = Path(args.to_file)
-        for tile_list in tile_lists:
+        for i, tile_list in enumerate(tile_lists):
+            source = tile_sources[i]
             if len(tile_list) > 0:
                 if output_path.suffix == ".gpkg":
                     # Using layers method to combine sources if geopackage
-                    write_tiles_bb(tile_list, output_path)
+                    write_tiles_bb(tile_list, output_path, source=source)
                 else:
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(
-                            output_path.stem + "_" + tile_list[0].source + output_path.suffix
-                        ),
+                        output_path.with_name(output_path.stem + "_" + source +
+                                              output_path.suffix),
                     )
     elif args.to_wkt:
-        for tile_list in tile_lists:
+        for i, tile_list in enumerate(tile_lists):
+            source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list:
-                    user_logger.info("%s Tile: %s", elt.source, elt.polyBB.wkt)
+                for elt in tile_list["geometry"]:
+                    user_logger.info("%s Tile: %s", source, elt.wkt)
     elif args.to_bbox:
-        for tile_list in tile_lists:
+        for i, tile_list in enumerate(tile_lists):
+            source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list:
-                    user_logger.info("%s Tile Bounds: %s", elt.source, str(elt.polyBB.bounds))
+                for elt in tile_list["geometry"]:
+                    user_logger.info("%s Tile Bounds: %s", source, str(elt.bounds))
     elif args.to_tile_id:
-        for tile_list in tile_lists:
+        for i, tile_list in enumerate(tile_lists):
+            source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list:
-                    user_logger.info("%s Tile id: %s", elt.source, str(elt.ID))
+                for elt in tile_list["id"]:
+                    user_logger.info("%s Tile id: %s", source, str(elt))
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         for tile_list in tile_lists:
             if len(tile_list) > 0:
-                for elt in tile_list:
-                    centroid = list(list(elt.polyBB.centroid.coords)[0])
+                for elt in tile_list["geometry"]:
+                    centroid = list(list(elt.centroid.coords)[0])
                     centroid.reverse()
                     location = geolocator.reverse(centroid)
                     if location is not None:
                         user_logger.info(str(location))
     else:
-        for tile_list in tile_lists:
+        for i, tile_list in enumerate(tile_lists):
+            source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list:
-                    user_logger.info(str(elt))
+                for elt in tile_list[["id", "geometry"]].iterrows():
+                    user_logger.info(
+                        "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
+                    )
     # counts
     user_logger.info("--- Summary ---")
-    for tile_list in tile_lists:
+    for i, tile_list in enumerate(tile_lists):
+        source = tile_sources[i]
         if len(tile_list) > 0:
-            user_logger.info("- %s %s Tiles", len(tile_list), tile_list[0].source)
+            user_logger.info("- %s %s Tiles", len(tile_list), source)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,27 @@
+##
+## Copyright (c) 2021 CS Group.
+##
+## This file is part of EOTile.
+## See https://github.com/CS-SI/eotile for further info.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+
 # EOTile CI
 stages:
   - test
   - verify
+  - deploy
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
@@ -78,6 +98,15 @@ sonar:
     - test ${CI_COMMIT_REF_NAME} = master || SONAR_BRANCH_OPTION="-Dsonar.branch.name=${CI_COMMIT_REF_NAME}"
   script:
     - sonar-scanner -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN ${SONAR_BRANCH_OPTION}
+
+upload:
+  stage: deploy
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${GITLAB_DEPLOY_TOKEN} TWINE_USERNAME=${GITLAB_DEPLOY_USERNAME} python -m twine upload --repository-url ${CI_SERVER_URL}/api/v4/projects/${CI_PROJECT_ID}/packages/pypi --verbose dist/*
+  only:
+    - master
 
 # Building doc
 pages:

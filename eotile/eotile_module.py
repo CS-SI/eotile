@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2021 CS Group.
+#
+# This file is part of EOTile.
+# See https://github.com/CS-SI/eotile for further info.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """
 EO tile
 
@@ -21,10 +39,7 @@ from eotile.eotiles.eotiles import (
     bbox_to_list,
     create_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
-    create_tiles_list_s2,
-    create_tiles_list_s2_from_geometry,
-    geom_to_eo_tiles,
-    geom_to_s2_tiles,
+    geom_to_eo_tiles, parse_to_list
 )
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 
@@ -52,11 +67,18 @@ def input_matcher(input_value: str) -> str:
     if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
         return "wkt"
 
+    # To parse a tile_id (list), we check that all inputted values corresponds to the tile_id regex
+    list_input = parse_to_list(input_value)
+    can_be_tile_id = True
+    for possible_tile in list_input:
+        if not(tile_id_reg.match(possible_tile) and
+               tile_id_reg.match(possible_tile).string == possible_tile):
+            can_be_tile_id = False
+    if can_be_tile_id:
+        return "tile_id"
+
     if bbox_reg.match(input_value) and bbox_reg.match(input_value).string == input_value:
         return "bbox"
-
-    if tile_id_reg.match(input_value) and tile_id_reg.match(input_value).string == input_value:
-        return "tile_id"
 
     if Path(input_value).exists():
         return "file"
@@ -76,10 +98,20 @@ def input_matcher(input_value: str) -> str:
 
 
 def build_logger(level, user_file_name=None):
+    """
+    Builds two loggers : a dev one as well as a user one.
+    :param level: The desired level of logging for the dev log.
+    If is logging.ERROR (default) then the logging is handled on the stream.
+    Otherwise, it outputs in the dev_log.log file
+    :type level: logging level
+    :returns: The two logger objects
+    """
     # Creating DEV logger
     dev_formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-
-    dev_handler = logging.FileHandler("dev_log.log")
+    if level != logging.ERROR:
+        dev_handler = logging.FileHandler("dev_log.log")
+    else:
+        dev_handler = logging.StreamHandler()
     dev_handler.setFormatter(dev_formatter)
 
     dev_logger = logging.getLogger("dev_logger")
@@ -115,20 +147,40 @@ def treat_eotiles(
 ):
     """
     Treats Tiles that can be loaded from a standard geography file
+    :param induced_type: Induced type of the input argument
+    :type induced_type: string
+    :param input_arg: Argument out of which we select the tiles.
+    :type input_arg: Union(list, str)
+    :param tile_type: type of tiles (what satellite do they come from)
+    :type tile_type: str
+    :param dev_logger: the dev logger to log dev info to
+    :type dev_logger: logging object
+    :param epsg: if input is a wkt polygon not coded in epsg 4326 (wgs84), then a conversion from
+    that epsg is produced
+    :type epsg: str
+    :param filename_tiles: File to get the tiles from
+    :type filename_tiles: Path
+    :param min_overlap: minimum overlap value for a tile to be considered matching with
+    the geometry specified in input.
+    :type min_overlap: str
+    :param location_type: specified type of nominatim request
+    :type location_type: str
+    :param threshold: simplifying factor for the nominatim request
+    :type threshold: str
     """
     if induced_type == "wkt":
         wkt = input_arg
-        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, tile_type, min_overlap)
+        tile_list = geom_to_eo_tiles(wkt, epsg, filename_tiles, min_overlap)
     elif induced_type == "location":
         geom = build_nominatim_request(location_type, input_arg, threshold)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "bbox":
         bbox = bbox_to_list(input_arg)
         geom = box(*bbox)
-        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo_from_geometry(filename_tiles, geom, min_overlap)
     elif induced_type == "file":
         aoi_filepath = Path(input_arg)
-        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, tile_type, min_overlap)
+        tile_list = create_tiles_list_eo(filename_tiles, aoi_filepath, min_overlap)
         dev_logger.info("Nb of %s tiles which crossing the AOI: %s", tile_type, len(tile_list))
     else:
         dev_logger.error("Unrecognized Option: %s", induced_type)
@@ -140,6 +192,12 @@ def treat_eotiles(
 def build_nominatim_request(location_type, input_arg, threshold):
     """
     Builds an http requests for nominatim, then runs it and outputs a geometry object
+    :param input_arg: Argument out of which we select the tiles.
+    :type input_arg: Union(list, str)
+    :param location_type: specified type of nominatim request
+    :type location_type: str
+    :param threshold: simplifying factor for the nominatim request
+    :type threshold: str
     """
     if location_type is not None:
         req = location_type
@@ -177,8 +235,8 @@ def main(
 
     :param input_arg:  Choose amongst : a file, a tile_id, a location, a wkt, a bbox
     :type input_arg: Str
-    :param logger_file: [Optional, default = None] Redirect information from standard output to a file
-    given by its path
+    :param logger_file: [Optional, default = None] Redirect information
+    from standard output to a file given by its path
     :type logger_file: Str
     :param epsg: [Optional, default = "4326"] Specify the epsg of the input
     :type epsg: Str
@@ -202,9 +260,11 @@ def main(
     :param verbose: [Optional, default = None] Verbosity value, from 1 to 2
     :type verbose: Integer
     """
-    if verbose is None:  # Default
+    if verbose is None:  # Default, no file
+        log_level = logging.ERROR
+    elif verbose == 1:  # Else, in a file
         log_level = logging.WARNING
-    elif verbose == 1:
+    elif verbose == 2:
         log_level = logging.INFO
     else:
         log_level = logging.DEBUG
@@ -218,8 +278,8 @@ def main(
     induced_type = input_matcher(input_arg)
 
     if induced_type == "tile_id":
-        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop,) = get_tiles_from_tile_id(
-            input_arg,
+        (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop) = get_tiles_from_tile_id(
+            parse_to_list(input_arg),
             aux_data_dirpath,
             s2_only,
             l8_only,
@@ -231,34 +291,22 @@ def main(
     else:
         if not l8_only:
             # S2 Tiles
-            filename_tiles_s2 = (
-                aux_data_dirpath
-                / "S2A_OPER_GIP_TILPAR_MPC__20140923T000000_V20000101T000000_20200101T000000_B00.xml"
+            filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+            tile_list_s2 = treat_eotiles(
+                induced_type,
+                input_arg,
+                "S2",
+                dev_logger,
+                epsg,
+                filename_tiles_s2,
+                min_overlap,
+                location_type,
+                threshold,
             )
-            if induced_type == "wkt":
-                wkt = input_arg
-                tile_list_s2 = geom_to_s2_tiles(wkt, epsg, filename_tiles_s2, min_overlap)
-            elif induced_type == "location":
-                geom = build_nominatim_request(location_type, input_arg, threshold)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "bbox":
-                bbox = bbox_to_list(input_arg)
-                geom = box(*bbox)
-                tile_list_s2 = create_tiles_list_s2_from_geometry(
-                    filename_tiles_s2, geom, min_overlap
-                )
-            elif induced_type == "file":
-                aoi_filepath = Path(input_arg)
-                tile_list_s2 = create_tiles_list_s2(filename_tiles_s2, aoi_filepath, min_overlap)
-                dev_logger.info("Nb of S2 tiles which crossing the AOI: %s", len(tile_list_s2))
-            else:
-                dev_logger.error("Unrecognized Option: %s", induced_type)
 
         if not s2_only:
             # L8 Tiles
-            filename_tiles_l8 = aux_data_dirpath / "wrs2_descending" / "wrs2_descending.shp"
+            filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
             tile_list_l8 = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -273,7 +321,7 @@ def main(
 
         if srtm:
             # SRTM Tiles
-            filename_tiles_srtm = aux_data_dirpath / "srtm" / "srtm_grid_1deg.shp"
+            filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
             tile_list_srtm = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -288,7 +336,7 @@ def main(
 
         if cop:
             # Copernicus Tiles
-            filename_tiles_cop = aux_data_dirpath / "Copernicus" / "dem30mGrid.shp"
+            filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
             tile_list_cop = treat_eotiles(
                 induced_type,
                 input_arg,

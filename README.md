@@ -1,8 +1,37 @@
+<!--
+Copyright (c) 2021 CS Group.
+
+This file is part of EOTile.
+See https://github.com/CS-SI/eotile for further info.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 # 🛰️ EOTile
 
 [![Version](https://img.shields.io/badge/Version-0.1-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 Managed Sentinel-2 and Landsat8 tiles
+
+/!\ WARNING :
+S2 Tile count is incorrect.
+Due to some version modification, S2 Tiling system have been modified and is now incorrect.
+
+The errors seems to be located at the corners of the UTM map:
+![S2 Errors](doc/missing_tiles.png)
+
+We get 56686 S2 Tiles instead of 56984. Some of the north and south tiles have incorrect geometries.
+
+Awaiting for a patch.
 
 ## ⏬ Installation
 
@@ -55,16 +84,20 @@ from eotile import eotile_module
 [S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", l8_only=True) 
 # Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
 
-for tile in L8_Tiles:
-    # Withdraw information from tile objects :
-    print(tile.ID,'\n', tile.polyBB.wkt)
+# Returned elements are GeoPandas Dataframes :
+print(S2_Tiles.id)
+
+# Iter over the Dataframe :
+for tile in L8_Tiles.iterrows():
+    print(tile[1].geometry.wkt)
+
 ```
 
 ## 🔖 Examples
 
 * Using a location
 ```sh
-eotile "Metropolitan+France" -threshold 1 -to_tile_id
+eotile "Metropolitan France" -threshold 1 -to_tile_id
 ```
 * Using a BBOX
 ```sh
@@ -75,9 +108,9 @@ eotile "0.49593622377, 43.326246335, 1.7661878622, 44.246370915" -s2_only -logge
 ```sh
 eotile 'POLYGON ((0.8468214953196805 44.02363566574142, 0.84638 44.0237, 0.8590044453705752 44.06127355906579, 0.8712896362539795 44.09783741052559, 1.325549447552162 45.44983010010615, 1.338016257992888 45.48693449754356, 1.35047 45.524, 1.350948946138455 45.52393017672913, 3.65866 45.1875, 3.644501621308357 45.14977803391441, 3.111537654412643 43.72980975068511, 3.09866 43.6955, 0.8468214953196805 44.02363566574142))' -to_location -l8_only
 ```
-* Using a S2 tile id
+* Using S2 tile ids
 ```sh
-eotile 31TCJ -to_file data/TLS_tiles.shp
+eotile "31TCJ, 31TCE" -to_file data/TLS_tiles.shp
 ```
 * Using a file
 ```sh

@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2021 CS Group.
+#
+# This file is part of EOTile.
+# See https://github.com/CS-SI/eotile for further info.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """
 Generate tile list according AOI
 
@@ -20,34 +38,17 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
     install_requires=[
-        "shapely",
-        "fiona",
-        "geopy",
-        "pyproj",
         "geopandas",
-        "lxml",
         "geopy",
         "requests",
     ],
     include_package_data=True,
     package_data={
         "": [
-            "data/aux_data/wrs2_descending/wrs2_descending.dbf",
-            "data/aux_data/wrs2_descending/wrs2_descending.prj",
-            "data/aux_data/wrs2_descending/wrs2_descending.sbn",
-            "data/aux_data/wrs2_descending/wrs2_descending.sbx",
-            "data/aux_data/wrs2_descending/wrs2_descending.shp",
-            "data/aux_data/wrs2_descending/wrs2_descending.shx",
-            "data/aux_data/srtm/srtm_grid_1deg.prj",
-            "data/aux_data/srtm/srtm_grid_1deg.shx",
-            "data/aux_data/srtm/srtm_grid_1deg.shp",
-            "data/aux_data/srtm/srtm_grid_1deg.dbf",
-            "data/aux_data/Copernicus/dem30mGrid.prj",
-            "data/aux_data/Copernicus/dem30mGrid.shx",
-            "data/aux_data/Copernicus/dem30mGrid.shp",
-            "data/aux_data/Copernicus/dem30mGrid.dbf",
-            "data/aux_data/S2A_OPER_GIP_TILPAR_MPC__20140923T000000"
-            "_V20000101T000000_20200101T000000_B00.xml",
+            "data/aux_data/s2_no_overlap.gpkg",
+            "data/aux_data/l8_tiles.gpkg",
+            "data/aux_data/cop_tiles.gpkg",
+            "data/aux_data/srtm_tiles.gpkg",
             "config/data_path",
         ]
     },
