@@ -164,7 +164,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module(self):
         output_s2, output_l8, output_srtm, output_cop = eomain(
-            "-74.657, 39.4284, -72.0429, 41.2409", s2_only=False, l8_only=False,
+            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False,
             srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 12)
@@ -174,7 +174,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module_2(self):
         output_s2, output_l8, output_srtm, output_cop = eomain(
-            "tests/test_data/illinois.shp", s2_only=False, l8_only=False, srtm=True, cop=True
+            "tests/test_data/illinois.shp", no_l8=False, no_s2=False, srtm=True, cop=True
         )
         self.assertEqual(len(output_s2), 33)
         self.assertEqual(len(output_l8), 18)
@@ -184,8 +184,8 @@ class TestEOTile(unittest.TestCase):
     def test_main_module_3(self):
         output_s2, output_l8, output_srtm, output_cop = eomain(
             "Toulouse",
-            s2_only=False,
-            l8_only=False,
+            no_l8=False,
+            no_s2=False,
             srtm=True,
             cop=True,
             threshold=0.1,

@@ -51,10 +51,10 @@ def build_parser():
     )
     parser.add_argument("-epsg", help="Specify the epsg of the input")
     parser.add_argument(
-        "-s2_only", action="store_true", help="output S2 tiles which intersect the aoi"
+        "-no_l8", action="store_true", help="output L8 tiles"
     )
     parser.add_argument(
-        "-l8_only", action="store_true", help="output L8 tiles which intersect the aoi"
+        "-no_s2", action="store_true", help="Disable S2 tiles"
     )
     parser.add_argument("-srtm", action="store_true", help="Use SRTM tiles as well")
     parser.add_argument("-cop", action="store_true", help="Use Copernicus tiles as well")
@@ -80,6 +80,11 @@ def build_parser():
         "-to_location",
         action="store_true",
         help="Output the location of the centroid of matching tiles " "on standard output",
+    )
+    parser.add_argument(
+        "-s2_overlap",
+        action="store_true",
+        help="Do you want to have overlaps on S2 tiles ?",
     )
 
     parser.add_argument("-v", "--verbose", action="count", help="Increase output verbosity")
@@ -117,8 +122,8 @@ def main(arguments=None):
     [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop] = eotile_module.main(
         args.input,
         args.logger_file,
-        args.s2_only,
-        args.l8_only,
+        args.no_l8,
+        args.no_s2,
         args.srtm,
         args.cop,
         args.location_type,
@@ -126,6 +131,7 @@ def main(arguments=None):
         args.epsg,
         args.threshold,
         args.verbose,
+        args.s2_overlap
     )
     tile_sources = ["S2", "L8", "SRTM", "Copernicus"]
     user_logger = logging.getLogger("user_logger")
