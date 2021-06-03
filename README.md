@@ -18,20 +18,10 @@ limitations under the License.
 -->
 # 🛰️ EOTile
 
-[![Version](https://img.shields.io/badge/Version-0.1-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+[![Version](https://img.shields.io/badge/Version-0.2rc2-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 Managed Sentinel-2 and Landsat8 tiles
 
-/!\ WARNING :
-S2 Tile count is incorrect.
-Due to some version modification, S2 Tiling system have been modified and is now incorrect.
-
-The errors seems to be located at the corners of the UTM map:
-![S2 Errors](doc/missing_tiles.png)
-
-We get 56686 S2 Tiles instead of 56984. Some of the north and south tiles have incorrect geometries.
-
-Awaiting for a patch.
 
 ## ⏬ Installation
 
@@ -59,8 +49,8 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
 * `-to_location`          Output the location of the centroid of matching tiles on standard output
 
 ### Tiles selection :
-* `-s2_only`              output S2 tiles and not the L8 ones
-* `-l8_only`              output L8 tiles and not the S2 ones
+* `-no_l8`              output S2 tiles and not the L8 ones
+* `-no_s2`              output L8 tiles and not the S2 ones
 * `-srtm`                 Use SRTM tiles as well
 * `-cop`                  Use Copernicus tiles as well
 
@@ -72,6 +62,7 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
 * `-threshold THRESHOLD` For large polygons at high resolution, you might want
                         to simplify them using a threshold (0 to 1)
 * `-min_overlap MIN_OVERLAP` Minimum percentage of overlap to consider a tile (0 to 1)
+* `-use_ogr` Use the ogr method for better tile_id research performance (x30 speedup)
 
 ### 🐍 Through the python module
 
@@ -81,7 +72,7 @@ Getting Started :
 from eotile import eotile_module 
 
 # Create tile lists
-[S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", l8_only=True) 
+[S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", no_s2=True) 
 # Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
 
 # Returned elements are GeoPandas Dataframes :
@@ -93,6 +84,21 @@ for tile in L8_Tiles.iterrows():
 
 ```
 
+You can also use the advanced quicksearch
+
+```python
+# Import the module
+from eotile.eotile_module import quick_search 
+
+# Create the GeoPandas DataFrame of L8 Tiles corresponding to this S2 Tile id 
+gdf = quick_search("31TCJ", "tile_id", "L8")
+>>     id                                           geometry
+0  198029  POLYGON ((0.84682 44.02364, 0.84638 44.02370, ...
+1  199029  POLYGON ((-0.69823 44.02364, -0.69866 44.02370...
+2  199030  POLYGON ((-0.86579 42.55300, -1.13296 42.59191...
+3  198030  POLYGON ((0.67927 42.55300, 0.41210 42.59191, ...
+```
+*Note: quick_search uses OGR for a quicker result. This requires a proper installation of GDAL components*
 ## 🔖 Examples
 
 * Using a location
@@ -136,3 +142,14 @@ https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Ann
 See
 https://github.com/CS-SI/eodag/blob/develop/examples/tuto_cop_dem.ipynb
 ```
+
+## 🆘 Help and Troubleshoot
+
+* I get the following output everytime I use EOTile with ogr:
+```
+        - 'VirtualXPath'        [XML Path Language - XPath]
+```
+In some previous version of GDAL, some messages are still displayed in silent mode.
+This issue seems to be fixed in newer versions.
+
+See https://www.gaia-gis.it/fossil/libspatialite/tktview/760ef1affb822806191393ac3f208fc9d8647758

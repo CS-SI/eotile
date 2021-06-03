@@ -36,7 +36,6 @@ from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 from eotile.eotiles.utils import input_matcher, build_logger, treat_eotiles
 
 
-
 def main(
     input_arg,
     logger_file=None,
@@ -182,3 +181,76 @@ def main(
     #
     # Outputting the result
     return [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
+
+
+def quick_search(input_arg,
+                search_type,
+                tile_source,
+                location_type=None,
+                min_overlap=None,
+                epsg=None,
+                threshold=None,
+                overlap=False):
+
+    """
+    Advanced QuickSearch for EOTiles
+    Outputs a single DataFrame
+
+    :param input_arg:  Choose amongst : a file, a tile_id, a location, a wkt, a bbox
+    :type input_arg: Str
+    :param search_type: Precise the input_arg type : "tile_id", "wkt", "location", "bbox", "file"
+    :type search_type: Str
+    :param tile_source: Precise the requested output type : "S2", "L8", "SRTM", "Copernicus"
+    :type tile_source: Str
+    :param epsg: [Optional, default = "4326"] Specify the epsg of the input
+    :type epsg: Str
+    :param min_overlap: [Optional, default = None] Minimum percentage of overlap to
+    consider a tile (0 to 1)
+    :type min_overlap: Str
+    :param threshold: [Optional, default = None] For large polygons at high resolution,
+    you might want to simplify them using a threshold (0 to 1)
+    :type min_overlap: Str
+    :param location_type: [Optional, default = None] Specify the value of the location
+    (city, county, state, country)
+    :type location_type: Str
+    :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
+    :type overlap: Boolean
+    """
+    with open(pkg_resources.resource_filename(__name__, "config/data_path")) as conf_file:
+        data_path = conf_file.readline()
+    aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
+    filenames = []
+    if not overlap:
+        filenames.append(aux_data_dirpath / "s2_no_overlap.gpkg")
+    else:
+        filenames.append(aux_data_dirpath / "s2_with_overlap.gpkg")
+    filenames.append(aux_data_dirpath / "l8_tiles.gpkg")
+    filenames.append(aux_data_dirpath / "srtm_tiles.gpkg")
+    filenames.append(aux_data_dirpath / "cop_tiles.gpkg")
+    positioning_dict = {"S2":0, "L8":1, "SRTM":2, "Copernicus":3}
+    if search_type == "tile_id":
+        ret = get_tiles_from_tile_id(
+            parse_to_list(input_arg),
+            aux_data_dirpath,
+            False,
+            False,
+            True,
+            True,
+            min_overlap,
+            overlap,
+            True
+        )
+        return ret[positioning_dict[tile_source]]
+    else:
+        dev_logger, user_logger = build_logger(logging.ERROR, None)
+        return treat_eotiles(
+            search_type,
+            input_arg,
+            tile_source,
+            dev_logger,
+            epsg,
+            filenames[positioning_dict[tile_source]],
+            min_overlap,
+            location_type,
+            threshold,
+        )
