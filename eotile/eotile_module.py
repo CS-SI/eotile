@@ -218,8 +218,8 @@ def build_nominatim_request(location_type, input_arg, threshold):
 def main(
     input_arg,
     logger_file=None,
-    s2_only=False,
-    l8_only=False,
+    no_l8=False,
+    no_s2=False,
     srtm=False,
     cop=False,
     location_type=None,
@@ -227,6 +227,7 @@ def main(
     epsg=None,
     threshold=None,
     verbose=None,
+    overlap=False,
 ):
     """
     Main module of eotile
@@ -246,10 +247,10 @@ def main(
     :param threshold: [Optional, default = None] For large polygons at high resolution,
     you might want to simplify them using a threshold (0 to 1)
     :type min_overlap: Str
-    :param s2_only: [Optional, default = None] Do you want to ignore l8 tiles ?
-    :type s2_only: Boolean
-    :param l8_only: [Optional, default = None] Do you want to ignore s2 tiles ?
-    :type l8_only: Boolean
+    :param no_l8: [Optional, default = None] Do you want to ignore l8 tiles ?
+    :type no_l8: Boolean
+    :param no_s2: [Optional, default = None] Do you want to ignore s2 tiles ?
+    :type no_s2: Boolean
     :param srtm: [Optional, default = None] Do you want to use SRTM tiles ?
     :type srtm: Boolean
     :param cop: [Optional, default = None] Do you want to use Copernicus tiles ?
@@ -259,6 +260,8 @@ def main(
     :type location_type: Str
     :param verbose: [Optional, default = None] Verbosity value, from 1 to 2
     :type verbose: Integer
+    :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
+    :type overlap: Boolean
     """
     if verbose is None:  # Default, no file
         log_level = logging.ERROR
@@ -281,17 +284,21 @@ def main(
         (tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop) = get_tiles_from_tile_id(
             parse_to_list(input_arg),
             aux_data_dirpath,
-            s2_only,
-            l8_only,
+            no_l8,
+            no_s2,
             srtm,
             cop,
             min_overlap,
+            overlap
         )
 
     else:
-        if not l8_only:
+        if not no_s2:
             # S2 Tiles
-            filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+            if not overlap:
+                filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+            else:
+                filename_tiles_s2 = aux_data_dirpath / "s2_with_overlap.gpkg"
             tile_list_s2 = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -304,7 +311,7 @@ def main(
                 threshold,
             )
 
-        if not s2_only:
+        if not no_l8:
             # L8 Tiles
             filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
             tile_list_l8 = treat_eotiles(

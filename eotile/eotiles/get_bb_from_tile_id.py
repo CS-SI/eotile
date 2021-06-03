@@ -80,6 +80,7 @@ def get_tiles_from_tile_id(
         srtm: bool,
         cop: bool,
         min_overlap=None,
+        overlap=False,
 ) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
     """Returns the bounding box of a tile designated by its ID.
 
@@ -95,10 +96,15 @@ def get_tiles_from_tile_id(
     :type cop: Boolean
     :param min_overlap: (Optional, default = None) Is there a minimum overlap percentage for a
     tile to be considered overlapping ?
+    :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
+    :type overlap: Boolean
     :return: Two lists of tiles
     """
+    if not overlap:
+        filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
+    else:
+        filename_tiles_s2 = aux_data_dirpath / "s2_with_overlap.gpkg"
 
-    filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
     filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
     filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
     filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
@@ -108,15 +114,15 @@ def get_tiles_from_tile_id(
                                                     gp.GeoDataFrame(), gp.GeoDataFrame()
     tile = None
     pd.options.mode.chained_assignment = None
-    if not s2_only and is_l8:
-        # Search on l8 Tiles
+    if is_l8:
+        # Search on L8 Tiles
         tile_list_l8 = load_tiles_list_eo(filename_tiles_l8)
         for tile_id in tile_id_list:
             tile = get_tile(tile_list_l8, tile_id)
             output_l8 = output_l8.append(tile)
         geometry = cascaded_union(output_l8.geometry)
 
-    if srtm and is_srtm:
+    if is_srtm:
         # Search on SRTM Tiles
         tile_list_srtm = load_tiles_list_eo(filename_tiles_srtm)
         for tile_id in tile_id_list:
@@ -124,7 +130,7 @@ def get_tiles_from_tile_id(
             output_srtm = output_srtm.append(tile)
         geometry = cascaded_union(output_srtm.geometry)
 
-    if cop and is_cop:
+    if is_cop:
         # Search on Copernicus Tiles
         tile_list_cop = load_tiles_list_eo(filename_tiles_cop)
         for tile_id in tile_id_list:
@@ -132,7 +138,7 @@ def get_tiles_from_tile_id(
             output_cop = output_cop.append(tile)
         geometry = cascaded_union(output_cop.geometry)
 
-    if not l8_only and is_s2:
+    if is_s2:
         # Search on s2 Tiles
         tile_list_s2 = load_tiles_list_eo(filename_tiles_s2)
         for tile_id in tile_id_list:
@@ -160,4 +166,13 @@ def get_tiles_from_tile_id(
     except (UnboundLocalError, IndexError) as e:
         dev_logger.error(e)
         return gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame()
+
+    if not srtm :
+        output_srtm = []
+    if not cop:
+        output_cop = []
+    if s2_only:
+        output_l8 = []
+    if l8_only:
+        output_s2 = []
     return output_s2, output_l8, output_srtm, output_cop

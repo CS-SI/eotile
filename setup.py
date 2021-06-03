@@ -46,6 +46,7 @@ setup(
     package_data={
         "": [
             "data/aux_data/s2_no_overlap.gpkg",
+            "data/aux_data/s2_with_overlap.gpkg",
             "data/aux_data/l8_tiles.gpkg",
             "data/aux_data/cop_tiles.gpkg",
             "data/aux_data/srtm_tiles.gpkg",
