@@ -217,6 +217,19 @@ def create_tiles_list_eo_from_geometry(
     return data_source_filtered
 
 
+def get_tile_from_id_ogr(filename_tiles_list: Path,
+                         tile_id, layer_name):
+    from osgeo import ogr
+    test = ogr.Open(str(filename_tiles_list))
+    layer = test.ExecuteSQL(f'select geom from {layer_name} where id = "{tile_id}"')
+    feat = layer.GetNextFeature()
+
+    tile = feat.geometry()
+    wkt = tile.ExportToWkt()
+    geometry_elt = shapely.wkt.loads(wkt)
+    return geometry_elt
+
+
 def load_tiles_list_eo(
     filename_tiles_list: Path
 ) -> gp.geodataframe.GeoDataFrame:

@@ -28,7 +28,7 @@ import logging
 import unittest
 from pathlib import Path
 
-from eotile.eotile_module import build_nominatim_request, input_matcher
+from eotile.eotiles.utils import build_nominatim_request, input_matcher
 from eotile.eotile_module import main as eomain
 from eotile.eotiles.eotiles import create_tiles_list_eo, get_tile, write_tiles_bb
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id, tile_id_matcher
