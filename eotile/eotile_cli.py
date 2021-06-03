@@ -86,7 +86,11 @@ def build_parser():
         action="store_true",
         help="Do you want to have overlaps on S2 tiles ?",
     )
-
+    parser.add_argument(
+        "-use_ogr",
+        action="store_true",
+        help="Do you want to use the ogr method ?",
+    )
     parser.add_argument("-v", "--verbose", action="count", help="Increase output verbosity")
 
     parser.add_argument("-logger_file", help="Redirect information from standard output to a file")
@@ -131,7 +135,8 @@ def main(arguments=None):
         args.epsg,
         args.threshold,
         args.verbose,
-        args.s2_overlap
+        args.s2_overlap,
+        args.use_ogr
     )
     tile_sources = ["S2", "L8", "SRTM", "Copernicus"]
     user_logger = logging.getLogger("user_logger")
