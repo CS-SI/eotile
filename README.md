@@ -51,6 +51,7 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
 ### Tiles selection :
 * `-no_l8`              output S2 tiles and not the L8 ones
 * `-no_s2`              output L8 tiles and not the S2 ones
+* `-s2_overlap`         Use S2 tiles with overlap
 * `-srtm`                 Use SRTM tiles as well
 * `-cop`                  Use Copernicus tiles as well
 
