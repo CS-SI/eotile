@@ -154,3 +154,8 @@ In some previous version of GDAL, some messages are still displayed in silent mo
 This issue seems to be fixed in newer versions.
 
 See https://www.gaia-gis.it/fossil/libspatialite/tktview/760ef1affb822806191393ac3f208fc9d8647758
+
+* Note that the number of Tiles of S2 without overlap and with overlap is not the same. The difference apparently lies in the Geodesic line break north and south corners. 
+  - S2 without overlap: 56686 Tiles
+  - S2 with ouverlap:   56984 Tiles
+
