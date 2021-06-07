@@ -49,7 +49,6 @@ def main(
     threshold=None,
     verbose=None,
     overlap=False,
-    use_ogr=False
 ):
     """
     Main module of eotile
@@ -112,7 +111,6 @@ def main(
             cop,
             min_overlap,
             overlap,
-            use_ogr
         )
 
     else:

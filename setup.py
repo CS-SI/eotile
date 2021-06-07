@@ -56,7 +56,6 @@ setup(
     extras_require={
         "dev": ["check-manifest"],
         "test": ["coverage"],
-        "quicksearch": ["gdal"]
     },
     entry_points={
         "console_scripts": [

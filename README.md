@@ -31,11 +31,6 @@ git clone https://gitlab.cloud-espace.si.c-s.fr/RemoteSensing/eotile.git
 cd eotile
 pip install .
 ```
-or
-```sh
-pip install .[quicksearch]
-```
-If you want to be able to use the quick search method. This requires a correct OSGEO/OGR environment installed.
 
 ## 🔲 Usage
 
@@ -68,7 +63,6 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
 * `-threshold THRESHOLD` For large polygons at high resolution, you might want
                         to simplify them using a threshold (0 to 1)
 * `-min_overlap MIN_OVERLAP` Minimum percentage of overlap to consider a tile (0 to 1)
-* `-use_ogr` Use the ogr method for better tile_id research performance (x30 speedup)
 
 ### 🐍 Through the python module
 
@@ -150,13 +144,6 @@ https://github.com/CS-SI/eodag/blob/develop/examples/tuto_cop_dem.ipynb
 ```
 
 ## 🆘 Help and Troubleshoot
-
-* I get the following output everytime I use EOTile with ogr:
-```
-        - 'VirtualXPath'        [XML Path Language - XPath]
-```
-In some previous version of GDAL, some messages are still displayed in silent mode.
-This issue seems to be fixed in newer versions.
 
 See https://www.gaia-gis.it/fossil/libspatialite/tktview/760ef1affb822806191393ac3f208fc9d8647758
 

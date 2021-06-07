@@ -33,7 +33,7 @@ from eotile.eotiles.eotiles import (
     get_tile,
     load_tiles_list_eo,
     create_tiles_list_eo_from_geometry,
-    get_tile_from_id_ogr)
+)
 import logging
 import re
 import pandas as pd
@@ -73,19 +73,14 @@ def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
     raise ValueError(f"Cannot parse this input: {input_value}")
 
 
-def build_reference_geom(file_name, tile_id_list, layer_name, use_ogr):
+def build_reference_geom(file_name, tile_id_list):
     output = gp.GeoDataFrame()
-    if not use_ogr:
-        tile_list = load_tiles_list_eo(file_name)
+    tile_list = load_tiles_list_eo(file_name)
 
-        for tile_id in tile_id_list:
-            tile = get_tile(tile_list, tile_id)
-            output = output.append(tile)
+    for tile_id in tile_id_list:
+        tile = get_tile(tile_list, tile_id)
+        output = output.append(tile)
 
-    else:
-        for tile_id in tile_id_list:
-            tile = get_tile_from_id_ogr(file_name, tile_id, layer_name)
-            output = output.append({'geometry': tile, 'id': tile_id}, ignore_index=True)
     geometry = cascaded_union(output.geometry)
 
     return tile, geometry, output
@@ -100,7 +95,6 @@ def get_tiles_from_tile_id(
         cop: bool,
         min_overlap=None,
         overlap=False,
-        use_ogr=False
 ) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
     """Returns the bounding box of a tile designated by its ID.
 
@@ -118,24 +112,17 @@ def get_tiles_from_tile_id(
     tile to be considered overlapping ?
     :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
     :type overlap: Boolean
-    :param use_ogr: (Optional, default = False) Do you want to use ogr ?
-    :type use_ogr: Boolean
     :return: Two lists of tiles
     """
     if not overlap:
         filename_tiles_s2 = aux_data_dirpath / "s2_no_overlap.gpkg"
-        layer_name_s2 = "s2_no_overlap_v3"
 
     else:
         filename_tiles_s2 = aux_data_dirpath / "s2_with_overlap.gpkg"
-        layer_name_s2 = "s2_with_overlap"
 
     filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
-    layer_name_l8 = "L8"
     filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
-    layer_name_srtm = "SRTM"
     filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
-    layer_name_cop = "Copernicus"
 
     [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id_list[0])
 
@@ -143,19 +130,19 @@ def get_tiles_from_tile_id(
     pd.options.mode.chained_assignment = None
     if is_l8:
         # Search on L8 Tiles
-        tile, geometry, output_l8 =  build_reference_geom(filename_tiles_l8, tile_id_list, layer_name_l8, use_ogr)
+        tile, geometry, output_l8 =  build_reference_geom(filename_tiles_l8, tile_id_list)
 
     if is_srtm:
         # Search on SRTM Tiles
-        tile, geometry, output_srtm =  build_reference_geom(filename_tiles_srtm, tile_id_list, layer_name_srtm, use_ogr)
+        tile, geometry, output_srtm =  build_reference_geom(filename_tiles_srtm, tile_id_list)
 
     if is_cop:
         # Search on Copernicus Tiles
-        tile, geometry, output_cop =  build_reference_geom(filename_tiles_cop, tile_id_list, layer_name_cop, use_ogr)
+        tile, geometry, output_cop =  build_reference_geom(filename_tiles_cop, tile_id_list)
 
     if is_s2:
         # Search on s2 Tiles
-        tile, geometry, output_s2 =  build_reference_geom(filename_tiles_s2, tile_id_list, layer_name_s2, use_ogr)
+        tile, geometry, output_s2 =  build_reference_geom(filename_tiles_s2, tile_id_list)
 
     try:
         if tile is not None and not is_l8 and not s2_only:

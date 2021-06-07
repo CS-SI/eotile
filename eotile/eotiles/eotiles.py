@@ -217,30 +217,6 @@ def create_tiles_list_eo_from_geometry(
     return data_source_filtered
 
 
-def get_tile_from_id_ogr(filename_tiles_list: Path,
-                         tile_id, layer_name):
-    """
-    Gets a tile from its tile ID using OGR
-
-    :param filename_tiles_list: Path to the XML file containing the list of tiles
-    :type filename_tiles_list: Path
-    :param tile_id: The tile id to search for
-    :type tile_id: String
-    :param layer_name: Name of the layer to look in
-    :type layer_name: String
-    """
-
-    from osgeo import ogr
-    test = ogr.GetDriverByName("gpkg").Open(str(filename_tiles_list))
-    layer = test.ExecuteSQL(f'select geom from {layer_name} where id = "{tile_id}"')
-    feat = layer.GetNextFeature()
-
-    tile = feat.geometry()
-    wkt = tile.ExportToWkt()
-    geometry_elt = shapely.wkt.loads(wkt)
-    return geometry_elt
-
-
 def load_tiles_list_eo(
     filename_tiles_list: Path
 ) -> gp.geodataframe.GeoDataFrame:
