@@ -198,7 +198,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_build_nominatim_request(self):
         self.assertTrue(
-            (build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005
+            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005
         )
 
 
