@@ -31,6 +31,11 @@ git clone https://gitlab.cloud-espace.si.c-s.fr/RemoteSensing/eotile.git
 cd eotile
 pip install .
 ```
+or
+```sh
+pip install .[quicksearch]
+```
+If you want to be able to use the quick search method. This requires a correct OSGEO/OGR environment installed.
 
 ## 🔲 Usage
 
