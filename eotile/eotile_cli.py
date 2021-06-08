@@ -178,7 +178,7 @@ def main(arguments=None):
                 for elt in tile_list["geometry"]:
                     centroid = list(list(elt.centroid.coords)[0])
                     centroid.reverse()
-                    location = geolocator.reverse(centroid)
+                    location = geolocator.reverse(centroid, language='en')
                     if location is not None:
                         user_logger.info(str(location))
     else:
