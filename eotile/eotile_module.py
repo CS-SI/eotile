@@ -236,7 +236,6 @@ def quick_search(input_arg,
             True,
             min_overlap,
             overlap,
-            True
         )
         return ret[positioning_dict[tile_source]]
     else:
