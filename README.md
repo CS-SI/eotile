@@ -52,8 +52,8 @@ You can **input** these elements : a file, a tile id, a location, a wkt polygon,
 * `-no_l8`              output S2 tiles and not the L8 ones
 * `-no_s2`              output L8 tiles and not the S2 ones
 * `-s2_overlap`         Use S2 tiles with overlap
-* `-srtm`                 Use SRTM tiles as well
-* `-cop`                  Use Copernicus tiles as well
+* `-dem`                Use elevation tiles as well
+* `-srtm5x5`            Use specific 5x5 SRTM tiles as well
 
 ##### Other options :
 * `-epsg`                 Specify the epsg of the input if not WGS84
@@ -72,7 +72,7 @@ Getting Started :
 from eotile import eotile_module 
 
 # Create tile lists
-[S2_Tiles, L8_Tiles, SRTM_Tiles, Copernicus_Tiles] = eotile_module.main("Spain", no_s2=True) 
+[S2_Tiles, L8_Tiles, DEM_Tiles, SRTM5x5_Tiles] = eotile_module.main("Spain", no_s2=True) 
 # Replace Spain with whatever string you might need (a file, a tile id, a location, a wkt polygon, a bbox)
 
 # Returned elements are GeoPandas Dataframes :
@@ -125,12 +125,10 @@ eotile tests/test_data/illinois.shp -s2_only -vvv
 
 ## 👁️‍🗨️ Data sources & Licenses
 
-* **SRTM**
+* **SRTM 5x5**
 ```
-Vector grid of SRTM 1x1 degree tiles
-https://figshare.com/articles/dataset/Vector_grid_of_SRTM_1x1_degree_tiles/1332753
-
-Vector file (shapefile format) of polygons representing the 1x1 degree tiles of SRTM (3-arcsec and 1-arcsec). There are 14280 polygons with an ID that matches the naming scheme of SRTM (such as N00E025). Lat/Long, WGS84. 
+Vector grid of Specific SRTM 5x5 degree tiles
+See issue #39 to download 
 ```
 
 * **Copernicus**
