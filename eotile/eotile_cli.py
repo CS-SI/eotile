@@ -56,8 +56,8 @@ def build_parser():
     parser.add_argument(
         "-no_s2", action="store_true", help="Disable S2 tiles"
     )
-    parser.add_argument("-srtm", action="store_true", help="Use SRTM tiles as well")
-    parser.add_argument("-cop", action="store_true", help="Use Copernicus tiles as well")
+    parser.add_argument("-dem", action="store_true", help="Use DEM 1\" tiles as well")
+    parser.add_argument("-srtm5x5", action="store_true", help="Use specific srtm 5x5 tiles as well")
     # Output arguments
 
     parser.add_argument("-to_file", help="Write tiles to a file")
@@ -118,14 +118,13 @@ def main(arguments=None):
     """
     arg_parser = build_parser()
     args = arg_parser.parse_args(args=arguments)
-
-    [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop] = eotile_module.main(
+    [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5] = eotile_module.main(
         args.input,
         args.logger_file,
         args.no_l8,
         args.no_s2,
-        args.srtm,
-        args.cop,
+        args.dem,
+        args.srtm5x5,
         args.location_type,
         args.min_overlap,
         args.epsg,
@@ -133,11 +132,11 @@ def main(arguments=None):
         args.verbose,
         args.s2_overlap,
     )
-    tile_sources = ["S2", "L8", "SRTM", "Copernicus"]
+    tile_sources = ["S2", "L8", "DEM", "SRTM 5x5"]
     user_logger = logging.getLogger("user_logger")
 
     # Outputting the result
-    tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
+    tile_lists = [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5]
     if args.to_file is not None:
         output_path = Path(args.to_file)
         for i, tile_list in enumerate(tile_lists):

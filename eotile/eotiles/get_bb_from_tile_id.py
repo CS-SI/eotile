@@ -51,26 +51,30 @@ def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
     :rtype: str
     :raises ValueError: when the input value cannot be parsed
     """
-    cop_srtm_pattern = "(N|S)([0-9]){2,3}(E|W)([0-9]){2,3}"
+    dem_pattern = "(N|S)([0-9]){2,3}(E|W)([0-9]){2,3}"
+
+    srtm_5x5_pattern = "srtm_([0-9]){2}_([0-9]){2}"
 
     s2_pattern = "([0-9]){2}([A-Z]){3}"
 
     l8_pattern = "([0-9]){4,6}"
 
-    cop_srtm_reg = re.compile(cop_srtm_pattern)
+    dem_reg = re.compile(dem_pattern)
     s2_reg = re.compile(s2_pattern)
     l8_reg = re.compile(l8_pattern)
+    srtm_5x5_reg = re.compile(srtm_5x5_pattern)
 
-    if cop_srtm_reg.match(input_value) and cop_srtm_reg.match(input_value).string == input_value:
-        return False, False, True, True
+    is_dem = (dem_reg.match(input_value) is not None) and dem_reg.match(input_value).string == input_value
+    is_s2 = (s2_reg.match(input_value) is not None) and s2_reg.match(input_value).string == input_value
+    is_l8 = (l8_reg.match(input_value) is not None) and l8_reg.match(input_value).string == input_value
+    is_srtm_5x5 = (srtm_5x5_reg.match(input_value) is not None) \
+                  and srtm_5x5_reg.match(input_value).string == input_value
 
-    if s2_reg.match(input_value) and s2_reg.match(input_value).string == input_value:
-        return True, False, False, False
-
-    if l8_reg.match(input_value) and l8_reg.match(input_value).string == input_value:
-        return False, True, False, False
-
-    raise ValueError(f"Cannot parse this input: {input_value}")
+    return_list = [is_s2, is_l8, is_dem, is_srtm_5x5]
+    if sum(return_list) == 1:
+        return return_list
+    else:
+        raise ValueError(f"Cannot parse this input: {input_value} ({return_list})")
 
 
 def build_reference_geom(file_name, tile_id_list):
@@ -91,8 +95,8 @@ def get_tiles_from_tile_id(
         aux_data_dirpath: Path,
         s2_only: bool,
         l8_only: bool,
-        srtm: bool,
-        cop: bool,
+        dem: bool,
+        srtm5x5: bool,
         min_overlap=None,
         overlap=False,
 ) -> Tuple[gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame, gp.GeoDataFrame]:
@@ -104,10 +108,10 @@ def get_tiles_from_tile_id(
     :type s2_only: Boolean
     :param l8_only: Is he requested tile a Landscape 8 tile ?
     :type l8_only: Boolean
-    :param srtm: Should SRTM tiles be used ?
-    :type srtm: Boolean
-    :param cop: Should Copernicus tiles be used ?
-    :type cop: Boolean
+    :param dem: Should DEM tiles be used ?
+    :type dem: Boolean
+    :param srtm5x5: Should Specific SRTM 5x5 tiles be used ?
+    :type srtm5x5: Boolean
     :param min_overlap: (Optional, default = None) Is there a minimum overlap percentage for a
     tile to be considered overlapping ?
     :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
@@ -121,56 +125,57 @@ def get_tiles_from_tile_id(
         filename_tiles_s2 = aux_data_dirpath / "s2_with_overlap.gpkg"
 
     filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
-    filename_tiles_srtm = aux_data_dirpath / "srtm_tiles.gpkg"
-    filename_tiles_cop = aux_data_dirpath / "cop_tiles.gpkg"
+    filename_tiles_srtm5x5 = aux_data_dirpath / "srtm5x5_tiles.gpkg"
+    filename_tiles_dem = aux_data_dirpath / "cop_tiles.gpkg"
 
-    [is_s2, is_l8, is_cop, is_srtm] = tile_id_matcher(tile_id_list[0])
+    [is_s2, is_l8, is_dem, is_srtm5x5] = tile_id_matcher(tile_id_list[0])
 
     tile = None
     pd.options.mode.chained_assignment = None
     if is_l8:
         # Search on L8 Tiles
-        tile, geometry, output_l8 =  build_reference_geom(filename_tiles_l8, tile_id_list)
+        tile, geometry, output_l8 = build_reference_geom(filename_tiles_l8, tile_id_list)
 
-    if is_srtm:
-        # Search on SRTM Tiles
-        tile, geometry, output_srtm =  build_reference_geom(filename_tiles_srtm, tile_id_list)
+    if is_dem:
+        # Search on DEM Tiles
+        tile, geometry, output_dem = build_reference_geom(filename_tiles_dem, tile_id_list)
 
-    if is_cop:
-        # Search on Copernicus Tiles
-        tile, geometry, output_cop =  build_reference_geom(filename_tiles_cop, tile_id_list)
+    if is_srtm5x5:
+        # Search on specific SRTM 5x5 Tiles
+        tile, geometry, output_srtm5x5 = build_reference_geom(filename_tiles_srtm5x5, tile_id_list)
 
     if is_s2:
         # Search on s2 Tiles
-        tile, geometry, output_s2 =  build_reference_geom(filename_tiles_s2, tile_id_list)
+        tile, geometry, output_s2 = build_reference_geom(filename_tiles_s2, tile_id_list)
 
     try:
-        if tile is not None and not is_l8 and not s2_only:
-            output_l8 = create_tiles_list_eo_from_geometry(
-                filename_tiles_l8, geometry, min_overlap
-            )
-        if tile is not None and not is_s2 and not l8_only:
-            output_s2 = create_tiles_list_eo_from_geometry(
-                filename_tiles_s2, geometry, min_overlap
-            )
-        if tile is not None and not is_srtm and srtm:
-            output_srtm = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, geometry, min_overlap
-            )
-        if tile is not None and not is_cop and cop:
-            output_cop = create_tiles_list_eo_from_geometry(
-                filename_tiles_srtm, geometry, min_overlap
-            )
+        if tile is not None:
+            if not is_l8 and not s2_only:
+                output_l8 = create_tiles_list_eo_from_geometry(
+                    filename_tiles_l8, geometry, min_overlap
+                )
+            if not is_s2 and not l8_only:
+                output_s2 = create_tiles_list_eo_from_geometry(
+                    filename_tiles_s2, geometry, min_overlap
+                )
+            if not is_dem and dem:
+                output_dem = create_tiles_list_eo_from_geometry(
+                    filename_tiles_dem, geometry, min_overlap
+                )
+            if not is_srtm5x5 and srtm5x5:
+                output_srtm5x5 = create_tiles_list_eo_from_geometry(
+                    filename_tiles_srtm5x5, geometry, min_overlap
+                )
     except (UnboundLocalError, IndexError) as e:
         dev_logger.error(e)
         return gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame(), gp.GeoDataFrame()
 
-    if not srtm :
-        output_srtm = gp.GeoDataFrame()
-    if not cop:
-        output_cop = gp.GeoDataFrame()
+    if not dem:
+        output_dem = gp.GeoDataFrame()
+    if not srtm5x5:
+        output_srtm5x5 = gp.GeoDataFrame()
     if s2_only:
         output_l8 = gp.GeoDataFrame()
     if l8_only:
         output_s2 = gp.GeoDataFrame()
-    return output_s2, output_l8, output_srtm, output_cop
+    return output_s2, output_l8, output_dem, output_srtm5x5
