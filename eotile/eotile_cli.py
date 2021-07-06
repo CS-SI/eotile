@@ -50,13 +50,9 @@ def build_parser():
         help="Choose amongst : a file, a tile_id, a location, a wkt, a bbox",
     )
     parser.add_argument("-epsg", help="Specify the epsg of the input")
-    parser.add_argument(
-        "-no_l8", action="store_true", help="output L8 tiles"
-    )
-    parser.add_argument(
-        "-no_s2", action="store_true", help="Disable S2 tiles"
-    )
-    parser.add_argument("-dem", action="store_true", help="Use DEM 1\" tiles as well")
+    parser.add_argument("-no_l8", action="store_true", help="output L8 tiles")
+    parser.add_argument("-no_s2", action="store_true", help="Disable S2 tiles")
+    parser.add_argument("-dem", action="store_true", help='Use DEM 1" tiles as well')
     parser.add_argument("-srtm5x5", action="store_true", help="Use specific srtm 5x5 tiles as well")
     # Output arguments
 
@@ -149,8 +145,7 @@ def main(arguments=None):
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(output_path.stem + "_" + source +
-                                              output_path.suffix),
+                        output_path.with_name(output_path.stem + "_" + source + output_path.suffix),
                     )
     elif args.to_wkt:
         for i, tile_list in enumerate(tile_lists):
@@ -177,7 +172,7 @@ def main(arguments=None):
                 for elt in tile_list["geometry"]:
                     centroid = list(list(elt.centroid.coords)[0])
                     centroid.reverse()
-                    location = geolocator.reverse(centroid, language='en')
+                    location = geolocator.reverse(centroid, language="en")
                     if location is not None:
                         user_logger.info(str(location))
     else:

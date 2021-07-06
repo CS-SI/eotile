@@ -28,10 +28,10 @@ import logging
 import unittest
 from pathlib import Path
 
-from eotile.eotiles.utils import build_nominatim_request, input_matcher
 from eotile.eotile_module import main as eomain
 from eotile.eotiles.eotiles import create_tiles_list_eo, get_tile, write_tiles_bb
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id, tile_id_matcher
+from eotile.eotiles.utils import build_nominatim_request, input_matcher
 
 
 class TestEOTile(unittest.TestCase):
@@ -131,10 +131,7 @@ class TestEOTile(unittest.TestCase):
         out_list = []
         for elt in [tile_id_list_2, tile_id_list_3]:
             out_list.append(input_matcher(elt))
-        self.assertListEqual(
-            out_list,
-            ["tile_id", "tile_id"])
-
+        self.assertListEqual(out_list, ["tile_id", "tile_id"])
 
     def test_id_matcher(self):
         test_id_srtm = "N02W102"
@@ -166,8 +163,7 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module(self):
         output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
-            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False,
-            dem=True, srtm5x5=True
+            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False, dem=True, srtm5x5=True
         )
         self.assertEqual(len(output_s2), 12)
         self.assertEqual(len(output_l8), 9)
@@ -213,7 +209,8 @@ class TestEOTile(unittest.TestCase):
 
     def test_build_nominatim_request(self):
         self.assertTrue(
-            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005
+            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995)
+            < 0.005
         )
 
 

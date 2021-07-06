@@ -33,7 +33,7 @@ import pkg_resources
 
 from eotile.eotiles.eotiles import parse_to_list
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
-from eotile.eotiles.utils import input_matcher, build_logger, treat_eotiles
+from eotile.eotiles.utils import build_logger, input_matcher, treat_eotiles
 
 
 def main(
@@ -181,14 +181,16 @@ def main(
     return [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5]
 
 
-def quick_search(input_arg,
-                search_type,
-                tile_source,
-                location_type=None,
-                min_overlap=None,
-                epsg=None,
-                threshold=None,
-                overlap=False):
+def quick_search(
+    input_arg,
+    search_type,
+    tile_source,
+    location_type=None,
+    min_overlap=None,
+    epsg=None,
+    threshold=None,
+    overlap=False,
+):
 
     """
     Advanced QuickSearch for EOTiles
@@ -225,14 +227,14 @@ def quick_search(input_arg,
     filenames.append(aux_data_dirpath / "l8_tiles.gpkg")
     filenames.append(aux_data_dirpath / "cop_tiles.gpkg")
     filenames.append(aux_data_dirpath / "srtm5x5_tiles.gpkg")
-    positioning_dict = {"S2":0, "L8":1, "DEM":2, "SRTM 5x5":3}
+    positioning_dict = {"S2": 0, "L8": 1, "DEM": 2, "SRTM 5x5": 3}
     if search_type == "tile_id":
         ret = get_tiles_from_tile_id(
             parse_to_list(input_arg),
             aux_data_dirpath,
             False,
             False,
-            True, # WHAT WHY ?...
+            True,  # WHAT WHY ?...
             True,
             min_overlap,
             overlap,
