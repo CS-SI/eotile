@@ -79,13 +79,14 @@ def tile_id_matcher(input_value: str) -> Tuple[bool, bool, bool, bool]:
 
 def build_reference_geom(file_name, tile_id_list):
     output = gp.GeoDataFrame()
+
     tile_list = load_tiles_list_eo(file_name)
 
     for tile_id in tile_id_list:
         tile = get_tile(tile_list, tile_id)
         output = output.append(tile)
 
-    geometry = cascaded_union(output.geometry)
+    geometry = cascaded_union(list(output.geometry))
 
     return tile, geometry, output
 

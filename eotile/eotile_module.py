@@ -112,7 +112,6 @@ def main(
             min_overlap,
             overlap,
         )
-
     else:
         if not no_s2:
             # S2 Tiles
