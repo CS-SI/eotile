@@ -126,7 +126,7 @@ def get_tiles_from_tile_id(
 
     filename_tiles_l8 = aux_data_dirpath / "l8_tiles.gpkg"
     filename_tiles_srtm5x5 = aux_data_dirpath / "srtm5x5_tiles.gpkg"
-    filename_tiles_dem = aux_data_dirpath / "cop_tiles.gpkg"
+    filename_tiles_dem = aux_data_dirpath / "DEM_Union.gpkg"
 
     [is_s2, is_l8, is_dem, is_srtm5x5] = tile_id_matcher(tile_id_list[0])
 
