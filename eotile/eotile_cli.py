@@ -107,6 +107,20 @@ def build_parser():
 
 
 def build_output(source, tile_list, user_logger, message, args):
+    """
+    Sub-function of the main
+    Formats an output depending on a specified message & arguments over a dataframe pandas of tiles.
+    :param source: Type of the source (DEM, S2, L8)
+    :type source: str
+    :param user_logger: LOGGER to log the message to
+    :type user_logger: logging.LOGGER
+    :param tile_list: pandas dataframe of the tiles to format
+    :type tile_list: pandas DataFrame
+    :param message: The message to format
+    :type message: str
+    :param args: fields to look in
+    :type args: list
+    """
     if source != "DEM":
         interesting_columns = []
         for elt in args:
