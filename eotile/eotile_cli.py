@@ -105,6 +105,15 @@ def build_parser():
 
     return parser
 
+def build_availability(elt):
+    availability = []
+    if elt[1]["EXIST_SRTM"]:
+        availability.append("SRTM")
+    if elt[1]["EXIST_COP30"]:
+        availability.append("Copernicus 30")
+    if elt[1]["EXIST_COP90"]:
+        availability.append("Copernicus 90")
+    return availability
 
 def main(arguments=None):
     """
@@ -163,8 +172,14 @@ def main(arguments=None):
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["id"]:
-                    user_logger.info("%s Tile id: %s", source, str(elt))
+                if source != "DEM":
+                    for elt in tile_list["id"]:
+                        user_logger.info("[%s] Tile id: %s", source, str(elt))
+                else:
+                    for elt in tile_list[["id", "EXIST_SRTM", "EXIST_COP30", "EXIST_COP90"]].iterrows():
+                        availability = build_availability(elt)
+                        user_logger.info("[%s] Tile id: %s", ", ".join(availability), str(elt[1]["id"]))
+
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         for tile_list in tile_lists:
@@ -179,10 +194,17 @@ def main(arguments=None):
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list[["id", "geometry"]].iterrows():
-                    user_logger.info(
-                        "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
-                    )
+                if source != "DEM":
+                    for elt in tile_list[["id", "geometry"]].iterrows():
+                        user_logger.info(
+                            "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
+                        )
+                else:
+                    for elt in tile_list[["id", "geometry", "EXIST_SRTM", "EXIST_COP30", "EXIST_COP90"]].iterrows():
+                        availability = build_availability(elt)
+                        user_logger.info(
+                            "[" + ", ".join(availability) + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
+                        )
     # counts
     user_logger.info("--- Summary ---")
     for i, tile_list in enumerate(tile_lists):
