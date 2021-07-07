@@ -131,15 +131,10 @@ Vector grid of Specific SRTM 5x5 degree tiles
 See issue #39 to download 
 ```
 
-* **Copernicus**
-```
-s3://copernicus-dem-30m/grid.zip
-GLO-30 Public and GLO-90 are available on a free basis for the general public under the terms and conditions of the Licence found here:
-https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Annex.pdf
+* **DEM**
 
-See
-https://github.com/CS-SI/eodag/blob/develop/examples/tuto_cop_dem.ipynb
-```
+See [DEM_Union_source](eotile/data/aux_data/DEM_Union_source.md)
+
 
 ## 🆘 Help and Troubleshoot
 

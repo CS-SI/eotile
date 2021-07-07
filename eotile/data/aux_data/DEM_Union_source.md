@@ -23,9 +23,9 @@ Building output data out of the source files:
 * Create new fields `EXIST_...`
 Click `Open attribute table` then `field calculator`. Choose `create new field` and name it  `EXIST_...`. Select Type Boolean.
 The expression is the following:
-for `EXIST_SRTM`: if(SRTM_GEOM_CELL_ID is not NULL, True, False)
-for `EXIST_COP30`: if(Product10 is not NULL, True, False)
-for `EXIST_COP90`: if(Product30 is not NULL, True, False)
+  - for `EXIST_SRTM`: if(SRTM_GEOM_CELL_ID is not NULL, True, False)
+  - for `EXIST_COP30`: if(Product10 is not NULL, True, False)
+  - for `EXIST_COP90`: if(Product30 is not NULL, True, False)
 * `Id` and `fid` columns have to be deleted in order to export in .gpkg format
 
 
