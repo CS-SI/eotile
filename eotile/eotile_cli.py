@@ -223,8 +223,9 @@ def main(arguments=None):
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                build_output(source, tile_list, user_logger, "[{} tile]\n {}\n {}", ["id", "geometry"])
-
+                build_output(
+                    source, tile_list, user_logger, "[{} tile]\n {}\n {}", ["id", "geometry"]
+                )
 
     # counts
     user_logger.info("--- Summary ---")

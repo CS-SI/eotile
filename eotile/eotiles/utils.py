@@ -42,8 +42,6 @@ from eotile.eotiles.eotiles import (
 )
 
 
-
-
 # noinspection Mypy
 def input_matcher(input_value: str) -> str:
     """
