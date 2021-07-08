@@ -1,5 +1,3 @@
-include pyproject.toml
-
 # Include the README
 include *.md
 
@@ -10,4 +8,7 @@ include LICENSE.txt
 include setup.py
 
 # Include the data files
-recursive-include data *
+recursive-include eotile/data *
+
+# Include the config file
+include eotile/config/data_path
