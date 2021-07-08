@@ -50,14 +50,10 @@ def build_parser():
         help="Choose amongst : a file, a tile_id, a location, a wkt, a bbox",
     )
     parser.add_argument("-epsg", help="Specify the epsg of the input")
-    parser.add_argument(
-        "-no_l8", action="store_true", help="output L8 tiles"
-    )
-    parser.add_argument(
-        "-no_s2", action="store_true", help="Disable S2 tiles"
-    )
-    parser.add_argument("-srtm", action="store_true", help="Use SRTM tiles as well")
-    parser.add_argument("-cop", action="store_true", help="Use Copernicus tiles as well")
+    parser.add_argument("-no_l8", action="store_true", help="output L8 tiles")
+    parser.add_argument("-no_s2", action="store_true", help="Disable S2 tiles")
+    parser.add_argument("-dem", action="store_true", help='Use DEM 1" tiles as well')
+    parser.add_argument("-srtm5x5", action="store_true", help="Use specific srtm 5x5 tiles as well")
     # Output arguments
 
     parser.add_argument("-to_file", help="Write tiles to a file")
@@ -110,6 +106,64 @@ def build_parser():
     return parser
 
 
+def build_output(source, tile_list, user_logger, message, args):
+    """
+    Sub-function of the main
+    Formats an output depending on a specified message & arguments over a dataframe pandas of tiles.
+    :param source: Type of the source (DEM, S2, L8)
+    :type source: str
+    :param user_logger: LOGGER to log the message to
+    :type user_logger: logging.LOGGER
+    :param tile_list: pandas dataframe of the tiles to format
+    :type tile_list: pandas DataFrame
+    :param message: The message to format
+    :type message: str
+    :param args: fields to look in
+    :type args: list
+    """
+    if source != "DEM":
+        interesting_columns = []
+        for elt in args:
+            if elt == "bounds":
+                interesting_columns.append("geometry")
+            else:
+                interesting_columns.append(elt)
+        for elt in tile_list[interesting_columns].iterrows():
+            arguments = []
+            for arg in args:
+                if arg == "geometry":
+                    arguments.append(elt[1]["geometry"].wkt)
+                elif arg == "bounds":
+                    arguments.append(elt[1]["geometry"].bounds)
+                else:
+                    arguments.append(str(elt[1][arg]))
+            user_logger.info(message.format(source, *arguments))
+    else:
+        interesting_columns = ["EXIST_SRTM", "EXIST_COP30", "EXIST_COP90"]
+        for elt in args:
+            if elt == "bounds":
+                interesting_columns.append("geometry")
+            else:
+                interesting_columns.append(elt)
+        for elt in tile_list[interesting_columns].iterrows():
+            availability = []
+            if elt[1]["EXIST_SRTM"]:
+                availability.append("SRTM")
+            if elt[1]["EXIST_COP30"]:
+                availability.append("Copernicus 30")
+            if elt[1]["EXIST_COP90"]:
+                availability.append("Copernicus 90")
+            arguments = []
+            for arg in args:
+                if arg == "geometry":
+                    arguments.append(elt[1]["geometry"].wkt)
+                elif arg == "bounds":
+                    arguments.append(elt[1]["geometry"].bounds)
+                else:
+                    arguments.append(str(elt[1][arg]))
+            user_logger.info(message.format(", ".join(availability), *arguments))
+
+
 def main(arguments=None):
     """
     Command line interface to perform
@@ -118,14 +172,13 @@ def main(arguments=None):
     """
     arg_parser = build_parser()
     args = arg_parser.parse_args(args=arguments)
-
-    [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop] = eotile_module.main(
+    [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5] = eotile_module.main(
         args.input,
         args.logger_file,
         args.no_l8,
         args.no_s2,
-        args.srtm,
-        args.cop,
+        args.dem,
+        args.srtm5x5,
         args.location_type,
         args.min_overlap,
         args.epsg,
@@ -133,11 +186,11 @@ def main(arguments=None):
         args.verbose,
         args.s2_overlap,
     )
-    tile_sources = ["S2", "L8", "SRTM", "Copernicus"]
+    tile_sources = ["S2", "L8", "DEM", "SRTM 5x5"]
     user_logger = logging.getLogger("user_logger")
 
     # Outputting the result
-    tile_lists = [tile_list_s2, tile_list_l8, tile_list_srtm, tile_list_cop]
+    tile_lists = [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5]
     if args.to_file is not None:
         output_path = Path(args.to_file)
         for i, tile_list in enumerate(tile_lists):
@@ -150,27 +203,26 @@ def main(arguments=None):
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(output_path.stem + "_" + source +
-                                              output_path.suffix),
+                        output_path.with_name(output_path.stem + "_" + source + output_path.suffix),
                     )
     elif args.to_wkt:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["geometry"]:
-                    user_logger.info("%s Tile: %s", source, elt.wkt)
+                build_output(source, tile_list, user_logger, "[{}] Tile: {}", ["geometry"])
+
     elif args.to_bbox:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["geometry"]:
-                    user_logger.info("%s Tile Bounds: %s", source, str(elt.bounds))
+                build_output(source, tile_list, user_logger, "[{}] Tile Bounds: {}", ["bounds"])
+
     elif args.to_tile_id:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["id"]:
-                    user_logger.info("%s Tile id: %s", source, str(elt))
+                build_output(source, tile_list, user_logger, "[{}] Tile id: {}", ["id"])
+
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         for tile_list in tile_lists:
@@ -178,17 +230,17 @@ def main(arguments=None):
                 for elt in tile_list["geometry"]:
                     centroid = list(list(elt.centroid.coords)[0])
                     centroid.reverse()
-                    location = geolocator.reverse(centroid, language='en')
+                    location = geolocator.reverse(centroid, language="en")
                     if location is not None:
                         user_logger.info(str(location))
     else:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list[["id", "geometry"]].iterrows():
-                    user_logger.info(
-                        "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
-                    )
+                build_output(
+                    source, tile_list, user_logger, "[{} tile]\n {}\n {}", ["id", "geometry"]
+                )
+
     # counts
     user_logger.info("--- Summary ---")
     for i, tile_list in enumerate(tile_lists):

@@ -28,10 +28,10 @@ import logging
 import unittest
 from pathlib import Path
 
-from eotile.eotiles.utils import build_nominatim_request, input_matcher
 from eotile.eotile_module import main as eomain
 from eotile.eotiles.eotiles import create_tiles_list_eo, get_tile, write_tiles_bb
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id, tile_id_matcher
+from eotile.eotiles.utils import build_nominatim_request, input_matcher
 
 
 class TestEOTile(unittest.TestCase):
@@ -131,74 +131,86 @@ class TestEOTile(unittest.TestCase):
         out_list = []
         for elt in [tile_id_list_2, tile_id_list_3]:
             out_list.append(input_matcher(elt))
-        self.assertListEqual(
-            out_list,
-            ["tile_id", "tile_id"])
-
+        self.assertListEqual(out_list, ["tile_id", "tile_id"])
 
     def test_id_matcher(self):
         test_id_srtm = "N02W102"
         test_id_cop = "S02W102"
         test_id_s2 = "18SWJ"
         test_id_l8 = "12033"
-        self.assertEqual(tile_id_matcher(test_id_l8), (False, True, False, False))
-        self.assertEqual(tile_id_matcher(test_id_s2), (True, False, False, False))
-        self.assertEqual(tile_id_matcher(test_id_cop), (False, False, True, True))
-        self.assertEqual(tile_id_matcher(test_id_srtm), (False, False, True, True))
+        test_id_srtm5x5 = "srtm_37_04"
+        self.assertEqual(tile_id_matcher(test_id_l8), [False, True, False, False])
+        self.assertEqual(tile_id_matcher(test_id_s2), [True, False, False, False])
+        self.assertEqual(tile_id_matcher(test_id_cop), [False, False, True, False])
+        self.assertEqual(tile_id_matcher(test_id_srtm), [False, False, True, False])
+        self.assertEqual(tile_id_matcher(test_id_srtm5x5), [False, False, False, True])
 
     def test_get_tiles_from_tile_id(self):
         aux_data_dirpath = Path("eotile/data/aux_data")
-        output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            ["31TCJ"], aux_data_dirpath, False, False, srtm=True, cop=True
+        output_s2, output_l8, output_dem, output_srtm5x5 = get_tiles_from_tile_id(
+            ["31TCJ"], aux_data_dirpath, False, False, dem=True, srtm5x5=True
         )
         self.assertEqual(len(output_s2), 1)
         self.assertEqual(len(output_l8), 4)
-        self.assertEqual(len(output_srtm), 4)
-        self.assertEqual(len(output_cop), 4)
+        self.assertEqual(len(output_dem), 4)
+        self.assertEqual(len(output_srtm5x5), 1)
 
-        output_s2, output_l8, output_srtm, output_cop = get_tiles_from_tile_id(
-            ["200035"], aux_data_dirpath, False, False, srtm=True, cop=True
+        output_s2, output_l8, output_dem, output_srtm5x5 = get_tiles_from_tile_id(
+            ["200035"], aux_data_dirpath, False, False, dem=True, srtm5x5=True
         )
         self.assertEqual(len(output_s2), 8)
         self.assertEqual(len(output_l8), 1)
 
     def test_main_module(self):
-        output_s2, output_l8, output_srtm, output_cop = eomain(
-            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False,
-            srtm=True, cop=True
+        output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
+            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False, dem=True, srtm5x5=True
         )
         self.assertEqual(len(output_s2), 12)
         self.assertEqual(len(output_l8), 9)
-        self.assertEqual(len(output_srtm), 7)
-        self.assertEqual(len(output_cop), 9)
+        self.assertEqual(len(output_dem), 7)
+        self.assertEqual(len(output_srtm5x5), 2)
 
     def test_main_module_2(self):
-        output_s2, output_l8, output_srtm, output_cop = eomain(
-            "tests/test_data/illinois.shp", no_l8=False, no_s2=False, srtm=True, cop=True
+        output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
+            "tests/test_data/illinois.shp", no_l8=False, no_s2=False, dem=True, srtm5x5=True
         )
         self.assertEqual(len(output_s2), 33)
         self.assertEqual(len(output_l8), 18)
-        self.assertEqual(len(output_srtm), 27)
-        self.assertEqual(len(output_cop), 27)
+        self.assertEqual(len(output_dem), 27)
+        self.assertEqual(len(output_srtm5x5), 4)
 
     def test_main_module_3(self):
-        output_s2, output_l8, output_srtm, output_cop = eomain(
+        output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
             "Toulouse",
             no_l8=False,
             no_s2=False,
-            srtm=True,
-            cop=True,
+            dem=True,
+            srtm5x5=True,
             threshold=0.1,
-            min_overlap=0.001,
         )
         self.assertEqual(len(output_s2), 1)
         self.assertEqual(len(output_l8), 2)
-        self.assertEqual(len(output_srtm), 1)
-        self.assertEqual(len(output_cop), 1)
+        self.assertEqual(len(output_dem), 1)
+        self.assertEqual(len(output_srtm5x5), 1)
+
+    def test_main_module_3(self):
+        output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
+            "31TCJ",
+            no_l8=False,
+            no_s2=False,
+            dem=True,
+            srtm5x5=True,
+            min_overlap=0.1,
+        )
+        self.assertEqual(len(output_s2), 1)
+        self.assertEqual(len(output_l8), 3)
+        self.assertEqual(len(output_dem), 4)
+        self.assertEqual(len(output_srtm5x5), 0)
 
     def test_build_nominatim_request(self):
         self.assertTrue(
-            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995) < 0.005
+            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995)
+            < 0.005
         )
 
 
