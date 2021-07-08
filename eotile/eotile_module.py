@@ -112,7 +112,6 @@ def main(
             min_overlap,
             overlap,
         )
-
     else:
         if not no_s2:
             # S2 Tiles
@@ -149,7 +148,7 @@ def main(
 
         if dem:
             # SRTM Tiles
-            filename_tiles_dem = aux_data_dirpath / "cop_tiles.gpkg"
+            filename_tiles_dem = aux_data_dirpath / "DEM_Union.gpkg"
             tile_list_dem = treat_eotiles(
                 induced_type,
                 input_arg,
@@ -225,7 +224,7 @@ def quick_search(
     else:
         filenames.append(aux_data_dirpath / "s2_with_overlap.gpkg")
     filenames.append(aux_data_dirpath / "l8_tiles.gpkg")
-    filenames.append(aux_data_dirpath / "cop_tiles.gpkg")
+    filenames.append(aux_data_dirpath / "DEM_Union.gpkg")
     filenames.append(aux_data_dirpath / "srtm5x5_tiles.gpkg")
     positioning_dict = {"S2": 0, "L8": 1, "DEM": 2, "SRTM 5x5": 3}
     if search_type == "tile_id":

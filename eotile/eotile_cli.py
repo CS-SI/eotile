@@ -106,6 +106,64 @@ def build_parser():
     return parser
 
 
+def build_output(source, tile_list, user_logger, message, args):
+    """
+    Sub-function of the main
+    Formats an output depending on a specified message & arguments over a dataframe pandas of tiles.
+    :param source: Type of the source (DEM, S2, L8)
+    :type source: str
+    :param user_logger: LOGGER to log the message to
+    :type user_logger: logging.LOGGER
+    :param tile_list: pandas dataframe of the tiles to format
+    :type tile_list: pandas DataFrame
+    :param message: The message to format
+    :type message: str
+    :param args: fields to look in
+    :type args: list
+    """
+    if source != "DEM":
+        interesting_columns = []
+        for elt in args:
+            if elt == "bounds":
+                interesting_columns.append("geometry")
+            else:
+                interesting_columns.append(elt)
+        for elt in tile_list[interesting_columns].iterrows():
+            arguments = []
+            for arg in args:
+                if arg == "geometry":
+                    arguments.append(elt[1]["geometry"].wkt)
+                elif arg == "bounds":
+                    arguments.append(elt[1]["geometry"].bounds)
+                else:
+                    arguments.append(str(elt[1][arg]))
+            user_logger.info(message.format(source, *arguments))
+    else:
+        interesting_columns = ["EXIST_SRTM", "EXIST_COP30", "EXIST_COP90"]
+        for elt in args:
+            if elt == "bounds":
+                interesting_columns.append("geometry")
+            else:
+                interesting_columns.append(elt)
+        for elt in tile_list[interesting_columns].iterrows():
+            availability = []
+            if elt[1]["EXIST_SRTM"]:
+                availability.append("SRTM")
+            if elt[1]["EXIST_COP30"]:
+                availability.append("Copernicus 30")
+            if elt[1]["EXIST_COP90"]:
+                availability.append("Copernicus 90")
+            arguments = []
+            for arg in args:
+                if arg == "geometry":
+                    arguments.append(elt[1]["geometry"].wkt)
+                elif arg == "bounds":
+                    arguments.append(elt[1]["geometry"].bounds)
+                else:
+                    arguments.append(str(elt[1][arg]))
+            user_logger.info(message.format(", ".join(availability), *arguments))
+
+
 def main(arguments=None):
     """
     Command line interface to perform
@@ -151,20 +209,20 @@ def main(arguments=None):
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["geometry"]:
-                    user_logger.info("%s Tile: %s", source, elt.wkt)
+                build_output(source, tile_list, user_logger, "[{}] Tile: {}", ["geometry"])
+
     elif args.to_bbox:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["geometry"]:
-                    user_logger.info("%s Tile Bounds: %s", source, str(elt.bounds))
+                build_output(source, tile_list, user_logger, "[{}] Tile Bounds: {}", ["bounds"])
+
     elif args.to_tile_id:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list["id"]:
-                    user_logger.info("%s Tile id: %s", source, str(elt))
+                build_output(source, tile_list, user_logger, "[{}] Tile id: {}", ["id"])
+
     elif args.to_location:
         geolocator = Nominatim(user_agent="EOTile")
         for tile_list in tile_lists:
@@ -179,10 +237,10 @@ def main(arguments=None):
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                for elt in tile_list[["id", "geometry"]].iterrows():
-                    user_logger.info(
-                        "[" + source + " tile]\n" + elt[1]["id"] + "\n" + elt[1]["geometry"].wkt
-                    )
+                build_output(
+                    source, tile_list, user_logger, "[{} tile]\n {}\n {}", ["id", "geometry"]
+                )
+
     # counts
     user_logger.info("--- Summary ---")
     for i, tile_list in enumerate(tile_lists):

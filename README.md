@@ -107,12 +107,12 @@ eotile "Metropolitan France" -threshold 1 -to_tile_id
 ```
 * Using a BBOX
 ```sh
-eotile "0.49593622377, 43.326246335, 1.7661878622, 44.246370915" -s2_only -logger_file test.log
+eotile "0.49593622377, 43.326246335, 1.7661878622, 44.246370915" -no_l8 -logger_file test.log
 ```
 (This line will produce an output under the test.log file)
 * Using a wkt
 ```sh
-eotile 'POLYGON ((0.8468214953196805 44.02363566574142, 0.84638 44.0237, 0.8590044453705752 44.06127355906579, 0.8712896362539795 44.09783741052559, 1.325549447552162 45.44983010010615, 1.338016257992888 45.48693449754356, 1.35047 45.524, 1.350948946138455 45.52393017672913, 3.65866 45.1875, 3.644501621308357 45.14977803391441, 3.111537654412643 43.72980975068511, 3.09866 43.6955, 0.8468214953196805 44.02363566574142))' -to_location -l8_only
+eotile 'POLYGON ((0.8468214953196805 44.02363566574142, 0.84638 44.0237, 0.8590044453705752 44.06127355906579, 0.8712896362539795 44.09783741052559, 1.325549447552162 45.44983010010615, 1.338016257992888 45.48693449754356, 1.35047 45.524, 1.350948946138455 45.52393017672913, 3.65866 45.1875, 3.644501621308357 45.14977803391441, 3.111537654412643 43.72980975068511, 3.09866 43.6955, 0.8468214953196805 44.02363566574142))' -to_location -no_s2
 ```
 * Using S2 tile ids
 ```sh
@@ -120,7 +120,7 @@ eotile "31TCJ, 31TCE" -to_file data/TLS_tiles.shp
 ```
 * Using a file
 ```sh
-eotile tests/test_data/illinois.shp -s2_only -vvv
+eotile tests/test_data/illinois.shp -no_l8 -vvv
 ```
 
 ## 👁️‍🗨️ Data sources & Licenses
@@ -131,15 +131,10 @@ Vector grid of Specific SRTM 5x5 degree tiles
 See issue #39 to download 
 ```
 
-* **Copernicus**
-```
-s3://copernicus-dem-30m/grid.zip
-GLO-30 Public and GLO-90 are available on a free basis for the general public under the terms and conditions of the Licence found here:
-https://spacedata.copernicus.eu/documents/20126/0/CSCDA_ESA_Mission-specific+Annex.pdf
+* **DEM**
 
-See
-https://github.com/CS-SI/eodag/blob/develop/examples/tuto_cop_dem.ipynb
-```
+See [DEM_Union_source](eotile/data/aux_data/DEM_Union_source.md)
+
 
 ## 🆘 Help and Troubleshoot
 

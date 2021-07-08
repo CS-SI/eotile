@@ -42,8 +42,6 @@ from eotile.eotiles.eotiles import (
 )
 
 
-
-
 # noinspection Mypy
 def input_matcher(input_value: str) -> str:
     """
@@ -58,12 +56,10 @@ def input_matcher(input_value: str) -> str:
 
     bbox_pattern = "(.*?)(([0-9]|.|-|,|'| )*,).(.*?)"
 
-    tile_id_pattern = "(([0-9]){4,6}|([0-9]){2}([A-Z]){3}|(N|S)([0-9]){2}(E|W)([0-9]){3})|srtm_([0-9]){2}_([0-9]){2}"
-
+    tile_id_pattern = "(([0-9]){4,6}|([0-9]){2}([A-Z]){3}|(N|S)([0-9]){2}(E|W)([0-9]){3}|srtm_([0-9]){2}_([0-9]){2})"
     poly_reg = re.compile(poly_pattern)
     bbox_reg = re.compile(bbox_pattern)
     tile_id_reg = re.compile(tile_id_pattern)
-
     if poly_reg.match(input_value) and poly_reg.match(input_value).string == input_value:
         return "wkt"
 

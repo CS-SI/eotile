@@ -167,7 +167,7 @@ class TestEOTile(unittest.TestCase):
         )
         self.assertEqual(len(output_s2), 12)
         self.assertEqual(len(output_l8), 9)
-        self.assertEqual(len(output_dem), 9)
+        self.assertEqual(len(output_dem), 7)
         self.assertEqual(len(output_srtm5x5), 2)
 
     def test_main_module_2(self):
