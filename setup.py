@@ -38,11 +38,11 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
     install_requires=[
-        "geopandas",
-        "geopy",
-        "pyproj",
-        "requests",
-        "shapely",
+        "geopandas>= 0.9,<0.10",
+        "geopy>=2.2,<3",
+        "pyproj>=3,<4",
+        "requests<=2.26,<3",
+        "shapely>=1.7,<2",
     ],
     include_package_data=True,
     package_data={
@@ -57,7 +57,7 @@ setup(
     },
     extras_require={
         "dev": ["check-manifest"],
-        "test": ["coverage"],
+        "test": ["coverage>5,<=6"],
     },
     entry_points={
         "console_scripts": [
