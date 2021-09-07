@@ -18,7 +18,7 @@ limitations under the License.
 -->
 # 🛰️ EOTile
 
-[![Version](https://img.shields.io/badge/Version-0.2rc2-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+[![Version](https://img.shields.io/badge/Version-0.2rc3-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 Managed Sentinel-2 and Landsat8 tiles
 
