@@ -40,7 +40,9 @@ setup(
     install_requires=[
         "geopandas",
         "geopy",
+        "pyproj",
         "requests",
+        "shapely",
     ],
     include_package_data=True,
     package_data={
