@@ -209,3 +209,4 @@ def build_nominatim_request(location_type, input_arg, threshold):
     elt = data.json()
     geom = shape(elt["features"][0]["geometry"])
     return geom
+    

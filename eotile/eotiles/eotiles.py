@@ -28,14 +28,14 @@ tile list utilities
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
+import warnings
 
 import geopandas as gp
 import pyproj
 import shapely
 from shapely.geometry import Polygon
-import warnings
-from typing import Union
+
 
 LOGGER = logging.getLogger("dev_logger")
 
