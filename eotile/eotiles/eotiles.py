@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -21,8 +21,8 @@
 tile list utilities
 
 :author: msavinaud; mgerma
-:organization: CS-Group
-:copyright: 2021 CS-Group France. All rights reserved.
+:organization: CS GROUP - France
+:copyright: 2021 CS GROUP - France. All rights reserved.
 :license: see LICENSE file.
 """
 

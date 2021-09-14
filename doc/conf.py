@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -37,8 +37,8 @@
 # -- Project information -----------------------------------------------------
 
 project = "EOTile"
-copyright = "2021, CS Group"
-author = "CS Group"
+copyright = "2021, CS GROUP - France"
+author = "CS GROUP - France"
 
 # The full version, including alpha/beta/rc tags
 release = "0.1"
