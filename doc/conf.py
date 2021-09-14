@@ -38,7 +38,7 @@
 
 project = "EOTile"
 copyright = "2021, CS GROUP - France"
-author = "CS GROUP - France"
+author = "Mickaël Savinaud, Mathis A. Germa"
 
 # The full version, including alpha/beta/rc tags
 release = "0.1"
