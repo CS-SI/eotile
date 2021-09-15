@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -21,8 +21,8 @@
 Generate tile list according AOI
 
 :author: msavinaud; mgerma
-:organization: CS-Group
-:copyright: 2021 CS-Group France. All rights reserved.
+:organization: CS GROUP - France 
+:copyright: 2021 CS GROUP - France. All rights reserved.
 :license: see LICENSE file.
 """
 
@@ -34,7 +34,7 @@ setup(
     description="Managed Sentinel-2 and Landsat8 tile",
     author="Mickaël Savinaud, Mathis A. Germa",
     author_email="mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu",
-    license="Copyright (c) 2021 CS Group, Tous droits réservés",
+    license="Copyright (c) 2021 CS GROUP - France, Tous droits réservés",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
     install_requires=[

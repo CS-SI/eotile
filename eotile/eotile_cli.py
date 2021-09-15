@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -21,8 +21,8 @@
 EO tile
 
 :author: mgerma
-:organization: CS-Group
-:copyright: 2021 CS-Group France. All rights reserved.
+:organization: CS GROUP - France
+:copyright: 2021 CS GROUP - France. All rights reserved.
 :license: see LICENSE file.
 """
 
@@ -53,7 +53,9 @@ def build_parser():
     parser.add_argument("-no_l8", action="store_true", help="output L8 tiles")
     parser.add_argument("-no_s2", action="store_true", help="Disable S2 tiles")
     parser.add_argument("-dem", action="store_true", help='Use DEM 1" tiles as well')
-    parser.add_argument("-srtm5x5", action="store_true", help="Use specific srtm 5x5 tiles as well")
+    parser.add_argument(
+        "-srtm5x5", action="store_true", help="Use specific srtm 5x5 tiles as well"
+    )
     # Output arguments
 
     parser.add_argument("-to_file", help="Write tiles to a file")
@@ -75,7 +77,8 @@ def build_parser():
     parser.add_argument(
         "-to_location",
         action="store_true",
-        help="Output the location of the centroid of matching tiles " "on standard output",
+        help="Output the location of the centroid of matching tiles "
+        "on standard output",
     )
     parser.add_argument(
         "-s2_overlap",
@@ -83,9 +86,13 @@ def build_parser():
         help="Do you want to have overlaps on S2 tiles ?",
     )
 
-    parser.add_argument("-v", "--verbose", action="count", help="Increase output verbosity")
+    parser.add_argument(
+        "-v", "--verbose", action="count", help="Increase output verbosity"
+    )
 
-    parser.add_argument("-logger_file", help="Redirect information from standard output to a file")
+    parser.add_argument(
+        "-logger_file", help="Redirect information from standard output to a file"
+    )
 
     parser.add_argument(
         "-location_type",
@@ -203,19 +210,25 @@ def main(arguments=None):
                     # Else, we split into several files
                     write_tiles_bb(
                         tile_list,
-                        output_path.with_name(output_path.stem + "_" + source + output_path.suffix),
+                        output_path.with_name(
+                            output_path.stem + "_" + source + output_path.suffix
+                        ),
                     )
     elif args.to_wkt:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                build_output(source, tile_list, user_logger, "[{}] Tile: {}", ["geometry"])
+                build_output(
+                    source, tile_list, user_logger, "[{}] Tile: {}", ["geometry"]
+                )
 
     elif args.to_bbox:
         for i, tile_list in enumerate(tile_lists):
             source = tile_sources[i]
             if len(tile_list) > 0:
-                build_output(source, tile_list, user_logger, "[{}] Tile Bounds: {}", ["bounds"])
+                build_output(
+                    source, tile_list, user_logger, "[{}] Tile Bounds: {}", ["bounds"]
+                )
 
     elif args.to_tile_id:
         for i, tile_list in enumerate(tile_lists):
@@ -238,7 +251,11 @@ def main(arguments=None):
             source = tile_sources[i]
             if len(tile_list) > 0:
                 build_output(
-                    source, tile_list, user_logger, "[{} tile]\n {}\n {}", ["id", "geometry"]
+                    source,
+                    tile_list,
+                    user_logger,
+                    "[{} tile]\n {}\n {}",
+                    ["id", "geometry"],
                 )
 
     # counts
