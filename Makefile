@@ -10,11 +10,11 @@ install:  ## install environment for development target
 	@.venv/bin/pre-commit install -t pre-push
 
 test:  ## run tests (requires venv activation)
-	@pytest
+	@python tests/test_eotile.py
 
 lint:  ## run black and isort
-	@isort **/*.py --line-length 100
-	@black **/*.py --line-length 100
+	@isort **/*.py
+	@black **/*.py
 
 mypy :  ## run tests using mypy
 	@mypy tests/test_eotile.py --ignore-missing-import

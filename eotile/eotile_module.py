@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -21,8 +21,8 @@
 EO tile
 
 :author: mgerma
-:organization: CS-Group
-:copyright: 2021 CS-Group France. All rights reserved.
+:organization: CS GROUP - France
+:copyright: 2021 CS GROUP - France. All rights reserved.
 :license: see LICENSE file.
 """
 
@@ -94,15 +94,24 @@ def main(
         log_level = logging.DEBUG
     dev_logger, user_logger = build_logger(log_level, logger_file)
 
-    with open(pkg_resources.resource_filename(__name__, "config/data_path")) as conf_file:
+    with open(
+        pkg_resources.resource_filename(__name__, "config/data_path")
+    ) as conf_file:
         data_path = conf_file.readline()
 
-    aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
+    aux_data_dirpath = Path(
+        pkg_resources.resource_filename(__name__, data_path.strip())
+    )
     tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5 = [], [], [], []
     induced_type = input_matcher(input_arg)
 
     if induced_type == "tile_id":
-        (tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5) = get_tiles_from_tile_id(
+        (
+            tile_list_s2,
+            tile_list_l8,
+            tile_list_dem,
+            tile_list_srtm5x5,
+        ) = get_tiles_from_tile_id(
             parse_to_list(input_arg),
             aux_data_dirpath,
             no_l8,
@@ -215,9 +224,13 @@ def quick_search(
     :param overlap: (Optional, default = False) Do you want to use the overlapping source file ?
     :type overlap: Boolean
     """
-    with open(pkg_resources.resource_filename(__name__, "config/data_path")) as conf_file:
+    with open(
+        pkg_resources.resource_filename(__name__, "config/data_path")
+    ) as conf_file:
         data_path = conf_file.readline()
-    aux_data_dirpath = Path(pkg_resources.resource_filename(__name__, data_path.strip()))
+    aux_data_dirpath = Path(
+        pkg_resources.resource_filename(__name__, data_path.strip())
+    )
     filenames = []
     if not overlap:
         filenames.append(aux_data_dirpath / "s2_no_overlap.gpkg")

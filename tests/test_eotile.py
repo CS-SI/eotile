@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2021 CS Group.
+# Copyright (c) 2021 CS GROUP - France.
 #
 # This file is part of EOTile.
 # See https://github.com/CS-SI/eotile for further info.
@@ -19,8 +19,8 @@
 #
 """
 :author: mgerma
-:organization: CS-Group
-:copyright: 2021 CS-Group France. All rights reserved.
+:organization: CS GROUP - France
+:copyright: 2021 CS GROUP - France. All rights reserved.
 :license: see LICENSE file.
 """
 
@@ -163,7 +163,11 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module(self):
         output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
-            "-74.657, 39.4284, -72.0429, 41.2409", no_l8=False, no_s2=False, dem=True, srtm5x5=True
+            "-74.657, 39.4284, -72.0429, 41.2409",
+            no_l8=False,
+            no_s2=False,
+            dem=True,
+            srtm5x5=True,
         )
         self.assertEqual(len(output_s2), 12)
         self.assertEqual(len(output_l8), 9)
@@ -172,7 +176,11 @@ class TestEOTile(unittest.TestCase):
 
     def test_main_module_2(self):
         output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
-            "tests/test_data/illinois.shp", no_l8=False, no_s2=False, dem=True, srtm5x5=True
+            "tests/test_data/illinois.shp",
+            no_l8=False,
+            no_s2=False,
+            dem=True,
+            srtm5x5=True,
         )
         self.assertEqual(len(output_s2), 33)
         self.assertEqual(len(output_l8), 18)
@@ -193,7 +201,7 @@ class TestEOTile(unittest.TestCase):
         self.assertEqual(len(output_dem), 1)
         self.assertEqual(len(output_srtm5x5), 1)
 
-    def test_main_module_3(self):
+    def test_main_module_4(self):
         output_s2, output_l8, output_dem, output_srtm5x5 = eomain(
             "31TCJ",
             no_l8=False,
@@ -209,7 +217,10 @@ class TestEOTile(unittest.TestCase):
 
     def test_build_nominatim_request(self):
         self.assertTrue(
-            abs(build_nominatim_request(None, "Toulouse", "0.1").area - 0.013155945340939995)
+            abs(
+                build_nominatim_request(None, "Toulouse", "0.1").area
+                - 0.013155945340939995
+            )
             < 0.005
         )
 

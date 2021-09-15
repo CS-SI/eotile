@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2021 CS Group.
+Copyright (c) 2021 CS GROUP - France.
 
 This file is part of EOTile.
 See https://github.com/CS-SI/eotile for further info.
@@ -18,7 +18,7 @@ limitations under the License.
 -->
 # 🛰️ EOTile
 
-[![Version](https://img.shields.io/badge/Version-0.2.1-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+[![Version](https://img.shields.io/badge/Version-0.2.2-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 Managed Sentinel-2 and Landsat8 tiles
 
