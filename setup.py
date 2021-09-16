@@ -28,10 +28,15 @@ Generate tile list according AOI
 
 from setuptools import find_packages, setup
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="eotile",
     version="0.2.2",
     description="Managed Sentinel-2 and Landsat8 tile",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author="Mickaël Savinaud, Mathis A. Germa",
     author_email="mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu",
     license="Copyright (c) 2021 CS GROUP - France, Tous droits réservés",
