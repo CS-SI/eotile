@@ -42,7 +42,7 @@ setup(
         "geopy>=2.2,<3",
         "pyproj>=3,<4",
         "requests<=2.26,<3",
-        "shapely>=1.7,<2",
+        "Shapely>=1.7,<2",
     ],
     include_package_data=True,
     package_data={
