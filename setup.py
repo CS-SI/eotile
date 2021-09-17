@@ -42,7 +42,7 @@ setup(
     url="https://github.com/CS-SI/eotile",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
-    license="Apache Software License (Apache License Version 2.0)",
+    license="Apache License Version 2.0",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
