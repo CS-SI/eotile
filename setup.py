@@ -39,9 +39,14 @@ setup(
     long_description_content_type='text/markdown',
     author="Mickaël Savinaud, Mathis A. Germa",
     author_email="mickael.savinaud@csgroup.eu, mathis.germa@csgroup.eu",
-    license="Copyright (c) 2021 CS GROUP - France, Tous droits réservés",
+    url="https://github.com/CS-SI/eotile",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: Apache License, Version 2.0",
+        "Operating System :: OS Independent",
+    ],
     install_requires=[
         "geopandas>= 0.9,<0.10",
         "geopy>=2.2,<3",
