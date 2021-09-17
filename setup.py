@@ -42,9 +42,10 @@ setup(
     url="https://github.com/CS-SI/eotile",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     python_requires=">=3.6, <4",
+    license="Apache Software License (Apache License Version 2.0)",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: Apache License, Version 2.0",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
     install_requires=[
@@ -52,7 +53,7 @@ setup(
         "geopy>=2.2,<3",
         "pyproj>=3,<4",
         "requests<=2.26,<3",
-        "shapely>=1.7,<2",
+        "Shapely>=1.7,<2",
     ],
     include_package_data=True,
     package_data={
