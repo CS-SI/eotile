@@ -27,9 +27,7 @@ Managed Sentinel-2 and Landsat8 tiles
 
 Install the package using pip:
 ```sh
-git clone https://gitlab.cloud-espace.si.c-s.fr/RemoteSensing/eotile.git
-cd eotile
-pip install .
+pip install eotile
 ```
 
 ## 🔲 Usage
