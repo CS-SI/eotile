@@ -20,7 +20,12 @@ limitations under the License.
 
 [![Version](https://img.shields.io/badge/Version-0.2.6-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
-Managed Sentinel-2 and Landsat8 tiles
+EOTile is a tile grid management tool that provide quick and easy methods to grab tile ids or information about its footprint.
+There are four grid systems currently supported : 
+ * The one used by **Landsat 8**
+ * The one used by **Sentinel 2**
+ * The standard for **DEM** tiles
+ * The specific one used by many SRTM providers gathering 5x5 tiles
 
 
 ## ⏬ Installation
