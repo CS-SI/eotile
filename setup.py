@@ -33,7 +33,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eotile",
-    version="0.2.6",
+    version="0.2.7",
     description="Managed Sentinel-2 and Landsat8 tile",
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -53,7 +53,7 @@ setup(
         "geopy>=2.2,<3",
         "pyproj>=3,<4",
         "requests<=2.26,<3",
-        "Shapely>=1.7,<2",
+        "Shapely>=1.8,<2",
     ],
     include_package_data=True,
     package_data={

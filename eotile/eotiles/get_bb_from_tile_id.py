@@ -37,7 +37,7 @@ from eotile.eotiles.eotiles import (
 import logging
 import re
 import pandas as pd
-from shapely.ops import cascaded_union
+from shapely.ops import unary_union
 
 dev_logger = logging.getLogger("dev_logger")
 
@@ -86,7 +86,7 @@ def build_reference_geom(file_name, tile_id_list):
         tile = get_tile(tile_list, tile_id)
         output = output.append(tile)
 
-    geometry = cascaded_union(list(output.geometry))
+    geometry = unary_union(list(output.geometry))
 
     return tile, geometry, output
 

@@ -18,7 +18,7 @@ limitations under the License.
 -->
 # 🛰️ EOTile
 
-[![Version](https://img.shields.io/badge/Version-0.2.6-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
+[![Version](https://img.shields.io/badge/Version-0.2.7-g)]() [![Python](https://img.shields.io/badge/Python-3.6+-blue)]()
 
 EOTile is a tile grid management tool that provide quick and easy methods to grab tile ids or information about its footprint.
 There are four grid systems currently supported : 
