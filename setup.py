@@ -52,7 +52,7 @@ setup(
         "geopandas>= 0.9,<0.10",
         "geopy>=2.2,<3",
         "pyproj>=3,<4",
-        "requests<=2.26,<3",
+        "requests>=2.26,<3",
         "Shapely>=1.8,<2",
     ],
     include_package_data=True,
