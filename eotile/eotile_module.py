@@ -35,6 +35,41 @@ from eotile.eotiles.eotiles import parse_to_list
 from eotile.eotiles.get_bb_from_tile_id import get_tiles_from_tile_id
 from eotile.eotiles.utils import build_logger, input_matcher, treat_eotiles
 
+def from_tile_id(tile_id,
+    no_l8=False,
+    no_s2=False,
+    dem=False,
+    srtm5x5=False,
+    min_overlap=None,
+    overlap=False,
+):
+
+    with open(
+        pkg_resources.resource_filename(__name__, "config/data_path")
+    ) as conf_file:
+        data_path = conf_file.readline()
+
+    aux_data_dirpath = Path(
+        pkg_resources.resource_filename(__name__, data_path.strip())
+    )
+
+    (
+        tile_list_s2,
+        tile_list_l8,
+        tile_list_dem,
+        tile_list_srtm5x5,
+    ) = get_tiles_from_tile_id(
+        parse_to_list(tile_id),
+        aux_data_dirpath,
+        no_l8,
+        no_s2,
+        dem,
+        srtm5x5,
+        min_overlap,
+        overlap,
+    )
+    # Outputting the result
+    return [tile_list_s2, tile_list_l8, tile_list_dem, tile_list_srtm5x5]
 
 def main(
     input_arg,
