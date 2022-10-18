@@ -33,7 +33,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="eotile",
-    version="0.2.7",
+    version="0.2.8",
     description="Managed Sentinel-2 and Landsat8 tile",
     long_description=long_description,
     long_description_content_type='text/markdown',
