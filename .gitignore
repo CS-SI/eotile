@@ -13,3 +13,7 @@ data/output/*
 # due to using tox and pytest
 .tox
 .cache
+
+# venv
+
+.venv*
