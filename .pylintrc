@@ -42,6 +42,8 @@ unsafe-load-any-extension=no
 # run arbitrary code
 extension-pkg-whitelist=lxml
 
+fail-under = 8.5
+
 [MESSAGES CONTROL]
 
 # Only show warnings with the listed confidence levels. Leave empty to show
@@ -362,5 +364,3 @@ analyse-fallback-blocks=no
 # "Exception"
 overgeneral-exceptions=Exception
 
-[MASTER]
-fail-under = 8.5
