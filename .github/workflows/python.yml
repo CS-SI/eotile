@@ -27,7 +27,6 @@ jobs:
         python -m pip install build
         python -m pip install pylint
         python -m pip install mypy
-        python -m pip install boto3-stubs
         python -m pip install pandas-stubs
         python -m pip install types-requests
 
@@ -35,7 +34,7 @@ jobs:
       run: pylint --output-format=text $(find -type f -name "*.py" ! -path "**/venv/**")
 
     - name: Analysing the code with mypy
-      run: mypy src/
+      run: mypy eotile/
 
     - name: Build package
       run: python -m build
