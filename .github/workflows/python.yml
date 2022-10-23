@@ -33,8 +33,8 @@ jobs:
     - name: Analysing the code with pylint
       run: pylint --output-format=text $(find -type f -name "*.py" ! -path "**/venv/**")
 
-    - name: Analysing the code with mypy
-      run: mypy eotile/
+    # - name: Analysing the code with mypy
+    #   run: mypy eotile/
 
     - name: Build package
       run: python -m build
