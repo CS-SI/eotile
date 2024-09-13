@@ -54,6 +54,7 @@ setup(
         "pyproj>=3,<4",
         "requests>=2.26,<3",
         "Shapely>=1.8,<2",
+        "fiona==1.9.6",
     ],
     include_package_data=True,
     package_data={
